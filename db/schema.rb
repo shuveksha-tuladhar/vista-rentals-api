@@ -10,7 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_06_191255) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_07_061352) do
+  create_table "amenities", force: :cascade do |t|
+    t.string "name"
+    t.boolean "isActive"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "bookings", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "property_id", null: false
@@ -38,6 +45,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_06_191255) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_properties_on_user_id"
+  end
+
+  create_table "property_amenity_mappings", force: :cascade do |t|
+    t.integer "property_id", null: false
+    t.integer "amenity_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["amenity_id"], name: "index_property_amenity_mappings_on_amenity_id"
+    t.index ["property_id"], name: "index_property_amenity_mappings_on_property_id"
   end
 
   create_table "property_images", force: :cascade do |t|
@@ -72,6 +88,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_06_191255) do
   add_foreign_key "bookings", "properties"
   add_foreign_key "bookings", "users"
   add_foreign_key "properties", "users"
+  add_foreign_key "property_amenity_mappings", "amenities"
+  add_foreign_key "property_amenity_mappings", "properties"
   add_foreign_key "property_images", "properties"
   add_foreign_key "reviews", "properties"
   add_foreign_key "reviews", "users"
