@@ -1,0 +1,71 @@
+
+Table users {
+  id integer [primary key]
+  username varchar
+  email varchar
+  password_hash varchar
+  phone_number varchar
+  avatar_url varchar [null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table properties {
+  id integer [primary key]
+  user_id integer [ref: > users.id]
+  amenity_id integer
+  address varchar
+  city varchar
+  state varchar
+  country varchar
+  zipcode varchar
+  name varchar
+  description text
+  price varchar	
+  bedrooms integer	
+  baths integer
+  maxGuest integer	
+  created_at timestamp	
+  updated_at timestamp
+}
+
+Table bookings {
+  id	integer	[primary key]
+  user_id	integer [ref: > users.id]
+  property_id	integer	[ref: > properties.id]
+  start_date	datetime	
+  end_date	datetime	
+  created_at	timestamp	
+  updated_at	timestamp
+}
+
+Table property_images {
+  id	integer	[primary key]
+  property_id	integer [ref: > properties.id]
+  url	varchar	
+}
+
+
+Table reviews {
+  id integer [primary key]
+  user_id integer [ref: > users.id]
+  property_id integer [ref: > properties.id]
+  review text
+  rating integer
+  created_at	timestamp	
+  updated_at	timestamp
+}
+
+Table amenities {
+  id integer [primary key]
+  name text
+  isActive boolean
+}
+
+Table property_amenity_mapping {
+  id integer [primary key]
+  property_id integer [ref :> properties.id]
+  amenity_id integer [ref :> amenities.id]
+}
+
+
