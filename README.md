@@ -1,24 +1,9 @@
-# README
+## Vista Rentals
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Vista Rentals is a modern web application designed to serve as a full-featured property rental platform. It connects property owners with potential renters, offering a seamless experience for booking both short-term and long-term stays.
 
-Things you may want to cover:
+The platform allows users to:
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+- List their properties with ease
+- Discover vacation rentals in various locations
+- Book stays securely and conveniently
