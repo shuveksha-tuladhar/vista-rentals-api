@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_07_061352) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_13_060543) do
   create_table "amenities", force: :cascade do |t|
     t.string "name"
     t.boolean "isActive"
@@ -30,7 +30,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_07_061352) do
   end
 
   create_table "properties", force: :cascade do |t|
-    t.integer "user_id", null: false
+    t.integer "user_id"
     t.string "address"
     t.string "city"
     t.string "state"
