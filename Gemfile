@@ -59,3 +59,7 @@ end
 group :development, :test do
   gem 'rspec-rails', '~> 7.0.0'
 end
+
+group :test do
+  gem 'capybara'
+end
