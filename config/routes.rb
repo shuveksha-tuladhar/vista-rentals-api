@@ -13,4 +13,6 @@ Rails.application.routes.draw do
   # root "posts#index"
   root "properties#index"
   resources :properties
+
+  resources :amenities
 end
