@@ -1,5 +1,5 @@
 class Property < ApplicationRecord
-  belongs_to :user
+  belongs_to :user, optional: true # TODO: remove this after user
   has_many :bookings
   has_many :reviews
   has_many :property_images

@@ -1,0 +1,52 @@
+<% if notice %>
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <%= notice %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% end %>
+
+<% content_for :title, "Properties" %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="mb-0">Properties</h1>
+  <%= link_to new_property_path, class: "btn btn-primary" do %>
+    <i class="bi bi-plus-circle"></i> Add New Property
+  <% end %>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+  <% @properties.each do |property| %>
+    <div class="col">
+      <div class="card h-100 shadow-sm border-0">
+        <%= image_tag(property.property_images&.first&.url || "https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6MTI3ODM2MTk5OTc1ODI1OTg5MQ%3D%3D/original/9216ec7a-f4ae-423d-8e87-1d84b69f1bec.jpeg?im_w=1200", class: "card-img-top", alt: property.name) %>
+        <div class="card-body">
+          <h5 class="card-title"><%= property.name %></h5>
+          <p class="card-text text-muted mb-1">
+            <%= property.city %>, <%= property.state %>, <%= property.country %>
+          </p>
+          <p class="card-text mb-2">
+            <strong>$<%= property.price %></strong> / night &middot;
+            <%= property.bedrooms %> bd &middot;
+            <%= property.baths %> ba &middot;
+            Sleeps <%= property.maxGuest %>
+          </p>
+          <p class="card-text"><%= truncate(property.description, length: 80) if property.description %></p>
+        </div>
+        <div class="card-footer bg-white d-flex justify-content-between">
+        <%= link_to property_path(property), class: "btn btn-outline-primary btn-sm", title: "View" do %>
+          <i class="bi bi-eye"></i>
+        <% end %>
+      
+        <%= link_to edit_property_path(property), class: "btn btn-outline-secondary btn-sm", title: "Edit" do %>
+          <i class="bi bi-pencil"></i>
+        <% end %>
+      
+        <%= link_to property_path(property), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-outline-danger btn-sm", title: "Delete" do %>
+          <i class="bi bi-trash"></i>
+        <% end %>
+      </div>
+      
+      </div>
+    </div>
+  <% end %>
+</div>

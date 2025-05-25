@@ -1,0 +1,81 @@
+<%= form_with(model: property, html: { class: "needs-validation" }) do |form| %>
+  <% if property.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(property.errors.count, "error") %> prohibited this property from being saved:</h4>
+      <ul>
+        <% property.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="row g-4">
+    <!-- Property Name -->
+    <div class="col-md-6">
+      <%= form.label :name, class: "form-label fs-5" %>
+      <%= form.text_field :name, class: "form-control form-control-lg" %>
+    </div>
+
+    <!-- Property Address -->
+    <div class="col-md-6">
+      <%= form.label :address, class: "form-label fs-5" %>
+      <%= form.text_field :address, class: "form-control form-control-lg" %>
+    </div>
+
+    <!-- City -->
+    <div class="col-md-6">
+      <%= form.label :city, class: "form-label fs-5" %>
+      <%= form.text_field :city, class: "form-control form-control-lg" %>
+    </div>
+
+    <!-- State -->
+    <div class="col-md-6">
+      <%= form.label :state, class: "form-label fs-5" %>
+      <%= form.text_field :state, class: "form-control form-control-lg" %>
+    </div>
+
+    <!-- Country -->
+    <div class="col-md-6">
+      <%= form.label :country, class: "form-label fs-5" %>
+      <%= form.text_field :country, class: "form-control form-control-lg" %>
+    </div>
+
+    <!-- Zipcode -->
+    <div class="col-md-6">
+      <%= form.label :zipcode, class: "form-label fs-5" %>
+      <%= form.text_field :zipcode, class: "form-control form-control-lg" %>
+    </div>
+
+    <!-- Price -->
+    <div class="col-md-6">
+      <%= form.label :price, class: "form-label fs-5" %>
+      <%= form.text_field :price, class: "form-control form-control-lg" %>
+    </div>
+
+    <!-- Bedrooms -->
+    <div class="col-md-6">
+      <%= form.label :bedrooms, class: "form-label fs-5" %>
+      <%= form.number_field :bedrooms, class: "form-control form-control-lg" %>
+    </div>
+
+    <!-- Baths -->
+    <div class="col-md-6">
+      <%= form.label :baths, class: "form-label fs-5" %>
+      <%= form.number_field :baths, class: "form-control form-control-lg" %>
+    </div>
+
+    <!-- Max Guests -->
+    <div class="col-md-6">
+      <%= form.label :maxGuest, class: "form-label fs-5" %>
+      <%= form.number_field :maxGuest, class: "form-control form-control-lg" %>
+    </div>
+  </div>
+
+  <!-- Submit Button -->
+  <div class="mt-4">
+    <%= form.submit property.persisted? ? "Update Property" : "Create Property", class: "btn btn-primary" %>
+    <%= link_to "Show this property", @property, class: "btn btn-outline-primary" %>
+    <%= link_to "Back to properties", properties_path, class: "btn btn-secondary" %>
+  </div>
+<% end %>
