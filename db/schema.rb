@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_13_060543) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_06_023415) do
   create_table "amenities", force: :cascade do |t|
     t.string "name"
     t.boolean "isActive"
@@ -81,11 +81,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_13_060543) do
     t.string "middle_name"
     t.string "last_name"
     t.string "email"
-    t.string "password_hash"
+    t.string "password_digest"
     t.string "phone_number"
     t.string "avatar_url"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "role", default: "user", null: false
   end
 
   add_foreign_key "bookings", "properties"
