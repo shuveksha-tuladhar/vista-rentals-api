@@ -3,6 +3,7 @@ Rails.application.routes.draw do
 
   root "properties#index"
   resources :properties
+  resources :amenities
 
   # User routes
   get "login", to: "sessions#new"
