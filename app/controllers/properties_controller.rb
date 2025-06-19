@@ -1,5 +1,6 @@
 class PropertiesController < ApplicationController
   before_action :set_property, only: %i[ show edit update destroy ]
+  before_action :require_login
 
   # GET /properties or /properties.json
   def index
@@ -58,13 +59,14 @@ class PropertiesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_property
-      @property = Property.find(params.expect(:id))
-    end
 
-    # Only allow a list of trusted parameters through.
-    def property_params
-      params.expect(property: [ :name, :address, :city, :state, :country, :zipcode, :price, :bedrooms, :baths, :maxGuest ])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_property
+    @property = Property.find(params.expect(:id))
+  end
+
+  # Only allow a list of trusted parameters through.
+  def property_params
+    params.expect(property: [:name, :address, :city, :state, :country, :zipcode, :price, :bedrooms, :baths, :maxGuest])
+  end
 end

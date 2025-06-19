@@ -32,9 +32,14 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-              <%= link_to "Properties", properties_path, class: "nav-link" %>
-            </li>
+            <% if session[:user_id] %>
+              <li class="nav-item">
+                <%= link_to "Properties", properties_path, class: "nav-link" %>
+              </li>
+              <li class="nav-item">
+                <%= button_to "Logout", logout_path, method: :delete, class: "nav-link btn btn-link", form: {class: "d-inline"} %>
+              </li>
+            <% end %>
           </ul>
         </div>
       </div>
