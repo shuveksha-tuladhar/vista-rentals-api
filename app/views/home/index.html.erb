@@ -1,0 +1,37 @@
+
+<section class="text-center py-5">
+  <h1 class="display-4 fw-bold text-primary">Find Your Perfect Stay</h1>
+  <p class="lead">Book vacation or long-term rentals easily and securely.</p>
+  <%= link_to "Explore Rentals", properties_path, class: "btn btn-primary btn-lg mt-3" %>
+</section>
+
+
+<section class="container my-5">
+  <div class="row text-center">
+    <div class="col-md-4">
+      <i class="bi bi-house-door fs-1 text-primary"></i>
+      <h4 class="my-3">List Properties Easily</h4>
+      <p>Post your rentals with just a few clicks, complete with images and details.</p>
+    </div>
+    <div class="col-md-4">
+      <i class="bi bi-globe2 fs-1 text-success"></i>
+      <h4 class="my-3">Browse Top Destinations</h4>
+      <p>Find your next home-away-from-home anywhere, anytime.</p>
+    </div>
+    <div class="col-md-4">
+      <i class="bi bi-shield-lock fs-1 text-danger"></i>
+      <h4 class="my-3">Secure Booking</h4>
+      <p>Enjoy a smooth, secure, and transparent booking process.</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="bg-light py-5 text-center">
+  <h3 class="mb-3">Ready to List or Book?</h3>
+  <% if current_user %>
+    <%= link_to "List a Property", new_property_path, class: "btn btn-outline-primary btn-lg" %>
+  <% else %>
+    <%= link_to "Get Started", signup_path, class: "btn btn-outline-primary btn-lg" %>
+  <% end %>
+</section>
