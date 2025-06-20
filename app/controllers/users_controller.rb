@@ -10,7 +10,7 @@ class UsersController < ApplicationController
       session[:role] = @user.role
       redirect_to root_path, notice: "Account created and logged in!"
     else
-      render :new, status: :unprocessable_entity
+      render :new
     end
   end
 
