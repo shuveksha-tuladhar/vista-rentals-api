@@ -1,2 +1,3 @@
+PropertyImage.delete_all
 Property.delete_all
 User.delete_all

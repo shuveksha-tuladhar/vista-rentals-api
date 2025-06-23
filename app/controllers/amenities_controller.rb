@@ -56,7 +56,7 @@ class AmenitiesController < ApplicationController
     @amenity.destroy!
 
     respond_to do |format|
-      format.html { redirect_to amenities_path, status: :see_other, notice: "Amenity was successfully destroyed." }
+      format.html { redirect_to amenities_path, status: :see_other, notice: "Amenity was successfully deleted." }
       format.json { head :no_content }
     end
   end

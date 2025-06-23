@@ -35,3 +35,4 @@ User.create!([
     role: "user",
   },
 ])
+puts "Seeded Users"

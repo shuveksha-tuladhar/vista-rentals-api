@@ -16,7 +16,12 @@
       <%= form.label :name, class: "form-label fs-5" %>
       <%= form.text_field :name, class: "form-control form-control-lg" %>
     </div>
-
+    <!-- Description -->
+      <div class="col-md-6">
+        <%= form.label :description, class: "form-label fs-5" %>
+        <%= form.text_area :description, class: "form-control form-control-lg" %>
+      </div>
+    </div>
     <!-- Property Address -->
     <div class="col-md-6">
       <%= form.label :address, class: "form-label fs-5" %>
@@ -70,6 +75,20 @@
       <%= form.label :maxGuest, class: "form-label fs-5" %>
       <%= form.number_field :maxGuest, class: "form-control form-control-lg" %>
     </div>
+
+    <!-- Property Images -->
+    <div class="mt-4">
+      <h5 class="mb-3">Property Images</h5>
+
+      <div id="property-images-container">
+        <%= form.fields_for :property_images do |image_fields| %>
+          <%= render "property_image_fields", f: image_fields %>
+        <% end %>
+      </div>
+
+      <%= link_to "Add another image", "#", id: "add-image", class: "btn btn-outline-secondary btn-sm mt-2" %>
+    </div>
+
   </div>
 
   <!-- Submit Button -->
@@ -79,3 +98,35 @@
     <%= link_to "Back to properties", properties_path, class: "btn btn-secondary" %>
   </div>
 <% end %>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const container = document.getElementById("property-images-container");
+    const addButton = document.getElementById("add-image");
+
+    let index = container.children.length;
+
+    addButton.addEventListener("click", (event) => {
+      event.preventDefault();
+
+      const template = document.createElement("div");
+      template.innerHTML = `
+        <div class="input-group mb-2">
+          <label class="input-group-text" for="property_property_images_attributes_${index}_url">Url</label>
+          <input class="form-control" type="text" name="property[property_images_attributes][${index}][url]" id="property_property_images_attributes_${index}_url">
+          <a href="#" class="btn btn-danger ms-2 remove-image">Remove</a>
+        </div>
+      `;
+      container.appendChild(template);
+      index++;
+    });
+
+    container.addEventListener("click", (event) => {
+      if (event.target.classList.contains("remove-image")) {
+        event.preventDefault();
+        event.target.closest(".input-group").remove();
+      }
+    });
+  });
+</script>
+

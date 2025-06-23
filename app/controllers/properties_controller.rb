@@ -4,7 +4,14 @@ class PropertiesController < ApplicationController
 
   # GET /properties or /properties.json
   def index
-    @properties = Property.all
+    if params[:query].present?
+      @properties = Property.where(
+        "LOWER(name) LIKE :q OR LOWER(city) LIKE :q OR LOWER(state) LIKE :q",
+        q: "%#{params[:query]}%"
+      )
+    else
+      @properties = Property.all
+    end
   end
 
   # GET /properties/1 or /properties/1.json
@@ -14,10 +21,13 @@ class PropertiesController < ApplicationController
   # GET /properties/new
   def new
     @property = Property.new
+    @property.property_images.build
   end
 
   # GET /properties/1/edit
   def edit
+      @property = Property.find(params[:id])
+      @property.property_images.build if @property.property_images.empty?
   end
 
   # POST /properties or /properties.json
@@ -53,7 +63,7 @@ class PropertiesController < ApplicationController
     @property.destroy!
 
     respond_to do |format|
-      format.html { redirect_to properties_path, status: :see_other, notice: "Property was successfully destroyed." }
+      format.html { redirect_to properties_path, status: :see_other, notice: "Property was successfully deleted." }
       format.json { head :no_content }
     end
   end
@@ -65,8 +75,11 @@ class PropertiesController < ApplicationController
     @property = Property.find(params.expect(:id))
   end
 
-  # Only allow a list of trusted parameters through.
   def property_params
-    params.expect(property: [:name, :address, :city, :state, :country, :zipcode, :price, :bedrooms, :baths, :maxGuest])
+    params.require(:property).permit(
+      :name, :address, :city, :state, :country, :zipcode,
+      :price, :bedrooms, :baths, :maxGuest,
+      property_images_attributes: [:id, :url, :_destroy]
+    )
   end
 end

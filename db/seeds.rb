@@ -10,3 +10,4 @@
 load Rails.root.join('db', 'seeds', 'dropAll.rb')
 load Rails.root.join('db', 'seeds', 'users.rb')
 load Rails.root.join('db', 'seeds', 'properties.rb')
+load Rails.root.join('db', 'seeds', 'properties_images.rb')

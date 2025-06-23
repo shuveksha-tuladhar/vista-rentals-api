@@ -8,4 +8,7 @@ class Property < ApplicationRecord
 
   validates :name, :address, :city, :state, :country, :zipcode, :price, presence: true
   validates :bedrooms, :baths, :maxGuest, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+
+  accepts_nested_attributes_for :property_images, allow_destroy: true
+
 end
