@@ -7,7 +7,7 @@ class PropertiesController < ApplicationController
     if params[:query].present?
       @properties = Property.where(
         "LOWER(name) LIKE :q OR LOWER(city) LIKE :q OR LOWER(state) LIKE :q",
-        q: "%#{params[:query]}%"
+        q: "%#{params[:query]}%",
       )
     else
       @properties = Property.all
@@ -16,6 +16,12 @@ class PropertiesController < ApplicationController
 
   # GET /properties/1 or /properties/1.json
   def show
+    @property = Property.find(params[:id])
+
+    respond_to do |format|
+      format.html
+      format.json { render json: @property.to_json(include: :property_images) }
+    end
   end
 
   # GET /properties/new
@@ -26,8 +32,8 @@ class PropertiesController < ApplicationController
 
   # GET /properties/1/edit
   def edit
-      @property = Property.find(params[:id])
-      @property.property_images.build if @property.property_images.empty?
+    @property = Property.find(params[:id])
+    @property.property_images.build if @property.property_images.empty?
   end
 
   # POST /properties or /properties.json
@@ -79,7 +85,8 @@ class PropertiesController < ApplicationController
     params.require(:property).permit(
       :name, :address, :city, :state, :country, :zipcode,
       :price, :bedrooms, :baths, :maxGuest,
-      property_images_attributes: [:id, :url, :_destroy]
+      amenity_ids: [],
+      property_images_attributes: [:id, :url, :_destroy],
     )
   end
 end

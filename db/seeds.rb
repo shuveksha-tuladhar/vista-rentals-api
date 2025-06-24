@@ -7,7 +7,8 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
-load Rails.root.join('db', 'seeds', 'dropAll.rb')
-load Rails.root.join('db', 'seeds', 'users.rb')
-load Rails.root.join('db', 'seeds', 'properties.rb')
-load Rails.root.join('db', 'seeds', 'properties_images.rb')
+load Rails.root.join("db", "seeds", "dropAll.rb")
+load Rails.root.join("db", "seeds", "users.rb")
+load Rails.root.join("db", "seeds", "properties.rb")
+load Rails.root.join("db", "seeds", "properties_images.rb")
+load Rails.root.join("db", "seeds", "amenities.rb")

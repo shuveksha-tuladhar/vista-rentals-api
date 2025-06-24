@@ -1,3 +1,4 @@
 PropertyImage.delete_all
 Property.delete_all
+Amenity.delete_all
 User.delete_all
