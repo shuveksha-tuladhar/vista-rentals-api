@@ -17,7 +17,7 @@
       <%= form.text_field :name, class: "form-control form-control-lg" %>
     </div>
     <!-- Description -->
-      <div class="col-md-6">
+    <div class="col-md-6">
         <%= form.label :description, class: "form-label fs-5" %>
         <%= form.text_area :description, class: "form-control form-control-lg" %>
       </div>
@@ -99,23 +99,23 @@
         <% end %>
       </div>
 
-      <%= link_to "Add another image", "#", id: "add-image", class: "btn btn-outline-secondary btn-sm mt-2" %>
+      <button type="button" id="add-image" class="btn btn-outline-secondary btn-sm mt-2">Add another image</button>
     </div>
-
-  </div>
-
-  <!-- Submit Button -->
-  <div class="mt-4">
-    <%= form.submit property.persisted? ? "Update Property" : "Create Property", class: "btn btn-primary" %>
-    <%= link_to "Show this property", @property, class: "btn btn-outline-primary" %>
-    <%= link_to "Back to properties", properties_path, class: "btn btn-secondary" %>
+    <!-- Submit Button -->
+    <div class="mt-4">
+      <%= form.submit property.persisted? ? "Update Property" : "Create Property", class: "btn btn-primary" %>
+      <%= link_to "Show this property", @property, class: "btn btn-outline-primary" %>
+      <%= link_to "Back to properties", properties_path, class: "btn btn-secondary" %>
+    </div>
   </div>
 <% end %>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("turbo:load", () => {
     const container = document.getElementById("property-images-container");
     const addButton = document.getElementById("add-image");
+
+    if (!container || !addButton) return;
 
     let index = container.children.length;
 
@@ -127,7 +127,7 @@
         <div class="input-group mb-2">
           <label class="input-group-text" for="property_property_images_attributes_${index}_url">Url</label>
           <input class="form-control" type="text" name="property[property_images_attributes][${index}][url]" id="property_property_images_attributes_${index}_url">
-          <a href="#" class="btn btn-danger ms-2 remove-image">Remove</a>
+          <button type="button" class="btn btn-danger ms-2 remove-image">Remove</button>
         </div>
       `;
       container.appendChild(template);

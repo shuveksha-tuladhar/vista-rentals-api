@@ -1,9 +1,9 @@
 class Property < ApplicationRecord
-  belongs_to :user, optional: true # TODO: remove this after user
-  has_many :bookings
-  has_many :reviews
-  has_many :property_images
-  has_many :property_amenity_mappings
+  belongs_to :user, optional: true
+  has_many :bookings, dependent: :destroy
+  has_many :reviews, dependent: :destroy
+  has_many :property_images, dependent: :destroy
+  has_many :property_amenity_mappings, dependent: :destroy
   has_many :amenities, through: :property_amenity_mappings
 
   validates :name, :address, :city, :state, :country, :zipcode, :price, presence: true
