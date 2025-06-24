@@ -76,6 +76,19 @@
       <%= form.number_field :maxGuest, class: "form-control form-control-lg" %>
     </div>
 
+    <!-- Amenities Selection -->
+    <div class="col-md-12 mt-4">
+      <h5>Select Amenities</h5>
+      <div class="row">
+        <%= form.collection_check_boxes :amenity_ids, Amenity.all, :id, :name do |cb| %>
+          <div class="col-md-4 mb-2 form-check">
+            <%= cb.check_box(class: "form-check-input") %>
+            <%= cb.label(class: "form-check-label") %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
     <!-- Property Images -->
     <div class="mt-4">
       <h5 class="mb-3">Property Images</h5>

@@ -1,7 +1,42 @@
-<div id="<%= dom_id(property) %>" class="card mb-4 shadow-sm border-0">
+<div id="<%= dom_id(property) %>" class="card mb-5 shadow-sm border-0">
+<% if property.property_images.any? %>
+  <div class="row g-2 mb-4">
+    <% case property.property_images.length
+       when 1 %>
+      <div class="col-12">
+        <%= image_tag property.property_images.first.url, class: "img-fluid rounded w-100", style: "height: 500px; object-fit: cover;" %>
+      </div>
+    
+    <% when 2 %>
+      <% property.property_images.each do |image| %>
+        <div class="col-md-6">
+          <%= image_tag image.url, class: "img-fluid rounded w-100", style: "height: 400px; object-fit: cover;" %>
+        </div>
+      <% end %>
+    
+    <% else %>
+      <div class="col-md-6">
+        <%= image_tag property.property_images.first.url, class: "img-fluid rounded w-100", style: "height: 500px; object-fit: cover;" %>
+      </div>
+      <div class="col-md-6">
+        <div class="row g-2">
+          <% property.property_images[1..4].each do |image| %>
+            <div class="col-6">
+              <%= image_tag image.url, class: "img-fluid rounded w-100", style: "height: 245px; object-fit: cover;" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+
   <div class="card-body">
     <h2 class="card-title fw-bold mb-3"><%= property.name %></h2>
-    <p class="text-muted mb-1"><%= property.address %>, <%= property.city %>, <%= property.state %>, <%= property.country %>, <%= property.zipcode %></p>
+    <p class="text-muted mb-1">
+      <%= property.address %>, <%= property.city %>, <%= property.state %>, <%= property.country %>, <%= property.zipcode %>
+    </p>
 
     <hr>
 
@@ -29,6 +64,21 @@
       <h5>Description</h5>
       <p class="text-muted"><%= property.description %></p>
     <% end %>
+
+    <hr>
+     <% if property.amenities.any? %>
+        <h5 class="mb-3">Amenities</h5>
+        <ul class="list-unstyled">
+          <% property.amenities.each do |amenity| %>
+            <li class="mb-1">
+              <i class="bi bi-check-circle text-success"></i>
+              <%= amenity.name %>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-muted">No amenities listed.</p>
+      <% end %>
 
     <div class="mt-4">
       <%= link_to "Edit Property", edit_property_path(property), class: "btn btn-outline-primary me-2" %>

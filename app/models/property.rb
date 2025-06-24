@@ -10,5 +10,5 @@ class Property < ApplicationRecord
   validates :bedrooms, :baths, :maxGuest, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
   accepts_nested_attributes_for :property_images, allow_destroy: true
-
+  accepts_nested_attributes_for :property_amenity_mappings, allow_destroy: true
 end
