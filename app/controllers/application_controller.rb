@@ -1,30 +1,24 @@
 class ApplicationController < ActionController::API
-  # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
-  # before_action :require_login
-  # allow_browser versions: :modern
-  helper_method :current_user, :logged_in?, :admin?
+  before_action :authorize_request
 
-  def current_user
-    @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]
-  end
+  attr_reader :current_user
 
-  def logged_in?
-    current_user.present?
-  end
+  private
 
-  def admin?
-    logged_in? && current_user.role == "admin"
-  end
+  def authorize_request
+    header = request.headers["Authorization"]
+    token = header.split(" ").last if header
 
-  def require_login
-    unless logged_in?
-      redirect_to login_path, alert: "Please log in first."
+    begin
+      decoded = JWT.decode(token, jwt_secret, true, algorithm: "HS256")
+      user_id = decoded[0]["user_id"]
+      @current_user = User.find(user_id)
+    rescue JWT::DecodeError, ActiveRecord::RecordNotFound
+      render json: { error: "Unauthorized or invalid token" }, status: :unauthorized
     end
   end
 
-  def require_admin
-    unless admin?
-      redirect_to root_path, alert: "You are not authorized to access this page."
-    end
+  def jwt_secret
+    Rails.application.credentials.jwt_secret || ENV["JWT_SECRET"]
   end
 end

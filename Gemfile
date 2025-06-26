@@ -66,3 +66,7 @@ end
 
 gem "bcrypt", "~> 3.1.7"
 gem "jwt", "~> 2.7"
+
+group :development, :test do
+  gem "dotenv-rails"
+end
