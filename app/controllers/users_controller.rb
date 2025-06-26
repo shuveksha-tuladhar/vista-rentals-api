@@ -1,16 +1,19 @@
 class UsersController < ApplicationController
-  def new
-    @user = User.new
-  end
-
+  # POST /users
   def create
     @user = User.new(user_params)
+
     if @user.save
+      # You might replace session logic with token generation in a real API
       session[:user_id] = @user.id
       session[:role] = @user.role
-      redirect_to root_path, notice: "Account created and logged in!"
+
+      render json: {
+        message: "Account created and logged in!",
+        user: @user.slice(:id, :username, :email, :role),
+      }, status: :created
     else
-      render :new
+      render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
     end
   end
 

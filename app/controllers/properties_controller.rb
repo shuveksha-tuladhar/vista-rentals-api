@@ -1,84 +1,55 @@
 class PropertiesController < ApplicationController
-  before_action :set_property, only: %i[ show edit update destroy ]
-  before_action :require_login
+  before_action :set_property, only: %i[show update destroy]
 
-  # GET /properties or /properties.json
+  # GET /properties
   def index
     if params[:query].present?
       @properties = Property.where(
         "LOWER(name) LIKE :q OR LOWER(city) LIKE :q OR LOWER(state) LIKE :q",
-        q: "%#{params[:query]}%",
+        q: "%#{params[:query].downcase}%",
       )
     else
       @properties = Property.all
     end
+
+    render json: @properties.to_json(include: :property_images)
   end
 
-  # GET /properties/1 or /properties/1.json
+  # GET /properties/:id
   def show
-    @property = Property.find(params[:id])
-
-    respond_to do |format|
-      format.html
-      format.json { render json: @property.to_json(include: :property_images) }
-    end
+    render json: @property.to_json(include: :property_images)
   end
 
-  # GET /properties/new
-  def new
-    @property = Property.new
-    @property.property_images.build
-  end
-
-  # GET /properties/1/edit
-  def edit
-    @property = Property.find(params[:id])
-    @property.property_images.build if @property.property_images.empty?
-  end
-
-  # POST /properties or /properties.json
+  # POST /properties
   def create
     @property = Property.new(property_params)
 
-    respond_to do |format|
-      if @property.save
-        format.html { redirect_to @property, notice: "Property was successfully created." }
-        format.json { render :show, status: :created, location: @property }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @property.errors, status: :unprocessable_entity }
-      end
+    if @property.save
+      render json: @property.to_json(include: :property_images), status: :created
+    else
+      render json: { errors: @property.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
-  # PATCH/PUT /properties/1 or /properties/1.json
+  # PATCH/PUT /properties/:id
   def update
-    respond_to do |format|
-      if @property.update(property_params)
-        format.html { redirect_to @property, notice: "Property was successfully updated." }
-        format.json { render :show, status: :ok, location: @property }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @property.errors, status: :unprocessable_entity }
-      end
+    if @property.update(property_params)
+      render json: @property.to_json(include: :property_images), status: :ok
+    else
+      render json: { errors: @property.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
-  # DELETE /properties/1 or /properties/1.json
+  # DELETE /properties/:id
   def destroy
-    @property.destroy!
-
-    respond_to do |format|
-      format.html { redirect_to properties_path, status: :see_other, notice: "Property was successfully deleted." }
-      format.json { head :no_content }
-    end
+    @property.destroy
+    head :no_content
   end
 
   private
 
-  # Use callbacks to share common setup or constraints between actions.
   def set_property
-    @property = Property.find(params.expect(:id))
+    @property = Property.find(params[:id])
   end
 
   def property_params

@@ -1,72 +1,55 @@
 class AmenitiesController < ApplicationController
-  before_action :set_amenity, only: %i[ show edit update destroy ]
+  before_action :set_amenity, only: %i[show update destroy]
 
-  # GET /amenities or /amenities.json
+  # GET /amenities
   def index
     if params[:query].present?
-      @amenities = Amenity.where("name LIKE ?", "%#{params[:query]}%")
+      @amenities = Amenity.where("LOWER(name) LIKE ?", "%#{params[:query].downcase}%")
     else
       @amenities = Amenity.all
     end
+
+    render json: @amenities
   end
 
-  # GET /amenities/1 or /amenities/1.json
+  # GET /amenities/:id
   def show
+    render json: @amenity
   end
 
-  # GET /amenities/new
-  def new
-    @amenity = Amenity.new(isActive: true)
-  end
-
-  # GET /amenities/1/edit
-  def edit
-  end
-
-  # POST /amenities or /amenities.json
+  # POST /amenities
   def create
     @amenity = Amenity.new(amenity_params)
 
-    respond_to do |format|
-      if @amenity.save
-        format.html { redirect_to amenities_path, notice: "Amenity was successfully created." }
-        format.json { render :show, status: :created, location: @amenity }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @amenity.errors, status: :unprocessable_entity }
-      end
+    if @amenity.save
+      render json: @amenity, status: :created
+    else
+      render json: { errors: @amenity.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
-  # PATCH/PUT /amenities/1 or /amenities/1.json
+  # PATCH/PUT /amenities/:id
   def update
-    respond_to do |format|
-      if @amenity.update(amenity_params)
-        format.html { redirect_to amenities_path, notice: "Amenity was successfully updated." }
-        format.json { render :show, status: :ok, location: @amenity }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @amenity.errors, status: :unprocessable_entity }
-      end
+    if @amenity.update(amenity_params)
+      render json: @amenity, status: :ok
+    else
+      render json: { errors: @amenity.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
-  # DELETE /amenities/1 or /amenities/1.json
+  # DELETE /amenities/:id
   def destroy
-    @amenity.destroy!
-
-    respond_to do |format|
-      format.html { redirect_to amenities_path, status: :see_other, notice: "Amenity was successfully deleted." }
-      format.json { head :no_content }
-    end
+    @amenity.destroy
+    head :no_content
   end
 
   private
-    def set_amenity
-      @amenity = Amenity.find(params[:id])
-    end
 
-    def amenity_params
-      params.require(:amenity).permit(:name, :isActive)
-    end
+  def set_amenity
+    @amenity = Amenity.find(params[:id])
+  end
+
+  def amenity_params
+    params.require(:amenity).permit(:name, :isActive)
+  end
 end

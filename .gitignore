@@ -165,6 +165,7 @@ config/master.key
 # dotenv, dotenv-rails
 # TODO Comment out these rules if environment variables can be committed
 .env
+.env.development
 .env*.local
 
 ## Environment normalization:
@@ -207,3 +208,5 @@ yarn-debug.log*
 /public/uploads
 
 tmp/
+
+/config/master.key
