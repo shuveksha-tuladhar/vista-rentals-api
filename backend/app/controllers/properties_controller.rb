@@ -12,12 +12,12 @@ class PropertiesController < ApplicationController
       @properties = Property.all
     end
 
-    render json: @properties.to_json(include: :property_images)
+    render json: @properties.to_json(include: [:property_images, :amenities])
   end
 
   # GET /properties/:id
   def show
-    render json: @property.to_json(include: :property_images)
+    render json: @property.to_json(include: [:property_images, :amenities])
   end
 
   # POST /properties
@@ -25,7 +25,7 @@ class PropertiesController < ApplicationController
     @property = Property.new(property_params)
 
     if @property.save
-      render json: @property.to_json(include: :property_images), status: :created
+      render json: @property.to_json(include: [:property_images, :amenities]), status: :created
     else
       render json: { errors: @property.errors.full_messages }, status: :unprocessable_entity
     end
