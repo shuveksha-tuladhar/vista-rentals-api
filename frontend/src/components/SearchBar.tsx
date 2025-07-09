@@ -25,15 +25,15 @@ const SearchBar: React.FC<SearchBarProps> = ({ onClick }) => {
 
       <button className="px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 rounded-r-full flex items-center space-x-2">
         <span>Add guests</span>
-        <button
-          aria-label="Search"
-          className="relative w-7 h-7 bg-[#FF385C] rounded-[24px] flex items-center justify-center"
-        >
-          <FaMagnifyingGlass
-            className="absolute w-[12px] h-[12px] text-white"
-            style={{ strokeWidth: 1.6 }}
-          />
-        </button>
+      </button>
+      <button
+        aria-label="Search"
+        className="relative w-7 h-7 bg-[#FF385C] rounded-[24px] flex items-center justify-center"
+      >
+        <FaMagnifyingGlass
+          className="absolute w-[12px] h-[12px] text-white"
+          style={{ strokeWidth: 1.6 }}
+        />
       </button>
     </div>
   );

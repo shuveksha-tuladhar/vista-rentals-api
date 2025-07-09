@@ -1,5 +1,5 @@
-
-import { Header, PropertiesGrid, Footer } from "./components";
+import { Header, Footer } from "./components";
+import PropertiesGrid from "./pages/LandingPage/PropertiesGrid";
 
 function App() {
   return (

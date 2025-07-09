@@ -20,21 +20,22 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   price,
 }) => {
   return (
-    <div className="w-[313px] flex flex-col cursor-pointer pb-4">
-      <div className="relative w-full h-80 rounded-xl overflow-hidden mb-3">
+    <div className="w-full max-w-[313px] mx-auto flex flex-col cursor-pointer pb-4">
+      <div className="relative w-full aspect-[1/1] rounded-xl overflow-hidden mb-3">
         <img
           src={image}
           alt={location}
           className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300"
           onError={(e) => {
-            e.currentTarget.src = `https://placehold.co/600x400/cccccc/333333?text=Image+Error`;
+            e.currentTarget.src =
+              "https://placehold.co/600x400/cccccc/333333?text=Image+Error";
           }}
         />
         <button
           aria-label="Save to favorites"
-          className="absolute left-[265px] top-[12.57px] w-8 h-8 z-[1] flex items-center justify-center bg-black/50 border-2 border-white rounded-full"
+          className="absolute top-3 right-3 w-8 h-8 z-[1] flex items-center justify-center bg-black/50 border-2 border-white rounded-full"
         >
-          <FaHeart className="w-[16px] h-[16px] text-white" />
+          <FaHeart className="w-4 h-4 text-white" />
         </button>
       </div>
       <div className="flex justify-between items-start mb-1">
