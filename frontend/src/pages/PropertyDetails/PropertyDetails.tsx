@@ -199,6 +199,15 @@ const property = {
     },
   ],
   rules: ["No smoking", "No pets", "No parties"],
+  safetyNotes: [
+    "Smoke detector installed in sleeping area and kitchen.",
+    "Fire extinguisher located under the kitchen sink.",
+    "First aid kit available in the bathroom cabinet.",
+    "Carbon monoxide detector active and tested regularly.",
+    "Emergency contact numbers posted near entrance.",
+  ],
+  cancellationPolicy:
+    "Free cancellation within 48 hours of booking. After that, cancel up to 5 days before check-in for a full refund. No refunds for cancellations made within 5 days of check-in.",
   coordinates: {
     lat: 51.5074,
     lng: -0.1278,
@@ -226,7 +235,11 @@ const PropertyDetails: React.FC = () => {
           <Amenities amenities={property.amenities} />
           <Reviews reviews={property.reviews} />
           <HostDetails host={property.host} />
-          <ThingsToKnow rules={property.rules} />
+          <ThingsToKnow
+            rules={property.rules}
+            safetyNotes={property.safetyNotes}
+            cancellationPolicy={property.cancellationPolicy}
+          />
         </div>
 
         <div className="lg:w-[400px]">
