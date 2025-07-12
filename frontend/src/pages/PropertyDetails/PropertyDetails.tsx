@@ -4,9 +4,9 @@ import PropertyHeader from "./subcomponents/PropertyHeader/PropertyHeader";
 import PropertyInfo from "./subcomponents/PropertyInfo/PropertyInfo";
 import Amenities from "./subcomponents/Amenities/Amenities";
 import Reviews from "./subcomponents/Reviews/Reviews";
-import HouseRules from "./subcomponents/HouseRules/HouseRules";
 import HostDetails from "./subcomponents/HostDetails/HostDetails";
 import BookingSidebar from "./subcomponents/Bookings/BookingSidebar";
+import ThingsToKnow from "./subcomponents/ThingsToKnow/ThingsToKnow";
 
 const property = {
   id: 1,
@@ -226,7 +226,7 @@ const PropertyDetails: React.FC = () => {
           <Amenities amenities={property.amenities} />
           <Reviews reviews={property.reviews} />
           <HostDetails host={property.host} />
-          <HouseRules rules={property.rules} />
+          <ThingsToKnow rules={property.rules} />
         </div>
 
         <div className="lg:w-[400px]">
