@@ -14,7 +14,7 @@ const Amenities: React.FC<AmenitiesProps> = ({ amenities }) => {
   const displayedAmenities = showAll ? amenities : amenities.slice(0, 10);
 
   return (
-    <section className="pb-6">
+    <section>
       <h2 className="text-xl font-semibold mb-4">What this place offers</h2>
       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-gray-700">
         {displayedAmenities.map((item, index) => (

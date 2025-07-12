@@ -7,6 +7,7 @@ import Reviews from "./subcomponents/Reviews/Reviews";
 import HostDetails from "./subcomponents/HostDetails/HostDetails";
 import BookingSidebar from "./subcomponents/Bookings/BookingSidebar";
 import ThingsToKnow from "./subcomponents/ThingsToKnow/ThingsToKnow";
+import WhereYouWillSleep from "./subcomponents/WhereYouWillSleep/WhereYouWillSleep";
 
 const property = {
   id: 1,
@@ -57,6 +58,20 @@ const property = {
   guests: 2,
   beds: 1,
   baths: 1,
+  bedInfo: [
+    {
+      room: "Studio",
+      bedType: "1 double bed",
+    },
+    {
+      room: "Bedroom 1",
+      bedType: "1 queen bed",
+    },
+    {
+      room: "Living room",
+      bedType: "1 sofa bed",
+    },
+  ],
   amenities: [
     "Wi-Fi",
     "Kitchen",
@@ -177,7 +192,7 @@ const property = {
       id: 5,
       author: "John",
       content: "Great place! Very clean and close to everything.",
-      rating: 4,
+      rating: 2,
     },
     {
       id: 3,
@@ -195,7 +210,7 @@ const property = {
       id: 5,
       author: "John",
       content: "Great place! Very clean and close to everything.",
-      rating: 4,
+      rating: 1,
     },
   ],
   rules: ["No smoking", "No pets", "No parties"],
@@ -232,6 +247,7 @@ const PropertyDetails: React.FC = () => {
             reviewsCount={property.reviews.length ?? 0}
           />
           <PropertyInfo description={property.description} />
+          <WhereYouWillSleep bedInfo={property.bedInfo} />
           <Amenities amenities={property.amenities} />
         </div>
         <div className="lg:w-[400px]">
