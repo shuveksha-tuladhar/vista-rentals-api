@@ -1,5 +1,3 @@
-import { FaTriangleExclamation } from "react-icons/fa6";
-
 interface HouseRulesProps {
   rules: string[];
 }
@@ -10,7 +8,6 @@ const HouseRules: React.FC<HouseRulesProps> = ({ rules }) => {
   return (
     <section className="border-b border-gray-300 pb-6">
       <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-        <FaTriangleExclamation className="text-yellow-500" />
         House Rules
       </h2>
       <ul className="list-disc list-inside text-gray-700 space-y-1">

@@ -28,7 +28,7 @@ const Amenities: React.FC<AmenitiesProps> = ({ amenities }) => {
       {total > 10 && (
         <button
           onClick={() => setShowAll(!showAll)}
-          className="py-1 px-3 rounded-md mt-2 border border-gray-100 bg-gray-100 text-black cursor-pointer"
+          className="py-1 px-3 rounded-md mt-2 border border-gray-300 hover:bg-gray-100 text-black transition cursor-pointer"
           aria-expanded={showAll}
         >
           {showAll ? "Show Less Amenities" : `Show All ${total} Amenities`}
