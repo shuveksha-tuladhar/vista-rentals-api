@@ -233,15 +233,7 @@ const PropertyDetails: React.FC = () => {
           />
           <PropertyInfo description={property.description} />
           <Amenities amenities={property.amenities} />
-          <Reviews reviews={property.reviews} />
-          <HostDetails host={property.host} />
-          <ThingsToKnow
-            rules={property.rules}
-            safetyNotes={property.safetyNotes}
-            cancellationPolicy={property.cancellationPolicy}
-          />
         </div>
-
         <div className="lg:w-[400px]">
           <div className="lg:sticky top-28">
             <BookingSidebar
@@ -250,6 +242,17 @@ const PropertyDetails: React.FC = () => {
               endDate={property.endDate}
             />
           </div>
+        </div>
+      </div>
+      <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex-1 flex flex-col gap-6">
+          <Reviews reviews={property.reviews} />
+          <HostDetails host={property.host} />
+          <ThingsToKnow
+            rules={property.rules}
+            safetyNotes={property.safetyNotes}
+            cancellationPolicy={property.cancellationPolicy}
+          />
         </div>
       </div>
     </div>

@@ -19,7 +19,7 @@ const Reviews: React.FC<ReviewsProps> = ({ reviews }) => {
   const visibleReviews = showAll ? reviews : reviews.slice(0, 6);
 
   return (
-    <section className="border-b border-gray-300 pb-6">
+    <section className="border-y border-gray-300 py-6">
       <h2 className="text-xl font-semibold mb-6">Reviews</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {visibleReviews.map(({ id, author, content, rating }) => (
