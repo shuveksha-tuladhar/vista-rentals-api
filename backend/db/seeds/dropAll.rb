@@ -1,3 +1,4 @@
+PropertyAmenityMapping.delete_all
 PropertyImage.delete_all
 PropertyRule.delete_all
 PropertyBedInfo.delete_all
