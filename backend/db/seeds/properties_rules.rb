@@ -10,7 +10,6 @@ property_rule_data.each do |property_name, rules|
 
   if property
     rules.each do |rule|
-      print("Rules:" + rule)
       PropertyRule.create!(
         property_id: property.id,
         rule: rule,

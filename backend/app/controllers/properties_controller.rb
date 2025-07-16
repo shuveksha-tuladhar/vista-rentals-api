@@ -12,12 +12,30 @@ class PropertiesController < ApplicationController
       @properties = Property.all
     end
 
-    render json: @properties.to_json(include: [:property_images, :amenities])
+    render json: @properties.map { |property|
+      property.as_json(include: { property_images: {} }).merge(
+        rating: property.reviews.average(:rating).round(2),
+      )
+    }
   end
 
   # GET /properties/:id
   def show
-    render json: @property.to_json(include: [:property_images, :amenities])
+    average_rating = @property.reviews.average(:rating).round(2) || 0.00
+
+    render json: @property.as_json(
+      include: {
+        property_images: { only: [:url] },
+        property_bed_infos: { only: [:room, :bed_type, :is_active] },
+        property_rules: { only: [:rule, :is_active] },
+        property_safety_notes: { only: [:notes, :is_active] },
+        amenities: { only: [:name, :isActive] },
+        user: { only: [:first_name, :last_name], include: { host: { only: [:bio, :created_at] } } },
+        reviews: { only: [:review, :rating, :created_at], include: {
+          user: { only: [:first_name, :last_name] },
+        } },
+      },
+    ).merge(rating: average_rating)
   end
 
   # POST /properties

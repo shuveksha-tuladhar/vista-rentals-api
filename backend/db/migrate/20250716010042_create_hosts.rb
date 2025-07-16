@@ -7,5 +7,7 @@ class CreateHosts < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
+
+    add_index :hosts, :user_id, unique: true
   end
 end
