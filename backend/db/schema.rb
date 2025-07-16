@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_06_023415) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_16_010042) do
   create_table "amenities", force: :cascade do |t|
     t.string "name"
     t.boolean "isActive"
@@ -29,6 +29,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_06_023415) do
     t.index ["user_id"], name: "index_bookings_on_user_id"
   end
 
+  create_table "hosts", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.text "bio"
+    t.boolean "is_active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_hosts_on_user_id"
+  end
+
   create_table "properties", force: :cascade do |t|
     t.integer "user_id"
     t.string "address"
@@ -41,9 +50,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_06_023415) do
     t.string "price"
     t.integer "bedrooms"
     t.integer "baths"
-    t.integer "maxGuest"
+    t.integer "max_guests"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "cancellation_policy"
+    t.string "coordinates_latitude"
+    t.string "coordinates_longitude"
     t.index ["user_id"], name: "index_properties_on_user_id"
   end
 
@@ -56,12 +68,40 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_06_023415) do
     t.index ["property_id"], name: "index_property_amenity_mappings_on_property_id"
   end
 
+  create_table "property_bed_infos", force: :cascade do |t|
+    t.integer "property_id", null: false
+    t.string "room"
+    t.string "bed_type"
+    t.boolean "is_active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["property_id"], name: "index_property_bed_infos_on_property_id"
+  end
+
   create_table "property_images", force: :cascade do |t|
     t.integer "property_id", null: false
     t.string "url"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["property_id"], name: "index_property_images_on_property_id"
+  end
+
+  create_table "property_rules", force: :cascade do |t|
+    t.integer "property_id", null: false
+    t.text "rule"
+    t.boolean "is_active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["property_id"], name: "index_property_rules_on_property_id"
+  end
+
+  create_table "property_safety_notes", force: :cascade do |t|
+    t.integer "property_id", null: false
+    t.text "notes"
+    t.boolean "is_active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["property_id"], name: "index_property_safety_notes_on_property_id"
   end
 
   create_table "reviews", force: :cascade do |t|
@@ -91,10 +131,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_06_023415) do
 
   add_foreign_key "bookings", "properties"
   add_foreign_key "bookings", "users"
+  add_foreign_key "hosts", "users"
   add_foreign_key "properties", "users"
   add_foreign_key "property_amenity_mappings", "amenities"
   add_foreign_key "property_amenity_mappings", "properties"
+  add_foreign_key "property_bed_infos", "properties"
   add_foreign_key "property_images", "properties"
+  add_foreign_key "property_rules", "properties"
+  add_foreign_key "property_safety_notes", "properties"
   add_foreign_key "reviews", "properties"
   add_foreign_key "reviews", "users"
 end

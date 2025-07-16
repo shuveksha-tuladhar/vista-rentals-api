@@ -9,6 +9,10 @@
 #   end
 load Rails.root.join("db", "seeds", "dropAll.rb")
 load Rails.root.join("db", "seeds", "users.rb")
+load Rails.root.join("db", "seeds", "hosts.rb")
 load Rails.root.join("db", "seeds", "properties.rb")
 load Rails.root.join("db", "seeds", "properties_images.rb")
+load Rails.root.join("db", "seeds", "properties_rules.rb")
+load Rails.root.join("db", "seeds", "properties_safety_notes.rb")
+load Rails.root.join("db", "seeds", "properties_bed_info.rb")
 load Rails.root.join("db", "seeds", "amenities.rb")

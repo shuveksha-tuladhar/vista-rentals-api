@@ -210,3 +210,5 @@ yarn-debug.log*
 tmp/
 
 /config/master.key
+
+.DS_Store

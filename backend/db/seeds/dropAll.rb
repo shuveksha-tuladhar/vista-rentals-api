@@ -1,4 +1,8 @@
 PropertyImage.delete_all
+PropertyRule.delete_all
+PropertyBedInfo.delete_all
+PropertySafetyNote.delete_all
 Property.delete_all
 Amenity.delete_all
+Host.delete_all
 User.delete_all
