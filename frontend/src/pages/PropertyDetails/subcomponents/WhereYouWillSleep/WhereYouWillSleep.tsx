@@ -2,7 +2,8 @@ import { FaBed } from "react-icons/fa6";
 
 interface BedInfo {
   room: string;
-  bedType: string;
+  bed_type: string;
+  is_active: boolean;
 }
 
 interface WhereYouWillSleepProps {
@@ -32,7 +33,7 @@ const WhereYouWillSleep: React.FC<WhereYouWillSleepProps> = ({ bedInfo }) => {
                 {bed.room}
               </p>
               <p className="text-[14px] font-light leading-[23px] text-[#222222]">
-                {bed.bedType}
+                {bed.bed_type}
               </p>
             </div>
           </div>

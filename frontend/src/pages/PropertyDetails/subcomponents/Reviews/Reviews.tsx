@@ -1,13 +1,7 @@
 import React, { useState } from "react";
 import StarRating from "./StarRating";
-
-interface Review {
-  id: number;
-  author: string;
-  content: string;
-  rating: number;
-}
-
+import { capitalize } from "../../../../utils/capitalize";
+import type { Review } from "./types/ReviewType";
 interface ReviewsProps {
   reviews: Review[];
 }
@@ -22,12 +16,14 @@ const Reviews: React.FC<ReviewsProps> = ({ reviews }) => {
     <section className="border-y border-gray-300 py-6">
       <h2 className="text-xl font-semibold mb-6">Reviews</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {visibleReviews.map(({ id, author, content, rating }) => (
+        {visibleReviews.map(({ id, user, review: content, rating }) => (
           <div key={id}>
             <div className="flex items-center mb-2 text-sm text-gray-800">
               <StarRating rating={rating} />
               <span className="font-semibold mx-2">{rating.toFixed(1)}</span>
-              <span className="text-gray-600">by {author}</span>
+              <span className="text-gray-600">{`by ${capitalize(
+                user.first_name
+              )} ${capitalize(user.last_name)}`}</span>
             </div>
             <p className="text-gray-700 text-sm leading-relaxed">{content}</p>
           </div>

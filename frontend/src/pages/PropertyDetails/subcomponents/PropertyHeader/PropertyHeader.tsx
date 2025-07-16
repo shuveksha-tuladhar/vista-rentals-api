@@ -1,11 +1,11 @@
-// import React from "react";
+import React from "react";
 import { FaStar } from "react-icons/fa6";
 import { capitalize } from "../../../../utils/capitalize";
 
 interface PropertyHeaderProps {
   propertyType: string;
   location: string;
-  rating: number;
+  rating: string;
   guests: number;
   beds: number;
   baths: number;
@@ -34,7 +34,7 @@ const PropertyHeader: React.FC<PropertyHeaderProps> = ({
       </div>
       <div className="flex items-center text-sm text-gray-600 font-bold mt-1">
         <FaStar className="text-yellow-500 mr-1" />
-        <span>{rating.toFixed(2)}</span>
+        <span>{rating}</span>
         {!!reviewsCount && reviewsCount > 0 && (
           <>
             <span className="mx-2">·</span>

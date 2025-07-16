@@ -1,5 +1,6 @@
 class PropertiesController < ApplicationController
   before_action :set_property, only: %i[show update destroy]
+  skip_before_action :authorize_request, only: [:index, :show]
 
   # GET /properties
   def index
@@ -30,8 +31,8 @@ class PropertiesController < ApplicationController
         property_rules: { only: [:rule, :is_active] },
         property_safety_notes: { only: [:notes, :is_active] },
         amenities: { only: [:name, :isActive] },
-        user: { only: [:first_name, :last_name], include: { host: { only: [:bio, :created_at] } } },
-        reviews: { only: [:review, :rating, :created_at], include: {
+        user: { only: [:first_name, :last_name, :avatar_url], include: { host: { only: [:bio, :created_at] } } },
+        reviews: { only: [:id, :review, :rating, :created_at], include: {
           user: { only: [:first_name, :last_name] },
         } },
       },

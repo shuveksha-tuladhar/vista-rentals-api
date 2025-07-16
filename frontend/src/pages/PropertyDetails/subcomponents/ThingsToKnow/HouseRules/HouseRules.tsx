@@ -1,5 +1,7 @@
+import type { Rule } from "./types/RuleType";
+
 interface HouseRulesProps {
-  rules: string[];
+  rules: Rule[];
 }
 
 const HouseRules: React.FC<HouseRulesProps> = ({ rules }) => {
@@ -11,8 +13,8 @@ const HouseRules: React.FC<HouseRulesProps> = ({ rules }) => {
         House Rules
       </h3>
       <ul className="list-disc list-inside text-gray-700 space-y-1">
-        {rules.map((rule, idx) => (
-          <li key={idx}>{rule}</li>
+        {rules.map((ruleInfo, idx) => (
+          <li key={idx}>{ruleInfo.rule}</li>
         ))}
       </ul>
     </section>

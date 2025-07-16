@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { FaCheck } from "react-icons/fa6";
+import type { Amenity } from "./type/AmenityType";
 
 interface AmenitiesProps {
-  amenities: string[];
+  amenities: Amenity[];
 }
 
 const Amenities: React.FC<AmenitiesProps> = ({ amenities }) => {
@@ -20,7 +21,7 @@ const Amenities: React.FC<AmenitiesProps> = ({ amenities }) => {
         {displayedAmenities.map((item, index) => (
           <li key={index} className="flex items-center">
             <FaCheck className="mr-2" />
-            {item}
+            {item.name}
           </li>
         ))}
       </ul>

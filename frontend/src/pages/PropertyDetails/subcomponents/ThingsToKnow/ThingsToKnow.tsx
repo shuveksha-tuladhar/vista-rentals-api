@@ -2,10 +2,12 @@ import React from "react";
 import HouseRules from "./HouseRules/HouseRules";
 import SafetyNotes from "./SafetyNotes/SafetyNotes";
 import CancellationPolicy from "./CancellationPolicy/CancellationPolicy";
+import type { Rule } from "./HouseRules/types/RuleType";
+import type { SafetyNote } from "./SafetyNotes/types/SafetyNoteType";
 
 interface ThingsToKnowProps {
-  rules: string[];
-  safetyNotes?: string[];
+  rules: Rule[];
+  safetyNotes?: SafetyNote[];
   cancellationPolicy?: string;
 }
 
