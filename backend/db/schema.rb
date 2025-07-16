@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_16_050229) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_16_063351) do
   create_table "amenities", force: :cascade do |t|
     t.string "name"
     t.boolean "isActive"
@@ -56,6 +56,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_16_050229) do
     t.text "cancellation_policy"
     t.string "coordinates_latitude"
     t.string "coordinates_longitude"
+    t.string "title"
+    t.string "property_type"
     t.index ["user_id"], name: "index_properties_on_user_id"
   end
 
