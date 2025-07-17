@@ -7,7 +7,11 @@ interface BookingSidebarProps {
   endDate?: string;
 }
 
-const BookingSidebar: React.FC<BookingSidebarProps> = ({ price, startDate, endDate }) => {
+const BookingSidebar: React.FC<BookingSidebarProps> = ({
+  price,
+  startDate,
+  endDate,
+}) => {
   const [checkIn, setCheckIn] = useState(startDate);
   const [checkOut, setCheckOut] = useState(endDate);
   const [guests, setGuests] = useState(1);
@@ -20,10 +24,31 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ price, startDate, endDa
     );
   };
 
+  const numberOfNights = (
+    startDate: string | Date,
+    endDate: string | Date
+  ): number => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    const diffTime = end.getTime() - start.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    return diffDays;
+  };
+
   return (
     <aside className="w-[424px] h-auto bg-white border border-gray-300 shadow-lg rounded-lg p-6 flex flex-col gap-3">
       <div className="flex justify-between items-end text-black">
-        <span className="text-2xl font-semibold">{`${price} for 1 night`}</span>
+        <span className="text-2xl font-semibold">
+          {`$${price} `}
+          {checkIn && checkOut && numberOfNights(checkIn, checkOut) > 0 && (
+            <>
+              for {numberOfNights(checkIn, checkOut)} night
+              {numberOfNights(checkIn, checkOut) > 1 ? "s" : ""}
+            </>
+          )}
+        </span>
       </div>
 
       {/* Date & Guest Picker */}
