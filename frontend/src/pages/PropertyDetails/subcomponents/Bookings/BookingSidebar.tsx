@@ -51,7 +51,6 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
         </span>
       </div>
 
-      {/* Date & Guest Picker */}
       <div className="w-full mt-4">
         <div className="grid grid-cols-2 border border-gray-400 rounded-t-lg">
           <div className="flex flex-col px-3 py-2 border-r border-gray-400">
@@ -105,9 +104,7 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
         </div>
       </div>
 
-      {/* Price options */}
       <div className="w-full mt-4">
-        {/* Non-refundable */}
         <div
           className={`border border-b-0 border-gray-400 rounded-t-lg px-3 py-3 cursor-pointer ${
             !refundable ? "bg-gray-50" : ""
@@ -127,7 +124,6 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
           </div>
         </div>
 
-        {/* Refundable */}
         <div
           className={`border border-gray-400 rounded-b-lg px-3 py-3 cursor-pointer ${
             refundable ? "bg-gray-50" : ""
@@ -152,7 +148,6 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
         </div>
       </div>
 
-      {/* Show Price Details */}
       <div
         className="flex items-center justify-between mt-2 cursor-pointer"
         onClick={() => setShowPriceDetails(!showPriceDetails)}
@@ -197,7 +192,6 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
         <span>$2,970</span>
       </div>
 
-      {/* Reserve Button */}
       <button
         onClick={handleReserve}
         className="mt-4 w-full bg-gradient-to-r from-[#E61E4F] to-[#D70566] text-white py-3 rounded-lg font-semibold hover:opacity-90 transition"
