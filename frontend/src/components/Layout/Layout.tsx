@@ -10,7 +10,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="font-inter antialiased">
       <Header />
-      <main>{children}</main>
+      <main className="min-h-screen">{children}</main>
       <Footer />
     </div>
   );

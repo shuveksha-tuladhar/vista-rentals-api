@@ -55,7 +55,6 @@ const Gallery: React.FC<GalleryProps> = ({ images, onShowAllPhotos }) => {
                   } /* Adjust corner for bottom-right */
                 `}
               />
-              {/* Optional overlay for "Show all photos" on the last thumbnail */}
               {onShowAllPhotos && hasFourThumbnails && index === 3 && (
                 <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center text-white text-base font-semibold rounded-xl">
                   Show all photos
@@ -63,19 +62,16 @@ const Gallery: React.FC<GalleryProps> = ({ images, onShowAllPhotos }) => {
               )}
             </div>
           ))}
-          {/* Conditional rendering for the 3rd and 4th thumbnails if they exist */}
           {!hasFourThumbnails && images.length === 2 && (
-            // This section is if you only have 2 images and want the second one to span the entire right column
             <img
               src={images[1].url}
               alt={`Property thumbnail 1`}
-              className="w-full h-[194px] lg:h-[244px] xl:h-[294px] object-cover rounded-xl col-span-2" // Make it span two columns if only one thumbnail
+              className="w-full h-[194px] lg:h-[244px] xl:h-[294px] object-cover rounded-xl col-span-2"
             />
           )}
         </div>
       )}
 
-      {/* Overlay for "Show all photos" if there are many images and no specific thumbnail overlay */}
       {onShowAllPhotos && !hasFourThumbnails && hasMultipleImages && (
         <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center text-white text-lg font-semibold sm:hidden">
           Show all photos

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 
-// --- Categories Component ---
 const categories = [
   { name: 'Rooms', icon: 'https://placehold.co/24x24/cccccc/ffffff?text=R' },
   { name: 'Cabins', icon: 'https://placehold.co/24x24/cccccc/ffffff?text=C' },

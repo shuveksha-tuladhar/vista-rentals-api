@@ -1,22 +1,30 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import SearchBar from "./SearchBar";
 import ExpandedSearchBar from "./ExpandedSearch";
 import { FaAirbnb, FaBars, FaCircleUser, FaGlobe } from "react-icons/fa6";
+import { useNavigate } from "react-router";
 
 const Header: React.FC = () => {
   const [isSearchExpanded, setIsSearchExpanded] = useState(true);
+  const navigate = useNavigate();
+  const debounceTimeout = useRef<number | null>(null);
 
   const handleScroll = useCallback(() => {
-    if (window.scrollY > 0) {
-      setIsSearchExpanded(false);
-    } else {
-      setIsSearchExpanded(true);
-    }
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+
+    debounceTimeout.current = setTimeout(() => {
+      if (window.scrollY > 0) {
+        setIsSearchExpanded(false);
+      } else {
+        setIsSearchExpanded(true);
+      }
+    }, 200);
   }, []);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
     return () => {
+      if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
       window.removeEventListener("scroll", handleScroll);
     };
   }, [handleScroll]);
@@ -35,7 +43,10 @@ const Header: React.FC = () => {
         <div className="flex-shrink-0">
           <a href="#" className="flex items-center space-x-2">
             <FaAirbnb className="h-8 w-8 text-red-500 rotate-180" />
-            <span className="hidden md:block text-red-500 text-xl font-bold">
+            <span
+              className="hidden md:block text-red-500 text-xl font-bold"
+              onClick={() => navigate("/")}
+            >
               Vista Rentals
             </span>
           </a>

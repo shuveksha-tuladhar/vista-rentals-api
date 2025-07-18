@@ -1,11 +1,19 @@
 import React, { useState } from "react";
 import { FaCircleCheck, FaCircle } from "react-icons/fa6";
+import {
+  calculateBookingCosts,
+  getCancellationPolicy,
+} from "../../../../utils/bookings";
+import type { BookingCosts } from "./types/BookingCostType";
 
 interface BookingSidebarProps {
   price: string;
   startDate?: string;
   endDate?: string;
 }
+
+const FREE_CANCEL_DAYS = 7;
+const PARTIAL_REFUND_DAYS = 2;
 
 const BookingSidebar: React.FC<BookingSidebarProps> = ({
   price,
@@ -18,34 +26,34 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
   const [showPriceDetails, setShowPriceDetails] = useState(false);
   const [refundable, setRefundable] = useState(false);
 
+  const {
+    nights,
+    nightlyPrice,
+    baseTotal,
+    cleaningFee,
+    serviceFee,
+    discount,
+    subtotalBeforeTaxes,
+    subtotalBeforeTaxesWithDiscount,
+    totalBeforeTaxes,
+  }: BookingCosts = calculateBookingCosts(price, checkIn, checkOut, refundable);
+
   const handleReserve = () => {
     alert(
-      `Reserved from ${checkIn} to ${checkOut} for ${guests} guest(s). Total price: ${price}`
+      `Reserved from ${checkIn} to ${checkOut} for ${guests} guest(s). Total price: $${totalBeforeTaxes.toFixed(
+        2
+      )}`
     );
-  };
-
-  const numberOfNights = (
-    startDate: string | Date,
-    endDate: string | Date
-  ): number => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    
-    const diffTime = end.getTime() - start.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    return diffDays;
   };
 
   return (
     <aside className="w-[424px] h-auto bg-white border border-gray-300 shadow-lg rounded-lg p-6 flex flex-col gap-3">
       <div className="flex justify-between items-end text-black">
         <span className="text-2xl font-semibold">
-          {`$${price} `}
-          {checkIn && checkOut && numberOfNights(checkIn, checkOut) > 0 && (
+          {`$${totalBeforeTaxes.toFixed(2)} `}
+          {checkIn && checkOut && nights > 0 && (
             <>
-              for {numberOfNights(checkIn, checkOut)} night
-              {numberOfNights(checkIn, checkOut) > 1 ? "s" : ""}
+              for {nights} night{nights > 1 ? "s" : ""}
             </>
           )}
         </span>
@@ -120,7 +128,7 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
               )}
               <span>Non-refundable</span>
             </div>
-            <span>$2,400 total</span>
+            <span>${subtotalBeforeTaxesWithDiscount.toFixed(2)} total</span>
           </div>
         </div>
 
@@ -139,11 +147,10 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
               )}
               <span>Refundable</span>
             </div>
-            <span>$2,670 total</span>
+            <span>${subtotalBeforeTaxes.toFixed(2)} total</span>
           </div>
           <p className="text-xs text-gray-400 mt-1">
-            Free cancellation before Jun 22. Cancel before check-in on Jun 23
-            for a partial refund.
+            {getCancellationPolicy(checkIn, FREE_CANCEL_DAYS, PARTIAL_REFUND_DAYS)}
           </p>
         </div>
       </div>
@@ -174,22 +181,30 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
       {showPriceDetails && (
         <div className="mt-2 text-sm text-gray-600">
           <div className="flex justify-between">
-            <span>$420 x 6 nights</span>
-            <span>$2,520</span>
+            <span>
+              ${nightlyPrice.toFixed(2)} x {nights} night{nights > 1 ? "s" : ""}
+            </span>
+            <span>${baseTotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between mt-1">
             <span>Cleaning fee</span>
-            <span>$150</span>
+            <span>${cleaningFee.toFixed(2)}</span>
           </div>
           <div className="flex justify-between mt-1">
             <span>Service fee</span>
-            <span>$300</span>
+            <span>${serviceFee.toFixed(2)}</span>
           </div>
+          {!refundable && (
+            <div className="flex justify-between mt-1">
+              <span>Discount (Pay in Full)</span>
+              <span>-${discount.toFixed(2)}</span>
+            </div>
+          )}
         </div>
       )}
       <div className="flex justify-between font-semibold border-t border-gray-300 mt-2 pt-2">
         <span>Total before taxes</span>
-        <span>$2,970</span>
+        <span>${totalBeforeTaxes.toFixed(2)}</span>
       </div>
 
       <button
