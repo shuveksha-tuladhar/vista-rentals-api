@@ -77,7 +77,7 @@ export default function SignupForm() {
         {errors.password && <span className="text-red-500 text-sm">Password is required</span>}
       </div>
 
-      <button type="submit" className="w-full bg-red-500 text-white py-2 rounded">
+      <button type="submit" className="w-full bg-red-500 text-white py-2 rounded cursor-pointer">
         Sign Up
       </button>
     </form>

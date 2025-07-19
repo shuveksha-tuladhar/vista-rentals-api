@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import SignupForm from "./SignupForm";
 import LoginForm from "./LoginForm";
+import { useOutsideClick } from "../hooks/useOutsideClick";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -9,15 +10,23 @@ interface AuthModalProps {
 
 export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const [isSignup, setIsSignup] = useState(false);
+  const authRef = useRef<HTMLDivElement | null>(null);
+  useOutsideClick(authRef, () => {
+    setIsSignup(false);
+    onClose();
+  });
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-md rounded-2xl p-6 shadow-lg relative">
+      <div
+        className="bg-white w-full max-w-md rounded-2xl p-6 shadow-lg relative"
+        ref={authRef}
+      >
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-400 hover:text-black"
+          className="absolute top-3 right-3 text-gray-400 hover:text-black cursor-pointer"
         >
           ✕
         </button>
@@ -32,7 +41,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
           {isSignup ? "Already have an account?" : "Don't have an account?"}
           <button
             onClick={() => setIsSignup(!isSignup)}
-            className="ml-1 text-red-500 font-medium hover:underline"
+            className="ml-1 text-red-500 font-medium hover:underline cursor-pointer"
           >
             {isSignup ? "Log In" : "Sign Up"}
           </button>

@@ -44,7 +44,7 @@ export default function LoginForm() {
 
       <button
         type="submit"
-        className="w-full bg-red-500 text-white py-2 rounded"
+        className="w-full bg-red-500 text-white py-2 rounded cursor-pointer"
       >
         Login
       </button>

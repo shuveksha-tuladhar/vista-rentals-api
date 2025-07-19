@@ -4,6 +4,7 @@ import ExpandedSearchBar from "./ExpandedSearch";
 import { FaAirbnb, FaBars, FaCircleUser, FaGlobe } from "react-icons/fa6";
 import { useNavigate } from "react-router";
 import { AuthModal } from "./Auth/AuthModal";
+import { useOutsideClick } from "./hooks/useOutsideClick";
 
 const Header: React.FC = () => {
   const [isSearchExpanded, setIsSearchExpanded] = useState(true);
@@ -12,6 +13,8 @@ const Header: React.FC = () => {
 
   const navigate = useNavigate();
   const debounceTimeout = useRef<number | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  useOutsideClick(menuRef, () => setIsMenuOpen(false));
 
   const handleScroll = useCallback(() => {
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
@@ -84,32 +87,41 @@ const Header: React.FC = () => {
           >
             Become a Host
           </a>
-          <button className="hidden sm:block p-2 rounded-full hover:bg-gray-100 transition-colors duration-200">
+          <button className="hidden sm:block p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 cursor-pointer">
             <FaGlobe className="h-5 w-5 text-gray-700" />
           </button>
-          <button className="flex items-center space-x-2 border border-gray-200 rounded-full p-2 shadow-sm hover:shadow-md transition-all duration-200">
-            <FaBars
-              className="h-5 w-5 text-gray-700"
+          <div className="relative">
+            <button
+              className="flex items-center space-x-2 border border-gray-200 rounded-full p-2 shadow-sm hover:bg-gray-100 transition-all duration-200 cursor-pointer"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-            />
-            <FaCircleUser className="h-7 w-7 text-gray-700 rounded-full p-1" />
-          </button>
-          {isMenuOpen && (
-            <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-md z-50 py-2 text-sm">
-              <button className="w-full px-4 py-2 hover:bg-gray-100 text-left">
-                Become a Host
-              </button>
-              <button
-                className="w-full px-4 py-2 hover:bg-gray-100 text-left"
-                onClick={() => setIsModalOpen(true)}
+            >
+              <FaBars className="h-5 w-5 text-gray-700" />
+              <FaCircleUser className="h-7 w-7 text-gray-700 rounded-full p-1" />
+            </button>
+
+            {isMenuOpen && (
+              <div
+                ref={menuRef}
+                className="absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-lg z-50 py-2 text-sm border border-gray-200"
               >
-                Login or Sign Up
-              </button>
-              <button className="w-full px-4 py-2 hover:bg-gray-100 text-left">
-                About Us
-              </button>
-            </div>
-          )}
+                <button className="w-full px-4 py-2 hover:bg-gray-100 text-left cursor-pointer">
+                  Become a Host
+                </button>
+                <button
+                  className="w-full px-4 py-2 hover:bg-gray-100 text-left cursor-pointer"
+                  onClick={() => {
+                    setIsModalOpen(true);
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  Login or Sign Up
+                </button>
+                <button className="w-full px-4 py-2 hover:bg-gray-100 text-left cursor-pointer">
+                  About Us
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
