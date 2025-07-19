@@ -25,7 +25,10 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
         ref={authRef}
       >
         <button
-          onClick={onClose}
+          onClick={() => {
+            setIsSignup(false);
+            onClose();
+          }}
           className="absolute top-3 right-3 text-gray-400 hover:text-black cursor-pointer"
         >
           ✕

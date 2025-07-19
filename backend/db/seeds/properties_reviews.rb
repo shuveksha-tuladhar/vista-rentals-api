@@ -5,7 +5,7 @@ if users.any?
   properties.each do |property|
     rand(2..10).times do
       random_user = users.sample
-      rating = rand(3..5) # Random rating between 1 and 5
+      rating = rand(3..5)
       review = "Review by #{random_user.first_name} for #{property.name}"
 
       Review.create!(
