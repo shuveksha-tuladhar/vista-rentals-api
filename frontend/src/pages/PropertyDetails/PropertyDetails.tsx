@@ -66,6 +66,7 @@ const PropertyDetails: React.FC = () => {
                 price={property.price}
                 startDate="2025-01-01"
                 endDate="2025-01-05"
+                maxGuests={property.max_guests}
               />
             </div>
           </div>

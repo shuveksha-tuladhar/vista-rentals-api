@@ -10,6 +10,7 @@ interface BookingSidebarProps {
   price: string;
   startDate?: string;
   endDate?: string;
+  maxGuests: number;
 }
 
 const FREE_CANCEL_DAYS = 7;
@@ -19,6 +20,7 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
   price,
   startDate,
   endDate,
+  maxGuests,
 }) => {
   const [checkIn, setCheckIn] = useState(startDate);
   const [checkOut, setCheckOut] = useState(endDate);
@@ -104,7 +106,7 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
             type="number"
             id="guests"
             min={1}
-            max={10}
+            max={maxGuests}
             value={guests}
             onChange={(e) => setGuests(Number(e.target.value))}
             className="text-sm text-gray-700 outline-none w-full"
@@ -150,7 +152,11 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
             <span>${subtotalBeforeTaxes.toFixed(2)} total</span>
           </div>
           <p className="text-xs text-gray-400 mt-1">
-            {getCancellationPolicy(checkIn, FREE_CANCEL_DAYS, PARTIAL_REFUND_DAYS)}
+            {getCancellationPolicy(
+              checkIn,
+              FREE_CANCEL_DAYS,
+              PARTIAL_REFUND_DAYS
+            )}
           </p>
         </div>
       </div>
