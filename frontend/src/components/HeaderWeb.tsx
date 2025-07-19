@@ -3,9 +3,13 @@ import SearchBar from "./SearchBar";
 import ExpandedSearchBar from "./ExpandedSearch";
 import { FaAirbnb, FaBars, FaCircleUser, FaGlobe } from "react-icons/fa6";
 import { useNavigate } from "react-router";
+import { AuthModal } from "./Auth/AuthModal";
 
 const Header: React.FC = () => {
   const [isSearchExpanded, setIsSearchExpanded] = useState(true);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const navigate = useNavigate();
   const debounceTimeout = useRef<number | null>(null);
 
@@ -84,9 +88,28 @@ const Header: React.FC = () => {
             <FaGlobe className="h-5 w-5 text-gray-700" />
           </button>
           <button className="flex items-center space-x-2 border border-gray-200 rounded-full p-2 shadow-sm hover:shadow-md transition-all duration-200">
-            <FaBars className="h-5 w-5 text-gray-700" />
+            <FaBars
+              className="h-5 w-5 text-gray-700"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            />
             <FaCircleUser className="h-7 w-7 text-gray-700 rounded-full p-1" />
           </button>
+          {isMenuOpen && (
+            <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-md z-50 py-2 text-sm">
+              <button className="w-full px-4 py-2 hover:bg-gray-100 text-left">
+                Become a Host
+              </button>
+              <button
+                className="w-full px-4 py-2 hover:bg-gray-100 text-left"
+                onClick={() => setIsModalOpen(true)}
+              >
+                Login or Sign Up
+              </button>
+              <button className="w-full px-4 py-2 hover:bg-gray-100 text-left">
+                About Us
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -99,6 +122,7 @@ const Header: React.FC = () => {
       >
         <ExpandedSearchBar />
       </div>
+      <AuthModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </header>
   );
 };
