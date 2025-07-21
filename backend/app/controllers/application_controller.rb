@@ -1,4 +1,5 @@
 class ApplicationController < ActionController::API
+  include ActionController::Cookies
   before_action :authorize_request
 
   attr_reader :current_user
@@ -6,19 +7,13 @@ class ApplicationController < ActionController::API
   private
 
   def authorize_request
-    header = request.headers["Authorization"]
-    token = header.split(" ").last if header
+    user_id = cookies.signed[:user_id]
 
-    begin
-      decoded = JWT.decode(token, jwt_secret, true, algorithm: "HS256")
-      user_id = decoded[0]["user_id"]
-      @current_user = User.find(user_id)
-    rescue JWT::DecodeError, ActiveRecord::RecordNotFound
-      render json: { error: "Unauthorized or invalid token" }, status: :unauthorized
+    if user_id
+      @current_user = User.find_by(id: user_id)
+      return if @current_user
     end
-  end
 
-  def jwt_secret
-    Rails.application.credentials.jwt_secret || ENV["JWT_SECRET"]
+    render json: { error: "Unauthorized" }, status: :unauthorized
   end
 end

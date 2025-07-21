@@ -1,31 +1,37 @@
 class SessionsController < ApplicationController
-  skip_before_action :authorize_request, only: [:create]
+  include ActionController::Cookies
+  skip_before_action :authorize_request, only: [:create, :destroy]
+
   # POST /login
   def create
-    user = User.find_by(username: params[:username])
+    user = User.find_by(email: params[:email])
 
     if user&.authenticate(params[:password])
-      token = encode_token({ user_id: user.id, username: user.username })
+      cookies.signed[:user_id] = {
+        value: user.id,
+        httponly: true,
+        secure: Rails.env.production?,
+        same_site: :strict,
+        expires: 24.hours.from_now,
+      }
 
       render json: {
-        message: "Logged in successfully.",
-        token:,
-        user: user.slice(:id, :username, :email, :role),
-      }, status: :ok
+               message: "Logged in successfully.",
+               user: user.slice(:id, :first_name, :last_name, :email, :role),
+             }, status: :ok
     else
       render json: { error: "Invalid username or password." }, status: :unauthorized
     end
   end
 
-  # DELETE /logout (optional if using client-side token storage)
+  # DELETE /logout
   def destroy
-    # For stateless JWT, logout is handled client-side (e.g., remove token)
-    render json: { message: "Logged out successfully (client should discard token)." }, status: :ok
-  end
+    cookies.delete(:user_id, {
+      httponly: true,
+      secure: Rails.env.production?,
+      same_site: :strict,
+    })
 
-  private
-
-  def encode_token(payload)
-    JWT.encode(payload, Rails.application.credentials.jwt_secret || ENV["JWT_SECRET"], "HS256")
+    render json: { message: "Logged out successfully." }, status: :ok
   end
 end

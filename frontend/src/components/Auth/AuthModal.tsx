@@ -38,7 +38,16 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
           {isSignup ? "Sign Up" : "Log In"}
         </h2>
 
-        {isSignup ? <SignupForm /> : <LoginForm />}
+        {isSignup ? (
+          <SignupForm />
+        ) : (
+          <LoginForm
+            onClose={() => {
+              setIsSignup(false);
+              onClose();
+            }}
+          />
+        )}
 
         <p className="text-sm text-center text-gray-600 mt-4">
           {isSignup ? "Already have an account?" : "Don't have an account?"}

@@ -9,13 +9,10 @@ const PropertiesGrid: React.FC = () => {
   const [properties, setProperties] = useState<Properties[]>([]);
   const [loading, setLoading] = useState(true);
 
-  console.log("properties", properties);
-
   useEffect(() => {
     const fetchProperties = async () => {
       try {
         const response = await getApi<Properties[]>("/properties");
-        console.log("Response Data", response.data);
         if (response.data) setProperties(response.data);
         else navigate("/500");
       } catch (error) {
@@ -35,7 +32,7 @@ const PropertiesGrid: React.FC = () => {
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-6 gap-y-10">
-        {[...properties, ...properties].map((property) => (
+        {properties.map((property) => (
           <div
             key={property.id}
             onClick={() => navigate(`/property/${property.id}`)}

@@ -12,23 +12,13 @@ const api = axios.create({
   },
 });
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error?.response?.status === 401) {
-      localStorage.removeItem("token");
       navigate("/401");
       return Promise.reject(error);
     } else if (error?.response?.status === 403) {
-      localStorage.removeItem("token");
       navigate("/403");
       return Promise.reject(error);
     } else if (error?.response?.status === 500) {
@@ -50,7 +40,10 @@ const handleError = (error: any) => {
 
 export const getApi = async <T>(endpoint: string, headers = {}) => {
   try {
-    const response = await api.get<T>(endpoint, { headers });
+    const response = await api.get<T>(endpoint, {
+      headers,
+      withCredentials: true,
+    });
     return { data: response.data, error: null };
   } catch (error) {
     return { data: null, error: handleError(error) };
@@ -59,7 +52,10 @@ export const getApi = async <T>(endpoint: string, headers = {}) => {
 
 export const postApi = async <T>(endpoint: string, data: any, headers = {}) => {
   try {
-    const response = await api.post<T>(endpoint, data, { headers });
+    const response = await api.post<T>(endpoint, data, {
+      headers,
+      withCredentials: true,
+    });
     return { data: response.data, error: null };
   } catch (error) {
     return { data: null, error: handleError(error) };
@@ -68,7 +64,10 @@ export const postApi = async <T>(endpoint: string, data: any, headers = {}) => {
 
 export const putApi = async <T>(endpoint: string, data: any, headers = {}) => {
   try {
-    const response = await api.put<T>(endpoint, data, { headers });
+    const response = await api.put<T>(endpoint, data, {
+      headers,
+      withCredentials: true,
+    });
     return { data: response.data, error: null };
   } catch (error) {
     return { data: null, error: handleError(error) };
@@ -81,7 +80,10 @@ export const patchApi = async <T>(
   headers = {}
 ) => {
   try {
-    const response = await api.patch<T>(endpoint, data, { headers });
+    const response = await api.patch<T>(endpoint, data, {
+      headers,
+      withCredentials: true,
+    });
     return { data: response.data, error: null };
   } catch (error) {
     return { data: null, error: handleError(error) };
@@ -90,7 +92,10 @@ export const patchApi = async <T>(
 
 export const deleteApi = async <T>(endpoint: string, headers = {}) => {
   try {
-    const response = await api.delete<T>(endpoint, { headers });
+    const response = await api.delete<T>(endpoint, {
+      headers,
+      withCredentials: true,
+    });
     return { data: response.data, error: null };
   } catch (error) {
     return { data: null, error: handleError(error) };

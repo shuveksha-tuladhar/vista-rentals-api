@@ -5,6 +5,9 @@ import { FaAirbnb, FaBars, FaCircleUser, FaGlobe } from "react-icons/fa6";
 import { useNavigate } from "react-router";
 import { AuthModal } from "./Auth/AuthModal";
 import { useOutsideClick } from "./hooks/useOutsideClick";
+import { useAuthStore } from "../store/authStore";
+import { deleteApi } from "../utils/api";
+import { useToastStore } from "../store/toastStore";
 
 const Header: React.FC = () => {
   const [isSearchExpanded, setIsSearchExpanded] = useState(true);
@@ -12,6 +15,8 @@ const Header: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const navigate = useNavigate();
+  const { isLoggedIn, logout } = useAuthStore();
+  const { addToast } = useToastStore();
   const debounceTimeout = useRef<number | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   useOutsideClick(menuRef, () => setIsMenuOpen(false));
@@ -38,6 +43,16 @@ const Header: React.FC = () => {
 
   const handleSearchClick = () => {
     setIsSearchExpanded(true);
+  };
+
+  const handleLogout = async () => {
+    deleteApi("/logout").then((response) => {
+      console.log(response.data);
+      if (response.data) {
+        logout();
+        addToast({ message: "Log out successfully", type: "success" });
+      }
+    });
   };
 
   return (
@@ -92,11 +107,13 @@ const Header: React.FC = () => {
           </button>
           <div className="relative">
             <button
-              className="flex items-center space-x-2 border border-gray-200 rounded-full p-2 shadow-sm hover:bg-gray-100 transition-all duration-200 cursor-pointer"
+              className="flex items-center space-x-2 border border-gray-100 rounded-full p-2 shadow-sm hover:bg-gray-100 transition-all duration-200 cursor-pointer"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
-              <FaBars className="h-5 w-5 text-gray-700" />
-              <FaCircleUser className="h-7 w-7 text-gray-700 rounded-full p-1" />
+              {!isLoggedIn && <FaBars className="h-5 w-5 text-gray-700" />}
+              {isLoggedIn && (
+                <FaCircleUser className="h-7 w-7 text-gray-700 rounded-full p-1" />
+              )}
             </button>
 
             {isMenuOpen && (
@@ -105,20 +122,34 @@ const Header: React.FC = () => {
                 className="absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-lg z-50 py-2 text-sm border border-gray-200"
               >
                 <button className="w-full px-4 py-2 hover:bg-gray-100 text-left cursor-pointer">
-                  Become a Host
-                </button>
-                <button
-                  className="w-full px-4 py-2 hover:bg-gray-100 text-left cursor-pointer"
-                  onClick={() => {
-                    setIsModalOpen(true);
-                    setIsMenuOpen(false);
-                  }}
-                >
-                  Login or Sign Up
-                </button>
-                <button className="w-full px-4 py-2 hover:bg-gray-100 text-left cursor-pointer">
                   About Us
                 </button>
+                <button className="w-full px-4 py-2 hover:bg-gray-100 text-left cursor-pointer">
+                  Become a Host
+                </button>
+                {!isLoggedIn && (
+                  <button
+                    className="w-full px-4 hover:bg-gray-100 text-left cursor-pointer"
+                    onClick={() => {
+                      setIsModalOpen(true);
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    <div className=" border-t border-gray-200 py-2 ">
+                      Login or Sign Up
+                    </div>
+                  </button>
+                )}
+                {isLoggedIn && (
+                  <button
+                    className="w-full px-4 hover:bg-gray-100 text-left cursor-pointer"
+                    onClick={handleLogout}
+                  >
+                    <div className=" border-t border-gray-200 py-2 ">
+                      Log out
+                    </div>
+                  </button>
+                )}
               </div>
             )}
           </div>

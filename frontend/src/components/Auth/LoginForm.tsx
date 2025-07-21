@@ -1,19 +1,59 @@
 import { useForm } from "react-hook-form";
+import { postApi } from "../../utils/api";
+import { useNavigate } from "react-router";
+import { useAuthStore } from "../../store/authStore";
+import { capitalize } from "../../utils/capitalize";
+import { useToastStore } from "../../store/toastStore";
 
 type LoginFormData = {
   email: string;
   password: string;
 };
 
-export default function LoginForm() {
+interface UserResponse {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  role: string;
+}
+interface LoginResponse {
+  message: string;
+  user: UserResponse;
+}
+
+interface LoginProps {
+  onClose: () => void;
+}
+
+export default function LoginForm({ onClose }: LoginProps) {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormData>();
+  const navigate = useNavigate();
+  const { setUser } = useAuthStore();
+  const { addToast } = useToastStore();
 
-  const onSubmit = (data: LoginFormData) => {
-    console.log("Login Data:", data);
+  const onSubmit = async (data: LoginFormData) => {
+    const { data: response, error } = await postApi<LoginResponse>(
+      "/login",
+      data
+    );
+
+    if (error) {
+      console.error("Login failed:", error.message);
+      navigate("/500");
+    }
+    if (response?.user) {
+      setUser(response.user);
+      addToast({
+        message: `Welcome, ${capitalize(response.user.first_name)}!`,
+        type: "success",
+      });
+      onClose();
+    }
   };
 
   return (
