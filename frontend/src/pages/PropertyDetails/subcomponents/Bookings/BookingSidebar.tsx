@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createSearchParams, useNavigate } from "react-router-dom";
 import { FaCircleCheck, FaCircle } from "react-icons/fa6";
 import {
   calculateBookingCosts,
@@ -11,6 +12,7 @@ interface BookingSidebarProps {
   startDate?: string;
   endDate?: string;
   maxGuests: number;
+  propertyId: number;
 }
 
 const FREE_CANCEL_DAYS = 7;
@@ -21,12 +23,15 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
   startDate,
   endDate,
   maxGuests,
+  propertyId,
 }) => {
   const [checkIn, setCheckIn] = useState(startDate);
   const [checkOut, setCheckOut] = useState(endDate);
   const [guests, setGuests] = useState(1);
   const [showPriceDetails, setShowPriceDetails] = useState(false);
   const [refundable, setRefundable] = useState(false);
+
+  const navigate = useNavigate();
 
   const {
     nights,
@@ -41,11 +46,16 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
   }: BookingCosts = calculateBookingCosts(price, checkIn, checkOut, refundable);
 
   const handleReserve = () => {
-    alert(
-      `Reserved from ${checkIn} to ${checkOut} for ${guests} guest(s). Total price: $${totalBeforeTaxes.toFixed(
-        2
-      )}`
-    );
+    navigate({
+      pathname: "/review",
+      search: createSearchParams({
+        propertyId: propertyId.toString(),
+        checkIn: checkIn?.toString() ?? "",
+        checkOut: checkOut?.toString() ?? "",
+        numOfGuests: guests.toString() ?? "",
+        refundable: refundable ? "true" : "false",
+      }).toString(),
+    });
   };
 
   return (

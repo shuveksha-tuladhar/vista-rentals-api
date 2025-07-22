@@ -12,10 +12,9 @@ import { useToastStore } from "../store/toastStore";
 const Header: React.FC = () => {
   const [isSearchExpanded, setIsSearchExpanded] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const navigate = useNavigate();
-  const { isLoggedIn, logout } = useAuthStore();
+  const { isLoggedIn, logout, isModalOpen, setIsModalOpen } = useAuthStore();
   const { addToast } = useToastStore();
   const debounceTimeout = useRef<number | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
