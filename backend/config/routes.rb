@@ -5,6 +5,11 @@ Rails.application.routes.draw do
 
   resources :properties
   resources :amenities
+  resources :bookings, only: [:create, :show, :update]
+
+  resources :users do
+    resources :bookings, only: [:index], controller: "bookings", action: :index_by_user # GET /users/:user_id/bookings
+  end
 
   # User routes
   get "login", to: "sessions#new"

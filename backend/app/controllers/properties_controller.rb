@@ -68,7 +68,11 @@ class PropertiesController < ApplicationController
   private
 
   def set_property
-    @property = Property.find(params[:id])
+    begin
+      @property = Property.find(params[:id])
+    rescue ActiveRecord::RecordNotFound
+      render json: { error: "Property not found" }, status: :not_found
+    end
   end
 
   def property_params

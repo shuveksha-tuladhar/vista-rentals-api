@@ -40,6 +40,7 @@ Table bookings {
   property_id	integer	[ref: > properties.id]
   start_date	datetime	
   end_date	datetime	
+  is_refundable boolean
   created_at	timestamp	
   updated_at	timestamp
 }
