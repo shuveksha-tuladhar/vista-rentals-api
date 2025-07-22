@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import type { BookingCosts } from "../../PropertyDetails/subcomponents/Bookings/types/BookingCostType";
 import type { Property } from "../../PropertyDetails/types/PropertyType";
+import { useNavigate } from "react-router-dom";
 
 interface SummaryCardProps {
   property: Property;
@@ -19,8 +20,10 @@ const SummaryCard = ({
   numOfGuests,
   isRefundable,
 }: SummaryCardProps) => {
-  const formattedCheckIn = format(new Date(checkInDate), "MMM d");
-  const formattedCheckOut = format(new Date(checkOutDate), "d, yyyy");
+  const navigate = useNavigate();
+
+  const formattedCheckIn = format(new Date(checkInDate), "MMM d, yyyy");
+  const formattedCheckOut = format(new Date(checkOutDate), "MMM d, yyyy");
   const parsedGuests = parseInt(numOfGuests, 10);
   const guestLabel =
     isNaN(parsedGuests) || parsedGuests <= 0
@@ -56,7 +59,10 @@ const SummaryCard = ({
       <div>
         <div className="flex justify-between text-sm font-medium">
           <p>Trip details</p>
-          <button className="text-gray-500 border rounded-md px-3 py-1 text-sm">
+          <button
+            className="text-gray-500 border rounded-md px-3 py-1 text-sm hover:text-gray-800 cursor-pointer"
+            onClick={() => navigate(`/property/${property.id}`)}
+          >
             Change
           </button>
         </div>

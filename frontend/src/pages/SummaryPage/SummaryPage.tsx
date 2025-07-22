@@ -50,8 +50,6 @@ const BookingSummary: React.FC = () => {
       checkOut,
       refundable
     );
-
-    console.log("Property:", property, bookingCosts.totalBeforeTaxes);
   }
 
   return (
