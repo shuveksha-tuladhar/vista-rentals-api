@@ -10,7 +10,7 @@ type LoginFormData = {
   password: string;
 };
 
-interface UserResponse {
+export interface UserResponse {
   id: number;
   first_name: string;
   last_name: string;
@@ -29,6 +29,7 @@ interface LoginProps {
 export default function LoginForm({ onClose }: LoginProps) {
   const {
     register,
+    setValue,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormData>();
@@ -54,6 +55,12 @@ export default function LoginForm({ onClose }: LoginProps) {
       });
       onClose();
     }
+  };
+
+  const handleDemoLogin = async () => {
+    setValue("email", "jdoe@example.com");
+    setValue("password", "password");
+    handleSubmit(onSubmit)();
   };
 
   return (
@@ -84,9 +91,16 @@ export default function LoginForm({ onClose }: LoginProps) {
 
       <button
         type="submit"
-        className="w-full bg-red-500 text-white py-2 rounded cursor-pointer"
+        className="min-w-[48%] flex-grow bg-red-600 text-white py-2 rounded cursor-pointer"
       >
         Login
+      </button>
+      <button
+        type="button"
+        onClick={handleDemoLogin}
+        className="min-w-[48%] ml-2 px-2 bg-red-500 text-white py-2 rounded cursor-pointer"
+      >
+        Demo Login
       </button>
     </form>
   );

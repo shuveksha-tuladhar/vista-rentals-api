@@ -34,4 +34,14 @@ class SessionsController < ApplicationController
 
     render json: { message: "Logged out successfully." }, status: :ok
   end
+
+  def me
+    if current_user
+      render json: {
+               user: current_user.slice(:id, :first_name, :last_name, :email, :role),
+             }, status: :ok
+    else
+      render json: { error: "Not logged in" }, status: :unauthorized
+    end
+  end
 end
