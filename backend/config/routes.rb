@@ -11,6 +11,9 @@ Rails.application.routes.draw do
     resources :bookings, only: [:index], controller: "bookings", action: :index_by_user # GET /users/:user_id/bookings
   end
 
+  post "/checkout/create", to: "checkouts#create_payment_intent"
+  get "/checkout/payment-intent-status/:id", to: "checkouts#payment_intent_status"
+
   # User routes
   get "login", to: "sessions#new"
   post "login", to: "sessions#create"

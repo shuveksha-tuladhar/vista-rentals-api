@@ -11,6 +11,7 @@ import { getApi } from "./utils/api";
 import { useToastStore } from "./store/toastStore";
 import type { UserResponse } from "./components/Auth/LoginForm";
 import SummaryPage from "./pages/SummaryPage/SummaryPage";
+import BookingComplete from "./pages/BookingComplete/BookingComplete";
 
 interface MeResponse {
   user: UserResponse;
@@ -52,6 +53,7 @@ const App = () => {
           <Route path="/" element={<PropertiesGrid />} />
           <Route path="/property/:id" element={<PropertyDetails />} />
           <Route path="/review" element={<SummaryPage />} />
+          <Route path="/complete" element={<BookingComplete />} />
           <Route path="/403" element={<Forbidden403 />} />
           <Route path="/500" element={<ServerError500 />} />
           <Route path="*" element={<NotFound404 />} />

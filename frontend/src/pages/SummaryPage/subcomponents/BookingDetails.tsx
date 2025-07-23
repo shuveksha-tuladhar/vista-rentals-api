@@ -12,7 +12,7 @@ const BookingDetails = ({ total }: BookingDetailsProps) => {
   return (
     <div className="flex-1 space-y-6">
       <SummaryAmountDetails total={total} onConfirm={() => setIsConfirmed(true)} />
-      <SummaryPaymentDetails isVisible={isConfirmed} />
+      <SummaryPaymentDetails isVisible={isConfirmed} total={total} />
     </div>
   );
 };
