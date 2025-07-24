@@ -29,14 +29,19 @@ RUN bundle install --jobs 4 --retry 3
 # Copy the rest of the application
 COPY . .
 
+# Copy entrypoint script
+COPY entrypoint.sh /app/entrypoint.sh
+
 # Precompile assets using a dummy secret (safe for build)
 RUN SECRET_KEY_BASE=dummytoken CORS_ORIGIN=http://localhost:5173 bundle exec rails assets:precompile
 
 # Create a non-root user for security
 RUN groupadd --system app && useradd --system --create-home --gid app appuser
 RUN chown -R appuser:app /app
+RUN chmod +x entrypoint.sh
 USER appuser
 
+ENTRYPOINT ["/app/entrypoint.sh"]
 
 # Expose port for Render
 EXPOSE 3000
