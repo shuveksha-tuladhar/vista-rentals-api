@@ -1,68 +1,45 @@
 # syntax=docker/dockerfile:1
+FROM ruby:3.2.2-slim-bullseye
 
-ARG RUBY_VERSION=3.3.7
-FROM ruby:${RUBY_VERSION}-slim AS base
+# Set working directory
+WORKDIR /app
 
-WORKDIR /rails
+# Install system dependencies
+RUN apt-get update -qq && apt-get install --no-install-recommends -y \
+  build-essential \
+  libpq-dev \
+  nodejs \
+  yarn \
+  curl \
+  libvips \
+  libsqlite3-dev \
+  libyaml-dev \
+  && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y \
-      curl \
-      libjemalloc2 \
-      libvips \
-      sqlite3 && \
-    rm -rf /var/lib/apt/lists/*
-
+# Set environment variables
 ENV RAILS_ENV=production \
-    BUNDLE_DEPLOYMENT=1 \
+    BUNDLE_DEPLOYMENT=true \
     BUNDLE_PATH=/usr/local/bundle \
     BUNDLE_WITHOUT=development:test
 
-# --- Build stage ---
-FROM base AS build
-
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y \
-      build-essential \
-      git \
-      pkg-config \
-      libyaml-dev \
-      curl \
-      gnupg
-
-# Install Node.js and Yarn correctly
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y nodejs && \
-    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
-    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
-    apt-get update && \
-    apt-get install -y yarn && \
-    rm -rf /var/lib/apt/lists/*
-
+# Install gems using cached layer
 COPY Gemfile Gemfile.lock ./
-RUN bundle install && \
-    rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
-    bundle exec bootsnap precompile --gemfile
+RUN bundle install --jobs 4 --retry 3
 
+# Copy the rest of the application
 COPY . .
 
-RUN bundle exec bootsnap precompile app/ lib/
-RUN yarn install
-RUN SECRET_KEY_BASE=dummysecret ./bin/rails assets:precompile
+# Precompile assets using a dummy secret (safe for build)
+RUN SECRET_KEY_BASE=dummytoken CORS_ORIGIN=http://localhost:5173 bundle exec rails assets:precompile
+
+# Create a non-root user for security
+RUN groupadd --system app && useradd --system --create-home --gid app appuser
+RUN chown -R appuser:app /app
+USER appuser
 
 
-# --- Final stage ---
-FROM base
+# Expose port for Render
+EXPOSE 3000
 
-COPY --from=build /usr/local/bundle /usr/local/bundle
-COPY --from=build /rails /rails
-
-RUN groupadd --system --gid 1000 rails && \
-    useradd --uid 1000 --gid 1000 --gid 1000 --create-home --shell /bin/bash rails && \
-    chown -R rails:rails /rails/db /rails/log /rails/storage /rails/tmp
-
-USER rails
-
-ENTRYPOINT ["/rails/bin/docker-entrypoint"]
-EXPOSE 80
-CMD ["./bin/thrust", "./bin/rails", "server"]
+# Start the Rails server
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "3000"]
