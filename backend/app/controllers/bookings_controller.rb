@@ -3,7 +3,7 @@ class BookingsController < ApplicationController
 
   # POST /bookings
   def create
-    booking = Booking.new(booking_params)
+    booking = Booking.new(booking_params.merge(payment_status: "pending"))
 
     if booking.save
       render json: booking, status: :created
@@ -19,7 +19,10 @@ class BookingsController < ApplicationController
 
   # PATCH/PUT /bookings/:id
   def update
-    if @booking.update(booking_params)
+    status = params[:booking][:payment_token].present? ? "complete" : "failed"
+    updated_params = booking_params.merge(payment_status: status)
+
+    if @booking.update(updated_params)
       render json: @booking
     else
       render json: { errors: @booking.errors.full_messages }, status: :unprocessable_entity
@@ -47,6 +50,6 @@ class BookingsController < ApplicationController
   end
 
   def booking_params
-    params.require(:booking).permit(:user_id, :property_id, :start_date, :end_date)
+    params.require(:booking).permit(:user_id, :property_id, :start_date, :end_date, :is_refundable, :payment_token)
   end
 end

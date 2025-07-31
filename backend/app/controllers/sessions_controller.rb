@@ -11,7 +11,7 @@ class SessionsController < ApplicationController
         value: user.id,
         httponly: true,
         secure: Rails.env.production?,
-        same_site: :none,
+        same_site: Rails.env.production? ? :none : :strict,
         expires: 24.hours.from_now,
       }
 
@@ -29,7 +29,7 @@ class SessionsController < ApplicationController
     cookies.delete(:user_id, {
       httponly: true,
       secure: Rails.env.production?,
-      same_site: :none,
+      same_site: Rails.env.production? ? :none : :strict,
     })
 
     render json: { message: "Logged out successfully." }, status: :ok

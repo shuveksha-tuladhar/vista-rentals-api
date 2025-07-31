@@ -4,6 +4,7 @@ class Booking < ApplicationRecord
 
   validates :start_date, :end_date, presence: true
   validate :end_date_after_start_date
+  validates :payment_status, inclusion: { in: %w[pending complete failed], allow_nil: true }
 
   private
 

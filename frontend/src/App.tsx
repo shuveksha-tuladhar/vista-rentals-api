@@ -30,7 +30,7 @@ const App = () => {
       try {
         await fetchWithTimeout(
           import.meta.env.VITE_API_BASE_URL || "http://localhost:4000",
-          5000
+          3000
         );
         setShowNotice(false);
       } catch (error) {

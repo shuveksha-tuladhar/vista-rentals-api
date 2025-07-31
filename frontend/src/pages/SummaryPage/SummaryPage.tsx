@@ -70,7 +70,13 @@ const BookingSummary: React.FC = () => {
 
           <div className="max-w-7xl mx-auto p-6 md:flex gap-8 items-start">
             {bookingCosts?.totalBeforeTaxes && (
-              <BookingDetails total={bookingCosts.totalBeforeTaxes} />
+              <BookingDetails
+                total={bookingCosts.totalBeforeTaxes}
+                propertyId={propertyId}
+                checkInDate={checkIn}
+                checkOutDate={checkOut}
+                isRefundable={refundable ?? false}
+              />
             )}
             {property && bookingCosts && checkIn && checkOut && numOfGuests && (
               <SummaryCard

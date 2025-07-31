@@ -8,13 +8,24 @@ import { postApi } from "../../../utils/api";
 interface Props {
   isVisible: boolean;
   total: number;
+  propertyId: string | null;
+  checkInDate: string | null;
+  checkOutDate: string | null;
+  isRefundable: boolean;
 }
 
 interface PaymentResponse {
   clientSecret: string;
 }
 
-const SummaryPaymentDetails = ({ isVisible, total }: Props) => {
+const SummaryPaymentDetails = ({
+  isVisible,
+  total,
+  propertyId,
+  checkInDate,
+  checkOutDate,
+  isRefundable,
+}: Props) => {
   const { isLoggedIn } = useAuthStore();
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const stripePromise = loadStripe(
@@ -23,8 +34,10 @@ const SummaryPaymentDetails = ({ isVisible, total }: Props) => {
 
   useEffect(() => {
     if (!clientSecret) {
-      postApi<PaymentResponse>("/checkout/create", { amount: total * 100 }).then(
-        (response) => setClientSecret(response.data?.clientSecret ?? null)
+      postApi<PaymentResponse>("/checkout/create", {
+        amount: total * 100,
+      }).then((response) =>
+        setClientSecret(response.data?.clientSecret ?? null)
       );
     }
   }, [clientSecret, total]);
@@ -37,7 +50,12 @@ const SummaryPaymentDetails = ({ isVisible, total }: Props) => {
 
       {clientSecret && isVisible && isLoggedIn && (
         <Elements stripe={stripePromise} options={{ clientSecret }}>
-          <CheckoutForm />
+          <CheckoutForm
+            propertyId={propertyId}
+            checkInDate={checkInDate}
+            checkOutDate={checkOutDate}
+            isRefundable={isRefundable}
+          />
         </Elements>
       )}
       {!clientSecret && <p>Loading</p>}
