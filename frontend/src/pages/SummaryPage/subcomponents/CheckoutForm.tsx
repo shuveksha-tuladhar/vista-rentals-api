@@ -7,6 +7,7 @@ import {
 import { useAuthStore } from "../../../store/authStore";
 import { patchApi, postApi } from "../../../utils/api";
 import { useToastStore } from "../../../store/toastStore";
+import type { Property } from "../../PropertyDetails/types/PropertyType";
 
 interface CheckoutFormProps {
   propertyId: string | null;
@@ -26,6 +27,7 @@ export interface BookingResponse {
   is_refundable: boolean;
   payment_token: string;
   payment_status: "pending" | "complete" | "failed";
+  property: Property;
 }
 
 const CheckoutForm = ({

@@ -8,8 +8,9 @@ interface SummaryCardProps {
   bookingCosts: BookingCosts;
   checkInDate: string;
   checkOutDate: string;
-  numOfGuests: string;
+  numOfGuests?: string;
   isRefundable: boolean;
+  bookingComplete?: boolean;
 }
 
 const SummaryCard = ({
@@ -19,22 +20,25 @@ const SummaryCard = ({
   checkOutDate,
   numOfGuests,
   isRefundable,
+  bookingComplete,
 }: SummaryCardProps) => {
   const navigate = useNavigate();
 
   const formattedCheckIn = format(new Date(checkInDate), "MMM d, yyyy");
   const formattedCheckOut = format(new Date(checkOutDate), "MMM d, yyyy");
-  const parsedGuests = parseInt(numOfGuests, 10);
+  const parsedGuests = numOfGuests && parseInt(numOfGuests, 10);
   const guestLabel =
-    isNaN(parsedGuests) || parsedGuests <= 0
+    numOfGuests &&
+    parsedGuests &&
+    (isNaN(parsedGuests) || parsedGuests <= 0
       ? "Guests"
-      : `${parsedGuests} ${parsedGuests === 1 ? "guest" : "guests"}`;
+      : `${parsedGuests} ${parsedGuests === 1 ? "guest" : "guests"}`);
 
   return (
     <div className="mt-8 md:mt-0 w-full md:w-[28rem] border rounded-2xl p-6 bg-white space-y-4 border-gray-300 shadow-sm">
       <div className="flex gap-4">
         <img
-          src={property.property_images[0]?.url || "/placeholder.jpg"}
+          src={property.property_images?.[0]?.url || "/placeholder.jpg"}
           alt={property.title}
           className="w-24 h-24 object-cover rounded-lg"
         />
@@ -42,8 +46,9 @@ const SummaryCard = ({
           <h2 className="font-medium">{property.title}</h2>
           <div className="text-sm text-gray-600">
             <span>
-              ★ {property.rating} ({property.reviews.length}) • {property.city},{" "}
-              {property.state}
+              {property.reviews &&
+                `★ ${property.rating} (${property.reviews.length}) • `}
+              {property.city}, {property.state}
             </span>
           </div>
         </div>
@@ -59,17 +64,19 @@ const SummaryCard = ({
       <div>
         <div className="flex justify-between text-sm font-medium">
           <p>Trip details</p>
-          <button
-            className="text-gray-500 border rounded-md px-3 py-1 text-sm hover:text-gray-800 cursor-pointer"
-            onClick={() => navigate(`/property/${property.id}`)}
-          >
-            Change
-          </button>
+          {!bookingComplete && (
+            <button
+              className="text-gray-500 border rounded-md px-3 py-1 text-sm hover:text-gray-800 cursor-pointer"
+              onClick={() => navigate(`/property/${property.id}`)}
+            >
+              Change
+            </button>
+          )}
         </div>
         <p className="text-sm text-gray-600">
           {formattedCheckIn} – {formattedCheckOut}
         </p>
-        <p className="text-sm text-gray-600">{guestLabel}</p>{" "}
+        {numOfGuests && <p className="text-sm text-gray-600">{guestLabel}</p>}
       </div>
 
       <div className="text-sm space-y-2">
