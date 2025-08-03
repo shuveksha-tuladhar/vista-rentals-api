@@ -6,6 +6,8 @@ import {
   getCancellationPolicy,
 } from "../../../../utils/bookings";
 import type { BookingCosts } from "./types/BookingCostType";
+import DatePickerModal from "../../../../components/DatepickerModal/DatepickerModal";
+import { addDays } from "date-fns";
 
 interface BookingSidebarProps {
   price: string;
@@ -30,6 +32,8 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
   const [guests, setGuests] = useState(1);
   const [showPriceDetails, setShowPriceDetails] = useState(false);
   const [refundable, setRefundable] = useState(false);
+
+  const [datepickerOpen, setDatepickerOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -81,9 +85,10 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
               CHECK-IN
             </label>
             <input
-              type="date"
+              type="text"
               id="check-in"
               value={checkIn}
+              onClick={() => setDatepickerOpen(true)}
               onChange={(e) => setCheckIn(e.target.value)}
               className="text-sm text-gray-700 outline-none"
             />
@@ -96,9 +101,10 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
               CHECKOUT
             </label>
             <input
-              type="date"
+              type="text"
               id="check-out"
               value={checkOut}
+              onClick={() => setDatepickerOpen(true)}
               onChange={(e) => setCheckOut(e.target.value)}
               className="text-sm text-gray-700 outline-none"
             />
@@ -233,6 +239,17 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
       <div className="text-sm text-center text-gray-700 mt-2">
         You won’t be charged yet
       </div>
+
+      <DatePickerModal
+        isOpen={datepickerOpen}
+        onClose={() => setDatepickerOpen(false)}
+        checkIn={checkIn ?? new Date().toISOString().split("T")[0]}
+        checkOut={
+          checkOut ?? addDays(new Date(), 1).toISOString().split("T")[0]
+        }
+        setCheckIn={setCheckIn}
+        setCheckOut={setCheckOut}
+      />
     </aside>
   );
 };

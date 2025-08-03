@@ -10,14 +10,22 @@ const PropertyInfo: React.FC<PropertyInfoProps> = ({ description }) => {
 
   const isLong = description.length > maxLength;
 
-  const displayedText = isExpanded || !isLong 
-    ? description 
-    : description.slice(0, maxLength) + "...";
-
+  const displayedText =
+    isExpanded || !isLong
+      ? description
+      : description.slice(0, maxLength) + "...";
+      
+  if (!displayedText) return null;
+  
   return (
     <section className="border-b border-gray-300 pb-6">
-      {/* <h2 className="text-xl font-semibold mb-2">About this place</h2> */}
-      <p className="text-gray-700 leading-relaxed whitespace-pre-line">{displayedText}</p>
+      <h2 className="text-xl font-semibold mb-2">About this place</h2>
+      {displayedText && (
+        <div
+          className="text-gray-700"
+          dangerouslySetInnerHTML={{ __html: displayedText }}
+        />
+      )}
 
       {isLong && (
         <button
