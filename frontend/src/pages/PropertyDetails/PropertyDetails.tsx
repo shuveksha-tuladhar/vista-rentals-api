@@ -11,7 +11,6 @@ import ThingsToKnow from "./subcomponents/ThingsToKnow/ThingsToKnow";
 import WhereYouWillSleep from "./subcomponents/WhereYouWillSleep/WhereYouWillSleep";
 import type { Property } from "./types/PropertyType";
 import { getApi } from "../../utils/api";
-import { addDays } from "date-fns";
 
 const PropertyDetails: React.FC = () => {
   const { id } = useParams();
@@ -65,8 +64,6 @@ const PropertyDetails: React.FC = () => {
             <div className="lg:sticky top-28">
               <BookingSidebar
                 price={property.price}
-                startDate={addDays(new Date(), 7).toISOString()}
-                endDate={addDays(new Date(), 9).toISOString()}
                 maxGuests={property.max_guests}
                 propertyId={property.id}
               />

@@ -38,8 +38,8 @@ export default function BookingComplete() {
   ) {
     bookingCosts = calculateBookingCosts(
       bookingSummary.property?.price,
-      bookingSummary.start_date,
-      bookingSummary.end_date,
+      new Date(bookingSummary.start_date),
+      new Date(bookingSummary.end_date),
       bookingSummary.is_refundable
     );
   }
@@ -71,7 +71,6 @@ export default function BookingComplete() {
         if (responseBooking.data) {
           setBookingSummary(responseBooking.data);
         }
-        console.log("Response booking:", responseBooking);
 
         if (responseBooking.error) {
           throw Error("Failed to update the booking in the backend");

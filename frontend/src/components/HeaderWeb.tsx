@@ -8,6 +8,7 @@ import { useOutsideClick } from "./hooks/useOutsideClick";
 import { useAuthStore } from "../store/authStore";
 import { deleteApi } from "../utils/api";
 import { useToastStore } from "../store/toastStore";
+import { useBookingStore } from "../store/bookingStore";
 
 const Header: React.FC = () => {
   const [isSearchExpanded, setIsSearchExpanded] = useState(true);
@@ -16,11 +17,20 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const { setCheckIn, setCheckOut } = useBookingStore();
   const { isLoggedIn, logout, isModalOpen, setIsModalOpen } = useAuthStore();
   const { addToast } = useToastStore();
+
   const debounceTimeout = useRef<number | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   useOutsideClick(menuRef, () => setIsMenuOpen(false));
+
+  useEffect(() => {
+    if (location.pathname === "/") {
+      setCheckIn(null);
+      setCheckOut(null);
+    }
+  }, [setCheckIn, setCheckOut, location.pathname]);
 
   const handleScroll = useCallback(() => {
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
