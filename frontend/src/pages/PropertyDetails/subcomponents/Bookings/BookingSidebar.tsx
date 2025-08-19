@@ -7,12 +7,11 @@ import {
 } from "../../../../utils/bookings";
 import type { BookingCosts } from "./types/BookingCostType";
 import DatePickerModal from "../../../../components/DatepickerModal/DatepickerModal";
-import { addDays } from "date-fns";
+import { useBookingStore } from "../../../../store/bookingStore";
+import { format } from "date-fns";
 
 interface BookingSidebarProps {
   price: string;
-  startDate?: string;
-  endDate?: string;
   maxGuests: number;
   propertyId: number;
 }
@@ -22,13 +21,12 @@ const PARTIAL_REFUND_DAYS = 2;
 
 const BookingSidebar: React.FC<BookingSidebarProps> = ({
   price,
-  startDate,
-  endDate,
   maxGuests,
   propertyId,
 }) => {
-  const [checkIn, setCheckIn] = useState(startDate);
-  const [checkOut, setCheckOut] = useState(endDate);
+
+  const { checkIn, checkOut } = useBookingStore();
+
   const [guests, setGuests] = useState(1);
   const [showPriceDetails, setShowPriceDetails] = useState(false);
   const [refundable, setRefundable] = useState(false);
@@ -87,9 +85,9 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
             <input
               type="text"
               id="check-in"
-              value={checkIn}
+              value={checkIn ? format(checkIn, "MMM d, yyyy") : ""}
               onClick={() => setDatepickerOpen(true)}
-              onChange={(e) => setCheckIn(e.target.value)}
+              readOnly
               className="text-sm text-gray-700 outline-none"
             />
           </div>
@@ -103,9 +101,9 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
             <input
               type="text"
               id="check-out"
-              value={checkOut}
+              value={checkOut ? format(checkOut, "MMM d, yyyy") : ""}
               onClick={() => setDatepickerOpen(true)}
-              onChange={(e) => setCheckOut(e.target.value)}
+              readOnly
               className="text-sm text-gray-700 outline-none"
             />
           </div>
@@ -243,12 +241,6 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
       <DatePickerModal
         isOpen={datepickerOpen}
         onClose={() => setDatepickerOpen(false)}
-        checkIn={checkIn ?? new Date().toISOString().split("T")[0]}
-        checkOut={
-          checkOut ?? addDays(new Date(), 1).toISOString().split("T")[0]
-        }
-        setCheckIn={setCheckIn}
-        setCheckOut={setCheckOut}
       />
     </aside>
   );

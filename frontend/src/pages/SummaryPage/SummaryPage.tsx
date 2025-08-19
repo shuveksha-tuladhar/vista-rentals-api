@@ -46,8 +46,8 @@ const BookingSummary: React.FC = () => {
   if (property?.price && checkIn && checkOut) {
     bookingCosts = calculateBookingCosts(
       property?.price,
-      checkIn,
-      checkOut,
+      new Date(checkIn),
+      new Date(checkOut),
       refundable
     );
   }

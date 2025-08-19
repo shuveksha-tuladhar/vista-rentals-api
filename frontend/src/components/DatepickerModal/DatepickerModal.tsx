@@ -1,50 +1,69 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { DateRange } from "react-date-range";
-import { format, differenceInCalendarDays, addDays } from "date-fns";
-
+import { format, differenceInCalendarDays, addDays, isSameDay } from "date-fns";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
+import { useBookingStore } from "../../store/bookingStore";
 
 interface DatePickerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  checkIn: string;
-  checkOut: string;
-  setCheckIn: (val: string) => void;
-  setCheckOut: (val: string) => void;
   disabledDates?: Date[];
+  wrapperClassName?: string;
+  popupPositionClassName?: string;
 }
 
 const DatePickerModal = ({
   isOpen,
   onClose,
-  checkIn,
-  checkOut,
-  setCheckIn,
-  setCheckOut,
   disabledDates = [],
+  wrapperClassName = "fixed inset-0 z-50 flex items-center justify-center bg-black/25",
+  popupPositionClassName = "w-full max-w-3xl bg-white rounded-2xl shadow-xl p-6",
 }: DatePickerModalProps) => {
+  const { checkIn, checkOut, setCheckIn, setCheckOut } = useBookingStore();
+
   const [selection, setSelection] = useState({
-    startDate: new Date(checkIn),
-    endDate: new Date(checkOut),
+    startDate: checkIn || addDays(new Date(), 7),
+    endDate: checkOut || addDays(new Date(), 9),
     key: "selection",
   });
 
   useEffect(() => {
-    if (selection.startDate && selection.endDate) {
-      setCheckIn(selection.startDate.toISOString().split("T")[0]);
-      setCheckOut(selection.endDate.toISOString().split("T")[0]);
+    if (isOpen) {
+      setSelection({
+        startDate: checkIn || addDays(new Date(), 7),
+        endDate: checkOut || addDays(new Date(), 9),
+        key: "selection",
+      });
     }
+  }, [isOpen, checkIn, checkOut]);
+
+  useEffect(() => {
+    if (
+      selection.startDate &&
+      selection.endDate &&
+      (!isSameDay(checkIn ?? new Date(0), selection.startDate) ||
+        !isSameDay(checkOut ?? new Date(0), selection.endDate))
+    ) {
+      setCheckIn(selection.startDate);
+      setCheckOut(selection.endDate);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selection, setCheckIn, setCheckOut]);
 
   const handleClear = () => {
-    const today = new Date();
     setSelection({
-      startDate: addDays(today, 7),
-      endDate: addDays(today, 9),
+      startDate: addDays(new Date(), 7),
+      endDate: addDays(new Date(), 9),
       key: "selection",
     });
+  };
+
+  const handleClose = () => {
+    setCheckIn(selection.startDate);
+    setCheckOut(selection.endDate);
+    onClose();
   };
 
   const handleChange = (item: any) => {
@@ -66,8 +85,8 @@ const DatePickerModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/25">
-      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl p-6">
+    <div className={wrapperClassName}>
+      <div className={popupPositionClassName}>
         <div className="flex justify-between items-start">
           <div>
             <h2 className="text-xl font-bold">
@@ -116,7 +135,7 @@ const DatePickerModal = ({
             Clear dates
           </button>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800"
           >
             Close

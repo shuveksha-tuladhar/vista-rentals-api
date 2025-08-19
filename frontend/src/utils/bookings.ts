@@ -14,8 +14,8 @@ export const numberOfNights = (
 
 export const calculateBookingCosts = (
   price: string,
-  startDate?: string | Date,
-  endDate?: string | Date,
+  startDate?: Date | null,
+  endDate?: Date | null,
   refundable: boolean = false
 ): BookingCosts => {
   const nightlyPrice = parseFloat(price.replace(/[^0-9.-]+/g, "")) || 0;
@@ -45,7 +45,7 @@ export const calculateBookingCosts = (
 };
 
 export const getCancellationPolicy = (
-  checkInDate?: string | Date,
+  checkInDate?: Date | null,
   freeCancelDays: number = 7,
   partialRefundDays: number = 2
 ): string => {
