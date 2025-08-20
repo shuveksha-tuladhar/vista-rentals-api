@@ -1,6 +1,6 @@
 class PropertiesController < ApplicationController
-  before_action :set_property, only: %i[show update destroy]
-  skip_before_action :authorize_request, only: [:index, :show]
+  before_action :set_property, only: [:show, :update, :destroy]
+  skip_before_action :authorize_request, only: [:index, :show, :location]
 
   # GET /properties
   def index
@@ -37,6 +37,12 @@ class PropertiesController < ApplicationController
         } },
       },
     ).merge(rating: average_rating)
+  end
+
+  # GET /properties/location
+  def location
+    locations = Property.select(:city, :state).distinct.order(:state, :city)
+    render json: locations
   end
 
   # POST /properties
