@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import SearchBar from "./SearchBar";
-import ExpandedSearchBar from "./ExpandedSearch";
+import ExpandedSearchBar from "./SearchBar/ExpandedSearch";
 import { FaAirbnb, FaBars, FaCircleUser, FaGlobe } from "react-icons/fa6";
 import { useLocation, useNavigate } from "react-router";
 import { AuthModal } from "./Auth/AuthModal";

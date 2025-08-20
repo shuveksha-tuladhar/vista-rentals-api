@@ -3,7 +3,12 @@ Rails.application.routes.draw do
   get "status", to: "home#status"
   root "home#index"
 
-  resources :properties
+  resources :properties do
+    collection do
+      get :location   # GET /properties/location
+    end
+  end
+
   resources :amenities
   resources :bookings, only: [:create, :show, :update]
 
