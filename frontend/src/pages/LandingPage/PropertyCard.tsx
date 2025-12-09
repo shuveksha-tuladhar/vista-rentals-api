@@ -22,7 +22,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
     <div className="w-full max-w-[313px] mx-auto flex flex-col cursor-pointer pb-4">
       <div className="relative w-full aspect-[1/1] rounded-xl overflow-hidden mb-3">
         <img
-          src={property_images[0].url}
+          src={property_images[0]?.url || "https://placehold.co/600x400/cccccc/333333?text=Image+Not+Available"}
           alt={city}
           className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300"
           onError={(e) => {
