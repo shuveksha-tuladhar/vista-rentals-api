@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout/Layout";
 import PropertiesGrid from "./pages/LandingPage/PropertiesGrid";
 import PropertyDetails from "./pages/PropertyDetails/PropertyDetails";
+import PropertiesMapView from "./pages/PropertiesMapView/PropertiesMapView";
 import Forbidden403 from "./pages/Errors/403";
 import NotFound404 from "./pages/Errors/404";
 import ServerError500 from "./pages/Errors/500";
@@ -14,14 +15,17 @@ import SummaryPage from "./pages/SummaryPage/SummaryPage";
 import BookingComplete from "./pages/BookingComplete/BookingComplete";
 import StatusCheck from "./StatusCheck";
 import { NoticeProvider } from "./context/NoticeContext";
+import { LoaderProvider, useLoader } from "./context/LoaderContext";
+import { Loader } from "./components/Loader";
 
 interface MeResponse {
   user: UserResponse;
 }
 
-const App = () => {
+const AppContent = () => {
   const { setUser, user, logout } = useAuthStore();
   const { addToast } = useToastStore();
+  const { setIsLoading } = useLoader();
 
   const [showNotice, setShowNotice] = useState(false);
 
@@ -46,6 +50,7 @@ const App = () => {
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
+        setIsLoading(true);
         const response = await getApi<MeResponse>("/me");
         if (!response.data) throw new Error("Not authenticated");
 
@@ -60,13 +65,15 @@ const App = () => {
           });
           logout();
         }
+      } finally {
+        setIsLoading(false);
       }
     };
 
     if (!user) {
       fetchCurrentUser();
     }
-  }, [setUser, addToast, user, logout]);
+  }, [setUser, addToast, user, logout, setIsLoading]);
 
   const fetchWithTimeout = (url: string, timeout = 5000) => {
     return Promise.race([
@@ -83,6 +90,7 @@ const App = () => {
         <Layout>
           <Routes>
             <Route path="/" element={<PropertiesGrid />} />
+            <Route path="/properties" element={<PropertiesMapView />} />
             <Route path="/property/:id" element={<PropertyDetails />} />
             <Route path="/review" element={<SummaryPage />} />
             <Route path="/complete" element={<BookingComplete />} />
@@ -92,8 +100,17 @@ const App = () => {
           </Routes>
           {showNotice && <StatusCheck />}
         </Layout>
+        <Loader />
       </Router>
     </NoticeProvider>
+  );
+};
+
+const App = () => {
+  return (
+    <LoaderProvider>
+      <AppContent />
+    </LoaderProvider>
   );
 };
 
