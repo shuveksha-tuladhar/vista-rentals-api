@@ -25,6 +25,7 @@ api.interceptors.response.use(
       navigate("/500");
       return Promise.reject(error);
     }
+    return Promise.reject(error);
   }
 );
 

@@ -6,6 +6,7 @@ import { calculateBookingCosts } from "../../utils/bookings";
 import type { BookingCosts } from "../PropertyDetails/subcomponents/Bookings/types/BookingCostType";
 import SummaryCard from "../SummaryPage/subcomponents/SummaryCard";
 import { FaArrowLeft } from "react-icons/fa6";
+import { useLoader } from "../../context/LoaderContext";
 interface PaymentSummary {
   status: string;
   amount_received: number;
@@ -22,6 +23,8 @@ export default function BookingComplete() {
   const [bookingSummary, setBookingSummary] = useState<BookingResponse | null>(
     null
   );
+
+  const { setIsLoading } = useLoader();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,9 +56,11 @@ export default function BookingComplete() {
       }
 
       try {
+        setIsLoading(true);
         const response = await getApi<PaymentSummary>(
           `/checkout/payment-intent-status/${paymentIntentId}`
         );
+        setIsLoading(false);
 
         if (response.error) {
           throw Error("Error with payment");

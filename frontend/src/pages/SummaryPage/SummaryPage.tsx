@@ -7,13 +7,14 @@ import type { Property } from "../PropertyDetails/types/PropertyType";
 import { getApi } from "../../utils/api";
 import { calculateBookingCosts } from "../../utils/bookings";
 import type { BookingCosts } from "../PropertyDetails/subcomponents/Bookings/types/BookingCostType";
+import { useLoader } from "../../context/LoaderContext";
 
 const BookingSummary: React.FC = () => {
   const [property, setProperty] = useState<Property | null>(null);
-  const [loading, setLoading] = useState(true);
 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { isLoading, setIsLoading } = useLoader();
 
   const propertyId = searchParams.get("propertyId");
   const checkIn = searchParams.get("checkIn");
@@ -30,18 +31,19 @@ const BookingSummary: React.FC = () => {
   useEffect(() => {
     const fetchPropertyDetails = async () => {
       try {
+        setIsLoading(true);
         const response = await getApi<Property>(`/properties/${propertyId}`);
         setProperty(response.data);
       } catch (error) {
         console.error("Error fetching property details:" + error);
         navigate("/500");
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     fetchPropertyDetails();
-  }, [propertyId, navigate]);
+  }, [propertyId, navigate, setIsLoading]);
 
   if (property?.price && checkIn && checkOut) {
     bookingCosts = calculateBookingCosts(
@@ -54,7 +56,7 @@ const BookingSummary: React.FC = () => {
 
   return (
     <>
-      {!loading && (
+      {!isLoading && (
         <>
           <div className="max-w-7xl mx-auto pt-4 flex items-center gap-4">
             <button

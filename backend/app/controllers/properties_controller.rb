@@ -14,7 +14,7 @@ class PropertiesController < ApplicationController
     end
 
     render json: @properties.map { |property|
-      property.as_json(only: [:id, :city, :property_type, :price], include: { property_images: { only: [:url] } }).merge(
+      property.as_json(only: [:id, :name, :city, :state, :property_type, :price, :coordinates_latitude, :coordinates_longitude], include: { property_images: { only: [:url] } }).merge(
         rating: property.reviews.average(:rating).round(2),
       )
     }
