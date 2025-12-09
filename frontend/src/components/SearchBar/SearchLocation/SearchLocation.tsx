@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { getApi } from "../../../utils/api";
+import { useLoader } from "../../../context/LoaderContext";
 
 export type LocationItem = { city: string; state: string };
 
@@ -14,11 +15,14 @@ const SearchLocation: React.FC<SearchLocationProps> = ({ onSelect }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [, setSelected] = useState<LocationItem | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { setIsLoading } = useLoader();
 
   useEffect(() => {
+    setIsLoading(true);
     getApi<LocationItem[]>("/properties/location")
       .then((resp) => setLocations(resp.data as LocationItem[]))
-      .catch(() => setLocations([]));
+      .catch(() => setLocations([]))
+      .finally(() => setIsLoading(false));
   }, []);
 
   useEffect(() => {

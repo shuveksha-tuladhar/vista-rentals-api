@@ -11,31 +11,37 @@ import ThingsToKnow from "./subcomponents/ThingsToKnow/ThingsToKnow";
 import WhereYouWillSleep from "./subcomponents/WhereYouWillSleep/WhereYouWillSleep";
 import type { Property } from "./types/PropertyType";
 import { getApi } from "../../utils/api";
+import { useLoader } from "../../context/LoaderContext";
 
 const PropertyDetails: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { setIsLoading } = useLoader();
 
   const [property, setProperty] = useState<Property | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchPropertyDetails = async () => {
-      try {
-        const response = await getApi<Property>(`/properties/${id}`);
-        setProperty(response.data);
-      } catch (error) {
-        console.error("Error fetching property details:" + error);
-        navigate("/500");
-      } finally {
-        setLoading(false);
+      setIsLoading(true);
+      const { data, error } = await getApi<Property>(`/properties/${id}`);
+      setIsLoading(false);
+      
+      if (error) {
+        console.error("Error fetching property details:", error);
+        if (error.status === 404) {
+          navigate("/404");
+        } else {
+          navigate("/500");
+        }
+      } else {
+        setProperty(data);
       }
     };
 
     fetchPropertyDetails();
   }, [id, navigate]);
 
-  if (loading) return null;
+  if (!property) return null;
 
   return (
     property != null && (
