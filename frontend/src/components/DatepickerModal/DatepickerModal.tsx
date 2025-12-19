@@ -18,7 +18,7 @@ const DatePickerModal = ({
   isOpen,
   onClose,
   disabledDates = [],
-  wrapperClassName = "fixed inset-0 z-50 flex items-center justify-center bg-black/25",
+  wrapperClassName = "fixed inset-0 z-[1000] flex items-center justify-center bg-black/25",
   popupPositionClassName = "w-full max-w-3xl bg-white rounded-2xl shadow-xl p-6",
 }: DatePickerModalProps) => {
   const { checkIn, checkOut, setCheckIn, setCheckOut } = useBookingStore();

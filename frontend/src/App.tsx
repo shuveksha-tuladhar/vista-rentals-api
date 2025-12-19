@@ -3,6 +3,7 @@ import Layout from "./components/Layout/Layout";
 import PropertiesGrid from "./pages/LandingPage/PropertiesGrid";
 import PropertyDetails from "./pages/PropertyDetails/PropertyDetails";
 import PropertiesMapView from "./pages/PropertiesMapView/PropertiesMapView";
+import FavoritesPage from "./pages/FavoritesPage/FavoritesPage";
 import Forbidden403 from "./pages/Errors/403";
 import NotFound404 from "./pages/Errors/404";
 import ServerError500 from "./pages/Errors/500";
@@ -17,6 +18,7 @@ import StatusCheck from "./StatusCheck";
 import { NoticeProvider } from "./context/NoticeContext";
 import { LoaderProvider, useLoader } from "./context/LoaderContext";
 import { Loader } from "./components/Loader";
+import AboutUs from "./pages/AboutUs/AboutUs";
 
 interface MeResponse {
   user: UserResponse;
@@ -90,6 +92,8 @@ const AppContent = () => {
         <Layout>
           <Routes>
             <Route path="/" element={<PropertiesGrid />} />
+            <Route path="/about-us" element={<AboutUs />} />
+            <Route path="/favorites" element={<FavoritesPage />} />
             <Route path="/properties" element={<PropertiesMapView />} />
             <Route path="/property/:id" element={<PropertyDetails />} />
             <Route path="/review" element={<SummaryPage />} />

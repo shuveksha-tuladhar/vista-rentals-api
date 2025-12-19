@@ -9,6 +9,7 @@ import HostDetails from "./subcomponents/HostDetails/HostDetails";
 import BookingSidebar from "./subcomponents/Bookings/BookingSidebar";
 import ThingsToKnow from "./subcomponents/ThingsToKnow/ThingsToKnow";
 import WhereYouWillSleep from "./subcomponents/WhereYouWillSleep/WhereYouWillSleep";
+import FavoriteButton from "../../components/FavoriteButton";
 import type { Property } from "./types/PropertyType";
 import { getApi } from "../../utils/api";
 import { useLoader } from "../../context/LoaderContext";
@@ -39,16 +40,19 @@ const PropertyDetails: React.FC = () => {
     };
 
     fetchPropertyDetails();
-  }, [id, navigate]);
+  }, [id, navigate, setIsLoading]);
 
   if (!property) return null;
 
   return (
     property != null && (
       <div className="max-w-screen-2xl mx-auto w-full flex flex-col gap-6 px-4 md:px-16 lg:px-24 mt-6">
-        <h1 className="text-2xl font-semibold text-gray-900">
-          {property.title}
-        </h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-semibold text-gray-900">
+            {property.title}
+          </h1>
+          <FavoriteButton propertyId={property.id} size="lg" />
+        </div>
         <Gallery images={property.property_images} />
 
         <div className="flex flex-col lg:flex-row gap-8">

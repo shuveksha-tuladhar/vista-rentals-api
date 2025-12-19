@@ -4,18 +4,45 @@ class PropertiesController < ApplicationController
 
   # GET /properties
   def index
+    @properties = Property.all
+
     if params[:query].present?
-      @properties = Property.where(
+      @properties = @properties.where(
         "LOWER(name) LIKE :q OR LOWER(city) LIKE :q OR LOWER(state) LIKE :q",
         q: "%#{params[:query].downcase}%",
       )
-    else
-      @properties = Property.all
+    end
+
+    if params[:state].present?
+      @properties = @properties.where("LOWER(state) = ?", params[:state].downcase)
+    end
+
+    if params[:city].present?
+      @properties = @properties.where("LOWER(city) = ?", params[:city].downcase)
+    end
+
+    if params[:guests].present?
+      @properties = @properties.where("max_guests >= ?", params[:guests].to_i)
+    end
+
+    if params[:checkIn].present? && params[:checkOut].present?
+      check_in = Date.parse(params[:checkIn])
+      check_out = Date.parse(params[:checkOut])
+      
+      booked_property_ids = Booking.where(
+        "(start_date <= ? AND end_date >= ?) OR (start_date <= ? AND end_date >= ?) OR (start_date >= ? AND end_date <= ?)",
+        check_out, check_in,
+        check_out, check_out,
+        check_in, check_out
+      ).pluck(:property_id).uniq
+      
+      @properties = @properties.where.not(id: booked_property_ids)
     end
 
     render json: @properties.map { |property|
+      average_rating = property.reviews.average(:rating)
       property.as_json(only: [:id, :name, :city, :state, :property_type, :price, :coordinates_latitude, :coordinates_longitude], include: { property_images: { only: [:url] } }).merge(
-        rating: property.reviews.average(:rating).round(2),
+        rating: average_rating ? average_rating.round(2) : 0.0,
       )
     }
   end

@@ -52,11 +52,11 @@ const MapView: React.FC<MapViewProps> = ({
   const defaultCenter: [number, number] = [39.8283, -98.5795];
 
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full relative z-0">
       <MapContainer
         center={defaultCenter}
         zoom={4}
-        className="h-full w-full"
+        className="h-full w-full z-0"
         scrollWheelZoom={true}
       >
         <TileLayer

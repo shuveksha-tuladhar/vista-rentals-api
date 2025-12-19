@@ -136,4 +136,105 @@ RSpec.describe "/properties", type: :request do
       expect(response).to redirect_to(properties_url)
     end
   end
+
+  describe "GET /index with filters" do
+    let(:user) { User.create!(email: "test@example.com", password: "password", username: "testuser", first_name: "Test", last_name: "User", role: "user") }
+    let!(:property1) {
+      Property.create!(
+        name: "Beach House", city: "Miami", state: "Florida", country: "USA",
+        address: "123 Beach Rd", zipcode: "33101", price: 200, max_guests: 4,
+        bedrooms: 2, baths: 2, user: user
+      )
+    }
+    let!(:property2) {
+      Property.create!(
+        name: "Mountain Cabin", city: "Aspen", state: "Colorado", country: "USA",
+        address: "456 Mountain Ave", zipcode: "81611", price: 300, max_guests: 6,
+        bedrooms: 3, baths: 2, user: user
+      )
+    }
+    let!(:property3) {
+      Property.create!(
+        name: "City Apartment", city: "Miami", state: "Florida", country: "USA",
+        address: "789 City St", zipcode: "33102", price: 150, max_guests: 2,
+        bedrooms: 1, baths: 1, user: user
+      )
+    }
+
+    it "filters by state" do
+      get properties_path, params: { state: "Florida" }
+      expect(response).to be_successful
+      json_response = JSON.parse(response.body)
+      expect(json_response.length).to eq(2)
+      expect(json_response.map { |p| p["name"] }).to match_array(["Beach House", "City Apartment"])
+    end
+
+    it "filters by city" do
+      get properties_path, params: { city: "Miami" }
+      expect(response).to be_successful
+      json_response = JSON.parse(response.body)
+      expect(json_response.length).to eq(2)
+      expect(json_response.map { |p| p["name"] }).to match_array(["Beach House", "City Apartment"])
+    end
+
+    it "filters by state and city" do
+      get properties_path, params: { state: "Florida", city: "Miami" }
+      expect(response).to be_successful
+      json_response = JSON.parse(response.body)
+      expect(json_response.length).to eq(2)
+    end
+
+    it "filters by number of guests" do
+      get properties_path, params: { guests: 5 }
+      expect(response).to be_successful
+      json_response = JSON.parse(response.body)
+      expect(json_response.length).to eq(1)
+      expect(json_response.first["name"]).to eq("Mountain Cabin")
+    end
+
+    context "with date filtering" do
+      let!(:booking) {
+        Booking.create!(
+          property: property1,
+          user: user,
+          start_date: Date.today + 5,
+          end_date: Date.today + 10,
+          payment_status: "complete"
+        )
+      }
+
+      it "excludes properties with overlapping bookings" do
+        get properties_path, params: {
+          checkIn: (Date.today + 6).to_s,
+          checkOut: (Date.today + 8).to_s
+        }
+        expect(response).to be_successful
+        json_response = JSON.parse(response.body)
+        property_names = json_response.map { |p| p["name"] }
+        expect(property_names).not_to include("Beach House")
+        expect(property_names).to include("Mountain Cabin", "City Apartment")
+      end
+
+      it "includes properties when dates don't overlap" do
+        get properties_path, params: {
+          checkIn: (Date.today + 15).to_s,
+          checkOut: (Date.today + 20).to_s
+        }
+        expect(response).to be_successful
+        json_response = JSON.parse(response.body)
+        expect(json_response.length).to eq(3)
+      end
+    end
+
+    it "combines multiple filters" do
+      get properties_path, params: {
+        state: "Florida",
+        guests: 3
+      }
+      expect(response).to be_successful
+      json_response = JSON.parse(response.body)
+      expect(json_response.length).to eq(1)
+      expect(json_response.first["name"]).to eq("Beach House")
+    end
+  end
 end

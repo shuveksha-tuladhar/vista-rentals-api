@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { useFavoritesStore } from "./favoritesStore";
 
 interface User {
   id: number;
@@ -17,11 +18,22 @@ interface AuthState {
   setIsModalOpen: (isOpen: boolean) => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isLoggedIn: false,
   isModalOpen: false,
   setUser: (user) => set({ user, isLoggedIn: Boolean(user) }),
-  logout: () => set({ user: null, isLoggedIn: false }),
+  logout: () => {
+    // Clear favorites when logging out
+    const favoritesStore = useFavoritesStore.getState();
+    const currentUser = get().user;
+    
+    // Clear favorites if they belong to the logged-out user
+    if (favoritesStore.userId === currentUser?.id) {
+      favoritesStore.clearFavorites();
+    }
+    
+    set({ user: null, isLoggedIn: false });
+  },
   setIsModalOpen: (isOpen) => set({ isModalOpen: isOpen }),
 }));

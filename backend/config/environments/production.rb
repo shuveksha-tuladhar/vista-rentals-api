@@ -38,20 +38,24 @@ Rails.application.configure do
   config.logger   = ActiveSupport::TaggedLogging.logger(STDOUT)
 
   # Change to "debug" to log everything (including potentially personally-identifiable information!)
-  config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
+  config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "warn")
 
   # Prevent health checks from clogging up the logs.
   config.silence_healthcheck_path = "/up"
+  
+  # Disable features to save memory
+  config.active_record.query_log_tags_enabled = false
+  config.active_record.verbose_query_logs = false
 
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
 
   # Replace the default in-process memory cache store with a durable alternative.
-  config.cache_store = :solid_cache_store
+  # Use minimal memory cache
+  config.cache_store = :memory_store, { size_mb: 8 }
 
-  # Replace the default in-process and non-durable queuing backend for Active Job.
-  config.active_job.queue_adapter = :solid_queue
-  config.solid_queue.connects_to = { database: { writing: :queue } }
+  # Use inline queue adapter instead of solid_queue to save memory
+  config.active_job.queue_adapter = :inline
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.

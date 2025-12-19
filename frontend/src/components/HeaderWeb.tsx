@@ -135,12 +135,23 @@ const Header: React.FC = () => {
                     ref={menuRef}
                     className="absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-lg z-50 py-2 text-sm border border-gray-200"
                   >
-                    <button className="w-full px-4 py-2 hover:bg-gray-100 text-left cursor-pointer">
+                    <button className="w-full px-4 py-2 hover:bg-gray-100 text-left cursor-pointer" onClick={() => navigate('/about-us')}>
                       About Us
                     </button>
                     <button className="w-full px-4 py-2 hover:bg-gray-100 text-left cursor-pointer">
                       Become a Host
                     </button>
+                    {isLoggedIn && (
+                      <button 
+                        className="w-full px-4 py-2 hover:bg-gray-100 text-left cursor-pointer border-t border-gray-200"
+                        onClick={() => {
+                          navigate('/favorites');
+                          setIsMenuOpen(false);
+                        }}
+                      >
+                        My Favorites
+                      </button>
+                    )}
                     {!isLoggedIn && (
                       <button
                         className="w-full px-4 hover:bg-gray-100 text-left cursor-pointer"
@@ -156,7 +167,7 @@ const Header: React.FC = () => {
                     )}
                     {isLoggedIn && (
                       <button
-                        className="w-full px-4 hover:bg-gray-100 text-left cursor-pointer"
+                        className="w-full px-4 hover:bg-gray-100 text-left cursor-pointer border-t border-gray-200"
                         onClick={handleLogout}
                       >
                         <div className=" border-t border-gray-200 py-2 ">
