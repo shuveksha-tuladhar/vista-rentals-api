@@ -29,7 +29,7 @@ const NumberOfGuests: React.FC = () => {
       </div>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 bg-white shadow-lg rounded-xl p-4 w-64 z-50">
+        <div className="absolute top-full left-0 mt-2 bg-white shadow-lg rounded-xl p-4 w-64 z-[1000]">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-900">Adult(s)</span>
             <div className="flex items-center space-x-2">

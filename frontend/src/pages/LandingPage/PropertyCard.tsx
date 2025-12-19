@@ -1,9 +1,10 @@
 import React from "react";
 import { FaStar } from "react-icons/fa6";
-import { FaHeart } from "react-icons/fa6";
+import FavoriteButton from "../../components/FavoriteButton";
 import type { PropertyImages } from "../PropertyDetails/subcomponents/Gallery/types/PropertyImagesType";
 
 interface PropertyCardProps {
+  id: number;
   property_type: string;
   property_images: PropertyImages[];
   city: string;
@@ -12,6 +13,7 @@ interface PropertyCardProps {
 }
 
 const PropertyCard: React.FC<PropertyCardProps> = ({
+  id,
   property_type,
   property_images,
   city,
@@ -30,12 +32,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
               "https://placehold.co/600x400/cccccc/333333?text=Image+Error";
           }}
         />
-        <button
-          aria-label="Save to favorites"
-          className="absolute top-3 right-3 w-8 h-8 z-[1] flex items-center justify-center bg-black/50 border-2 border-white rounded-full"
-        >
-          <FaHeart className="w-4 h-4 text-white" />
-        </button>
+        <div className="absolute top-3 right-3 z-[1]">
+          <FavoriteButton propertyId={id} size="md" />
+        </div>
       </div>
       <div className="flex justify-between items-start mb-1">
         <h3 className="font-semibold text-gray-900 text-base">{`${property_type} in ${city}`}</h3>

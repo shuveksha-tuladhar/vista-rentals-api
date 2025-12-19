@@ -48,7 +48,7 @@ const DatepickerContainer: React.FC = () => {
         <DatePickerModal
           isOpen={isOpenDatepicker}
           onClose={() => setIsOpenDatepicker(false)}
-          wrapperClassName="absolute top-full left-0 z-50"
+          wrapperClassName="absolute top-full left-0 z-[1000]"
           popupPositionClassName="bg-white rounded-xl shadow-md p-4 w-[700px]"
         />
       )}

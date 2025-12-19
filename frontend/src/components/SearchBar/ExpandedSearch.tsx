@@ -1,15 +1,28 @@
 import React from "react";
 import { FaMagnifyingGlass } from "react-icons/fa6";
+import { useNavigate } from "react-router-dom";
 import { useBookingStore } from "../../store/bookingStore";
 import SearchLocation from "./SearchLocation/SearchLocation";
 import NumberOfGuests from "./NumberOfGuests/NumberOfGuests";
 import DatepickerContainer from "./DatepickerContainer/DatepickerContainer";
 
 const ExpandedSearchBar: React.FC = () => {
+  const navigate = useNavigate();
   const { setLocation, location, checkIn, checkOut, guests } = useBookingStore();
 
   const handleSearch = () => {
-    console.log('Search:', location, checkIn, checkOut, guests);
+    // Build query parameters
+    const params = new URLSearchParams();
+    if (location) {
+      params.append("city", location.city);
+      params.append("state", location.state);
+    }
+    if (checkIn) params.append("checkIn", checkIn.toISOString().split('T')[0]);
+    if (checkOut) params.append("checkOut", checkOut.toISOString().split('T')[0]);
+    if (guests) params.append("guests", guests.toString());
+    
+    // Navigate to properties page with search params
+    navigate(`/properties${params.toString() ? `?${params.toString()}` : ""}`);
   }
   return (
     <div

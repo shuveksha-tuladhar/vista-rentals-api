@@ -112,7 +112,7 @@ const PropertiesGrid: React.FC = () => {
             </h2>
             <button
               onClick={() => navigate(`/properties?state=${section.state}`)}
-              className="text-blue-600 hover:text-blue-700 font-medium text-sm hover:underline"
+              className="text-gray-600 hover:text-gray-700 font-medium text-sm hover:underline hover:cursor-pointer"
             >
               View all ({section.properties.length})
             </button>
