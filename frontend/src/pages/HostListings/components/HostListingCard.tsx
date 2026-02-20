@@ -27,7 +27,7 @@ const HostListingCard = ({ listing, onEdit }: HostListingCardProps) => {
         </p>
         <button
           onClick={() => onEdit(listing.id)}
-          className="mt-4 w-full py-2 text-sm font-semibold border border-gray-900 rounded-lg hover:bg-gray-100"
+          className="mt-4 w-full py-2 text-sm font-semibold border border-gray-900 text-gray-900 rounded-lg"
         >
           Edit
         </button>

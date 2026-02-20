@@ -44,7 +44,7 @@ const HostListingsPage = () => {
           <h1 className="text-3xl font-bold text-gray-900">Your Listings</h1>
           <button
             onClick={() => navigate("/become-a-host")}
-            className="px-5 py-2 text-sm font-semibold bg-black text-white rounded-lg hover:bg-gray-900"
+            className="px-5 py-2 text-sm font-semibold bg-black text-white rounded-lg"
           >
             Add another property
           </button>
@@ -67,7 +67,7 @@ const HostListingsPage = () => {
             <p className="text-gray-500 text-lg">You have no listings yet.</p>
             <button
               onClick={() => navigate("/become-a-host")}
-              className="px-6 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-900"
+              className="px-6 py-3 bg-black text-white font-semibold rounded-lg"
             >
               Create your first listing
             </button>

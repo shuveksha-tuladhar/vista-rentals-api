@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm, useFieldArray } from "react-hook-form";
-import { FaTrash } from "react-icons/fa6";
+import { FaPlus, FaTrash } from "react-icons/fa6";
 import HostNavbar from "../../components/HostNavbar";
 import { getApi, patchApi } from "../../utils/api";
 import { useToastStore } from "../../store/toastStore";
@@ -260,7 +260,7 @@ const EditListingPage = () => {
                     <button
                       type="button"
                       onClick={() => remove(index)}
-                      className="text-gray-500 hover:text-red-500"
+                      className="text-gray-400"
                     >
                       <FaTrash className="w-4 h-4" />
                     </button>
@@ -271,8 +271,9 @@ const EditListingPage = () => {
             <button
               type="button"
               onClick={() => append("" as never)}
-              className="mt-2 text-sm font-semibold text-gray-700 underline hover:text-gray-900"
+              className="mt-3 flex items-center gap-2 text-sm border border-gray-300 rounded-lg px-4 py-2 text-gray-700 cursor-pointer"
             >
+              <FaPlus className="text-xs" />
               Add photo
             </button>
           </div>
@@ -292,7 +293,7 @@ const EditListingPage = () => {
                     className={`px-3 py-1.5 rounded-full text-sm font-medium border ${
                       selected
                         ? "bg-gray-900 text-white border-gray-900"
-                        : "bg-white text-gray-700 border-gray-300 hover:border-gray-600"
+                        : "bg-white text-gray-700 border-gray-300"
                     }`}
                   >
                     {name}
@@ -306,14 +307,14 @@ const EditListingPage = () => {
             <button
               type="button"
               onClick={() => navigate("/host/listings")}
-              className="flex-1 py-3 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50"
+              className="flex-1 py-3 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 py-3 bg-black text-white rounded-lg text-sm font-semibold hover:bg-gray-900 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="flex-1 py-3 bg-black text-white rounded-lg text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isSubmitting ? "Saving..." : "Save changes"}
             </button>
