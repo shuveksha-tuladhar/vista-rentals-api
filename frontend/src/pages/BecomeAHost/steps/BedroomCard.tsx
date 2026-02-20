@@ -26,41 +26,44 @@ const BedroomCard: React.FC<BedroomCardProps> = ({ config, onChange }) => {
   };
 
   return (
-    <div className="border border-gray-200 rounded-xl p-6 space-y-4">
+    <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 space-y-5">
       <h3 className="text-lg font-semibold text-gray-900">{config.room}</h3>
 
-      <div className="space-y-4">
+      <div className="space-y-5">
         {config.beds.map((bed, index) => (
           <div key={index} className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-500">Bed {index + 1}</span>
+              <button
+                type="button"
+                onClick={() => removeBed(index)}
+                disabled={config.beds.length === 1}
+                className={`p-1 rounded ${
+                  config.beds.length === 1
+                    ? "text-gray-200 cursor-not-allowed"
+                    : "text-gray-400 cursor-pointer"
+                }`}
+                aria-label="Remove bed"
+              >
+                <FaTrash className="text-sm" />
+              </button>
+            </div>
             <div className="flex flex-wrap gap-2">
               {BED_TYPES.map((type) => (
                 <button
                   key={type}
                   type="button"
                   onClick={() => updateBed(index, type)}
-                  className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                  className={`px-3 py-1.5 text-sm rounded-full border ${
                     bed.bedType === type
                       ? "border-gray-900 bg-gray-900 text-white"
-                      : "border-gray-300 bg-white text-gray-700 hover:border-gray-500"
+                      : "border-gray-200 bg-white text-gray-600"
                   }`}
                 >
                   {type}
                 </button>
               ))}
             </div>
-            <button
-              type="button"
-              onClick={() => removeBed(index)}
-              disabled={config.beds.length === 1}
-              className={`flex items-center gap-1 text-sm ${
-                config.beds.length === 1
-                  ? "text-gray-300 cursor-not-allowed"
-                  : "text-gray-500 hover:text-red-500 cursor-pointer"
-              }`}
-            >
-              <FaTrash className="text-xs" />
-              Remove bed
-            </button>
           </div>
         ))}
       </div>
@@ -68,7 +71,7 @@ const BedroomCard: React.FC<BedroomCardProps> = ({ config, onChange }) => {
       <button
         type="button"
         onClick={addBed}
-        className="flex items-center gap-2 text-sm border border-gray-300 rounded-lg px-4 py-2 text-gray-700 hover:border-gray-500 cursor-pointer"
+        className="flex items-center gap-2 text-sm border border-gray-300 rounded-lg px-4 py-2 text-gray-700 cursor-pointer"
       >
         <FaPlus className="text-xs" />
         Add a bed
