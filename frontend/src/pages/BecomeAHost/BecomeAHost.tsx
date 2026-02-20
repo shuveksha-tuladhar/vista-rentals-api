@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import HostNavbar from "./components/HostNavbar";
+import HostNavbar from "../../components/HostNavbar";
 import Stepper from "./components/Stepper";
 import PropertyTypeStep from "./steps/PropertyTypeStep";
 import LocationStep from "./steps/LocationStep";
