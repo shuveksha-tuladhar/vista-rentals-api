@@ -11,6 +11,7 @@ import PhotosStep from "./steps/PhotosStep";
 import DescriptionStep from "./steps/DescriptionStep";
 import PricingStep from "./steps/PricingStep";
 import { useToastStore } from "../../store/toastStore";
+import { useAuthStore } from "../../store/authStore";
 import { postApi } from "../../utils/api";
 import type { BedSetupData, BedroomConfig, BedEntry } from "./types";
 
@@ -52,6 +53,7 @@ const steps = [
 const BecomeAHost: React.FC = () => {
   const navigate = useNavigate();
   const { addToast } = useToastStore();
+  const { user, setUser } = useAuthStore();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [listingData, setListingData] = useState<ListingData>({
@@ -260,6 +262,7 @@ const BecomeAHost: React.FC = () => {
     }
 
     addToast({ message: "Your listing has been created successfully!", type: "success" });
+    if (user) setUser({ ...user, is_host: true });
     navigate("/host/listings");
   };
 

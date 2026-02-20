@@ -6,12 +6,12 @@ const HostNavbar: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+    <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
         <div className="flex-shrink-0">
           <button
             onClick={() => navigate("/")}
-            className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+            className="flex items-center space-x-2"
           >
             <FaAirbnb className="h-8 w-8 text-black-500 rotate-180" />
             <span className="text-black-500 text-xl font-bold">
@@ -23,7 +23,7 @@ const HostNavbar: React.FC = () => {
         <div className="flex items-center space-x-4">
           <button
             onClick={() => navigate("/")}
-            className="text-sm font-semibold text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-full transition-colors duration-200"
+            className="text-sm font-semibold text-gray-700 px-4 py-2 rounded-full border border-gray-300"
           >
             Exit
           </button>

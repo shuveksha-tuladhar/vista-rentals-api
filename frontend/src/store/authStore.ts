@@ -7,6 +7,7 @@ interface User {
   last_name: string;
   email: string;
   role: string;
+  is_host: boolean;
 }
 
 interface AuthState {
