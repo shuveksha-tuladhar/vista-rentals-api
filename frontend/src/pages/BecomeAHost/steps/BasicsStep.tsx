@@ -5,7 +5,6 @@ interface BasicsStepProps {
   formData: {
     guests: number;
     bedrooms: number;
-    beds: number;
     bathrooms: number;
   };
   onFormChange: (field: string, value: number) => void;
@@ -26,7 +25,6 @@ const BasicsStep: React.FC<BasicsStepProps> = ({ formData, onFormChange }) => {
   const basics = [
     { field: "guests", label: "Guests", min: 1 },
     { field: "bedrooms", label: "Bedrooms", min: 1 },
-    { field: "beds", label: "Beds", min: 1 },
     { field: "bathrooms", label: "Bathrooms", min: 1 },
   ];
 
