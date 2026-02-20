@@ -12,6 +12,9 @@ Rails.application.routes.draw do
   resources :amenities
   resources :bookings, only: [:create, :show, :update]
 
+  get  "/host/listings",      to: "host_listings#index"
+  patch "/host/listings/:id", to: "host_listings#update"
+
   resources :users do
     resources :bookings, only: [:index], controller: "bookings", action: :index_by_user # GET /users/:user_id/bookings
   end
