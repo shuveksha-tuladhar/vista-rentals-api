@@ -1,5 +1,3 @@
-// Type definitions for the Become a Host flow
-
 import type { IconType } from "react-icons";
 
 export interface ListingData {
@@ -10,6 +8,7 @@ export interface ListingData {
   photos: string[];
   description: DescriptionData;
   price: number;
+  bedSetup: BedSetupData;
 }
 
 export interface LocationData {
@@ -23,7 +22,6 @@ export interface LocationData {
 export interface BasicsData {
   guests: number;
   bedrooms: number;
-  beds: number;
   bathrooms: number;
 }
 
@@ -48,4 +46,19 @@ export interface Amenity {
   id: string;
   name: string;
   icon: IconType;
+}
+
+export type BedType = "King" | "Queen" | "Double" | "Single" | "Sofa Bed" | "Bunk Bed";
+
+export interface BedEntry {
+  bedType: BedType | "";
+}
+
+export interface BedroomConfig {
+  room: string;
+  beds: BedEntry[];
+}
+
+export interface BedSetupData {
+  bedrooms: BedroomConfig[];
 }
