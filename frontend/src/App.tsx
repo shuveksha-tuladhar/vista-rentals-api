@@ -20,6 +20,8 @@ import { LoaderProvider, useLoader } from "./context/LoaderContext";
 import { Loader } from "./components/Loader";
 import AboutUs from "./pages/AboutUs/AboutUs";
 import BecomeAHost from "./pages/BecomeAHost/BecomeAHost";
+import HostListingsPage from "./pages/HostListings";
+import EditListingPage from "./pages/HostListings/EditListingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 interface MeResponse {
@@ -93,8 +95,8 @@ const AppContent = () => {
       <Router>
         <Routes>
           <Route path="/become-a-host" element={<ProtectedRoute><BecomeAHost /></ProtectedRoute>} />
-          <Route path="/host/listings" element={<div>Coming soon</div>} />
-          <Route path="/host/listings/:id/edit" element={<div>Coming soon</div>} />
+          <Route path="/host/listings" element={<ProtectedRoute><HostListingsPage /></ProtectedRoute>} />
+          <Route path="/host/listings/:id/edit" element={<ProtectedRoute><EditListingPage /></ProtectedRoute>} />
           <Route
             path="*"
             element={
