@@ -74,7 +74,16 @@ class PropertiesController < ApplicationController
 
   # POST /properties
   def create
-    @property = Property.new(property_params)
+    Host.find_or_create_by!(user_id: current_user.id) do |host|
+      host.is_active = true
+    end
+
+    @property = current_user.properties.new(property_params)
+
+    if params[:amenity_names].present?
+      amenity_ids = params[:amenity_names].map { |name| Amenity.find_or_create_by!(name: name).id }
+      @property.amenity_ids = amenity_ids
+    end
 
     if @property.save
       render json: @property.to_json(include: [:property_images, :amenities]), status: :created
@@ -110,10 +119,11 @@ class PropertiesController < ApplicationController
 
   def property_params
     params.require(:property).permit(
-      :name, :description, :address, :city, :state, :country, :zipcode,
-      :price, :bedrooms, :baths, :max_guests,
+      :name, :title, :description, :address, :city, :state, :country, :zipcode,
+      :price, :bedrooms, :baths, :max_guests, :property_type,
       amenity_ids: [],
       property_images_attributes: [:id, :url, :_destroy],
+      property_bed_infos_attributes: [:room, :bed_type, :is_active],
     )
   end
 end
