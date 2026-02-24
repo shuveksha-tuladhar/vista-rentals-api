@@ -19,9 +19,9 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-50">
       <div
-        className="bg-white w-full max-w-md rounded-2xl p-6 shadow-lg relative"
+        className="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-6 shadow-lg relative max-h-[90vh] overflow-y-auto"
         ref={authRef}
       >
         <button
