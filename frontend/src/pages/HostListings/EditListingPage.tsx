@@ -417,17 +417,7 @@ const EditListingPage = () => {
 
       {/* Sticky footer */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-4">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <div>
-            <button
-              type="button"
-              onClick={() => window.open(`/property/${id}`, "_blank", "noopener,noreferrer")}
-              className="text-sm font-semibold text-gray-700 border border-gray-300 rounded-lg px-4 py-2"
-            >
-              Preview as guest
-            </button>
-            <p className="text-xs text-gray-400 mt-1">Shows published listing</p>
-          </div>
+        <div className="max-w-3xl mx-auto flex items-center justify-end">
           <div className="flex gap-4">
             <button
               type="button"

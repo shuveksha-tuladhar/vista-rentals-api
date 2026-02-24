@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaPencil, FaTrash } from "react-icons/fa6";
+import { FaEye, FaPencil, FaTrash } from "react-icons/fa6";
 import type { HostListing } from "../types";
 
 interface HostListingCardProps {
@@ -49,6 +49,13 @@ const HostListingCard = ({ listing, onEdit, onDelete }: HostListingCardProps) =>
             </>
           ) : (
             <>
+              <button
+                onClick={() => window.open(`/property/${listing.id}`, "_blank", "noopener,noreferrer")}
+                className="p-2 rounded-lg border border-gray-200 text-gray-600"
+                title="Preview as guest"
+              >
+                <FaEye className="w-4 h-4" />
+              </button>
               <button
                 onClick={() => onEdit(listing.id)}
                 className="p-2 rounded-lg border border-gray-200 text-gray-600"
