@@ -49,7 +49,7 @@ class PropertiesController < ApplicationController
 
   # GET /properties/:id
   def show
-    average_rating = @property.reviews.average(:rating).round(2) || 0.00
+    average_rating = @property.reviews.average(:rating)&.round(2) || 0.00
 
     render json: @property.as_json(
       include: {
