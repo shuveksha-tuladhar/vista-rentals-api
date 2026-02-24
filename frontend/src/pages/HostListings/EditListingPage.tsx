@@ -42,6 +42,8 @@ const EditListingPage = () => {
   const [amenitiesError, setAmenitiesError] = useState<string | null>(null);
 
   const [sliderValue, setSliderValue] = useState(100);
+  const [newPhotoUrl, setNewPhotoUrl] = useState("");
+  const [showAddPhoto, setShowAddPhoto] = useState(false);
 
   const {
     register,
@@ -278,58 +280,95 @@ const EditListingPage = () => {
           {/* Section 3: Photos */}
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Photos</h2>
-            <div className="space-y-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
               {fields.map((field, index) => {
                 const url = watchedPhotos?.[index] ?? "";
                 return (
-                  <div key={field.id}>
-                    <input
-                      {...register(`photos.${index}` as const, {
-                        required: "Photo URL is required",
-                      })}
-                      placeholder="https://..."
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
-                    />
+                  <div key={field.id} className="relative group">
                     {url ? (
-                      <div className="relative group mt-2">
+                      <>
                         <img
                           src={url}
                           alt=""
-                          className="h-40 w-full object-cover rounded-lg"
+                          title={url}
+                          className="h-32 w-full object-cover rounded-lg"
                           onError={(e) => {
                             (e.currentTarget as HTMLImageElement).style.display = "none";
                             (e.currentTarget.nextElementSibling as HTMLElement).style.display = "block";
                           }}
                         />
                         <div
-                          className="h-40 w-full rounded-lg bg-gray-100"
+                          className="h-32 w-full rounded-lg bg-gray-100"
                           style={{ display: "none" }}
                         />
-                        {fields.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => remove(index)}
-                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 w-8 h-8 rounded-full bg-white flex items-center justify-center text-gray-700"
-                          >
-                            <FaTrash className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </div>
+                      </>
                     ) : (
-                      <div className="mt-2 h-40 w-full rounded-lg bg-gray-100" />
+                      <div className="h-32 w-full rounded-lg bg-gray-100" />
+                    )}
+                    {fields.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => remove(index)}
+                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 w-7 h-7 rounded-full bg-white flex items-center justify-center text-gray-700"
+                      >
+                        <FaTrash className="w-3 h-3" />
+                      </button>
                     )}
                   </div>
                 );
               })}
             </div>
-            <button
-              type="button"
-              onClick={() => append("" as never)}
-              className="mt-4 flex items-center gap-2 text-sm border border-gray-300 rounded-lg px-4 py-2 text-gray-700 cursor-pointer"
-            >
-              <FaPlus className="text-xs" />
-              Add photo
-            </button>
+            {showAddPhoto ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={newPhotoUrl}
+                  onChange={(e) => setNewPhotoUrl(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      if (newPhotoUrl.trim()) {
+                        append(newPhotoUrl.trim() as never);
+                        setNewPhotoUrl("");
+                        setShowAddPhoto(false);
+                      }
+                    }
+                  }}
+                  placeholder="https://..."
+                  autoFocus
+                  className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (newPhotoUrl.trim()) {
+                      append(newPhotoUrl.trim() as never);
+                      setNewPhotoUrl("");
+                    }
+                    setShowAddPhoto(false);
+                  }}
+                  className="px-4 py-2 text-sm border border-gray-300 rounded-lg text-gray-700"
+                >
+                  Add
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setNewPhotoUrl(""); setShowAddPhoto(false); }}
+                  className="px-4 py-2 text-sm text-gray-500"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowAddPhoto(true)}
+                className="flex items-center gap-2 text-sm border border-gray-300 rounded-lg px-4 py-2 text-gray-700 cursor-pointer"
+              >
+                <FaPlus className="text-xs" />
+                Add photo
+              </button>
+            )}
           </section>
 
           <hr className="border-gray-200" />
