@@ -4,15 +4,16 @@ import { FaAirbnb, FaBars, FaCircleUser } from "react-icons/fa6";
 import { useLocation, useNavigate } from "react-router";
 import { useAuthStore } from "../store/authStore";
 import { useBookingStore } from "../store/bookingStore";
-import { AuthModal } from "./Auth/AuthModal";
 import MobileSearchModal from "./MobileSearchModal";
 import MobileMenu from "./MobileMenu";
+import MobileAuthPage from "./MobileAuthPage";
 
 const HeaderMobile: React.FC = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobileAuthOpen, setIsMobileAuthOpen] = useState(false);
 
-  const { isLoggedIn, isModalOpen, setIsModalOpen } = useAuthStore();
+  const { isLoggedIn } = useAuthStore();
   const { location, checkIn, checkOut, guests } = useBookingStore();
   const routerLocation = useLocation();
   const navigate = useNavigate();
@@ -62,7 +63,7 @@ const HeaderMobile: React.FC = () => {
             aria-label="Open menu"
           >
             {isLoggedIn ? (
-              <FaCircleUser className="h-7 w-7 text-blue-600 rounded-full p-1" />
+              <FaCircleUser className="h-7 w-7 text-red-500 rounded-full p-1" />
             ) : (
               <>
                 <FaBars className="h-5 w-5 text-gray-700" />
@@ -77,8 +78,15 @@ const HeaderMobile: React.FC = () => {
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
       />
-      <MobileMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
-      <AuthModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <MobileMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        onLoginClick={() => setIsMobileAuthOpen(true)}
+      />
+      <MobileAuthPage
+        isOpen={isMobileAuthOpen}
+        onClose={() => setIsMobileAuthOpen(false)}
+      />
     </>
   );
 };

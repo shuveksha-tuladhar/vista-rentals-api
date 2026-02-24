@@ -8,11 +8,12 @@ import { deleteApi } from "../utils/api";
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  onLoginClick: () => void;
 }
 
-const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
+const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, onLoginClick }) => {
   const navigate = useNavigate();
-  const { isLoggedIn, user, logout, setIsModalOpen } = useAuthStore();
+  const { isLoggedIn, user, logout } = useAuthStore();
   const { addToast } = useToastStore();
 
   const handleLogout = () => {
@@ -64,7 +65,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
           <button
             className="w-full px-4 py-3 text-left text-sm text-gray-900 hover:bg-gray-100 border-t border-gray-200 mt-2"
             onClick={() => {
-              setIsModalOpen(true);
+              onLoginClick();
               onClose();
             }}
           >
