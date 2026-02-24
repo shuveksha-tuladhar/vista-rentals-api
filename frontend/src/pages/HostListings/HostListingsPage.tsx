@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import HostNavbar from "../../components/HostNavbar";
 import { getApi } from "../../utils/api";
-import type { HostListing } from "./types";
+import type { HostListing, PaginationMeta } from "./types";
 import HostListingCard from "./components/HostListingCard";
 
 interface HostListingsResponse {
   data: HostListing[];
+  meta?: PaginationMeta;
   error: string | null;
 }
 
@@ -15,21 +16,36 @@ const HostListingsPage = () => {
   const [listings, setListings] = useState<HostListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [meta, setMeta] = useState<PaginationMeta | null>(null);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const fetchListings = async () => {
       setLoading(true);
-      const response = await getApi<HostListingsResponse>("/host/listings");
+      const params = new URLSearchParams({ page: String(page) });
+      if (search) params.set("search", search);
+      const response = await getApi<HostListingsResponse>(`/host/listings?${params}`);
       if (response.error) {
         setError("Failed to load your listings. Please try again.");
       } else if (response.data) {
         setListings(response.data.data ?? []);
+        setMeta(response.data.meta ?? null);
       }
       setLoading(false);
     };
 
     fetchListings();
-  }, []);
+  }, [page, search]);
+
+  const handleSearchChange = (value: string) => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setPage(1);
+      setSearch(value);
+    }, 300);
+  };
 
   const handleEdit = (id: number) => {
     navigate(`/host/listings/${id}/edit`);
@@ -50,6 +66,17 @@ const HostListingsPage = () => {
           </button>
         </div>
 
+        {meta && (
+          <div className="mb-6">
+            <input
+              type="text"
+              placeholder="Search by title, city, or state..."
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="w-full sm:w-80 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-gray-400"
+            />
+          </div>
+        )}
+
         {loading && (
           <div className="flex items-center justify-center py-24">
             <p className="text-gray-500">Loading your listings...</p>
@@ -62,7 +89,7 @@ const HostListingsPage = () => {
           </div>
         )}
 
-        {!loading && !error && listings.length === 0 && (
+        {!loading && !error && listings.length === 0 && !meta && (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
             <p className="text-gray-500 text-lg">You have no listings yet.</p>
             <button
@@ -71,6 +98,12 @@ const HostListingsPage = () => {
             >
               Create your first listing
             </button>
+          </div>
+        )}
+
+        {!loading && !error && listings.length === 0 && meta && (
+          <div className="flex items-center justify-center py-24">
+            <p className="text-gray-500">No listings match your search.</p>
           </div>
         )}
 
@@ -83,6 +116,28 @@ const HostListingsPage = () => {
                 onEdit={handleEdit}
               />
             ))}
+          </div>
+        )}
+
+        {meta && meta.total_pages > 1 && (
+          <div className="flex items-center justify-center gap-4 mt-10">
+            <button
+              onClick={() => setPage((p) => p - 1)}
+              disabled={page === 1}
+              className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg disabled:opacity-40"
+            >
+              Previous
+            </button>
+            <span className="text-sm text-gray-600">
+              Page {meta.current_page} of {meta.total_pages}
+            </span>
+            <button
+              onClick={() => setPage((p) => p + 1)}
+              disabled={page === meta.total_pages}
+              className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg disabled:opacity-40"
+            >
+              Next
+            </button>
           </div>
         )}
       </div>

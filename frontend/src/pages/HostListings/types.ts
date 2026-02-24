@@ -25,6 +25,12 @@ export interface HostListing {
   property_bed_infos: HostListingBedInfo[];
 }
 
+export interface PaginationMeta {
+  current_page: number;
+  total_pages: number;
+  total_count: number;
+}
+
 export interface EditListingFormValues {
   title: string;
   description: string;
