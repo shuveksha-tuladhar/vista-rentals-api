@@ -36,7 +36,7 @@ const HostListingCard = ({ listing, onEdit, onDelete }: HostListingCardProps) =>
               <span className="text-sm text-gray-600 mr-auto">Delete this listing?</span>
               <button
                 onClick={() => onDelete(listing.id)}
-                className="px-3 py-1.5 text-sm font-semibold bg-red-600 text-white rounded-lg"
+                className="px-3 py-1.5 text-sm font-semibold bg-black text-white rounded-lg"
               >
                 Delete
               </button>
@@ -58,7 +58,7 @@ const HostListingCard = ({ listing, onEdit, onDelete }: HostListingCardProps) =>
               </button>
               <button
                 onClick={() => setConfirmDelete(true)}
-                className="p-2 rounded-lg border border-gray-200 text-red-500"
+                className="p-2 rounded-lg border border-gray-200 text-gray-600"
                 title="Delete listing"
               >
                 <FaTrash className="w-4 h-4" />
