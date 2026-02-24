@@ -26,16 +26,18 @@ const ExpandedSearchBar: React.FC = () => {
   }
   return (
     <div
-      className="flex flex-col md:flex-row items-center justify-center w-full max-w-5xl mx-auto px-6 py-1 rounded-full shadow-lg bg-white border border-gray-200
-      transition-all duration-300 ease-in-out"
+      className="flex flex-col md:flex-row items-center justify-center w-full max-w-5xl mx-auto px-6 py-1 rounded-full shadow-lg bg-white border border-gray-200"
     >
-      <div className="flex flex-col flex-1 px-4 hover:bg-gray-100 rounded-full cursor-pointer transition-colors duration-200 w-full md:w-auto">
+      <div className="flex flex-col flex-1 px-4 hover:bg-gray-100 rounded-full cursor-pointer w-full md:w-auto">
         <SearchLocation onSelect={(location) => setLocation(location)} />
       </div>
 
       <div className="hidden md:block w-px h-8 bg-gray-300 mx-2" />
-      <div className="flex flex-col flex-1 px-4 hover:bg-gray-100 rounded-full cursor-pointer transition-colors duration-200 w-full md:w-auto">
-        <DatepickerContainer />
+      <div className="flex flex-col flex-1 px-4 hover:bg-gray-100 rounded-full cursor-pointer w-full md:w-auto">
+        <DatepickerContainer
+          datepickerWrapperClassName="absolute top-full left-0 z-[1000]"
+          datepickerPopupClassName="bg-white rounded-xl shadow-md p-4 w-[700px]"
+        />
       </div>
 
       <div className="hidden md:block w-px h-8 bg-gray-300 mx-2" />
