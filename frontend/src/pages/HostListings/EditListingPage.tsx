@@ -421,7 +421,7 @@ const EditListingPage = () => {
           <div>
             <button
               type="button"
-              onClick={() => window.open(`/properties/${id}`, "_blank", "noopener,noreferrer")}
+              onClick={() => window.open(`/property/${id}`, "_blank", "noopener,noreferrer")}
               className="text-sm font-semibold text-gray-700 border border-gray-300 rounded-lg px-4 py-2"
             >
               Preview as guest
