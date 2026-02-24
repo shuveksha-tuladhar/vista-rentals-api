@@ -18,14 +18,9 @@ interface UpdateResponse {
   error: string | null;
 }
 
-interface AmenityOption {
+interface AmenitiesResponse {
   id: number;
   name: string;
-}
-
-interface AmenitiesResponse {
-  data: AmenityOption[];
-  error: string | null;
 }
 
 const EditListingPage = () => {
@@ -37,7 +32,7 @@ const EditListingPage = () => {
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [amenityOptions, setAmenityOptions] = useState<AmenityOption[]>([]);
+  const [amenityOptions, setAmenityOptions] = useState<AmenitiesResponse[]>([]);
   const [amenitiesLoading, setAmenitiesLoading] = useState(true);
   const [amenitiesError, setAmenitiesError] = useState<string | null>(null);
 
@@ -74,11 +69,11 @@ const EditListingPage = () => {
   const fetchAmenities = async () => {
     setAmenitiesLoading(true);
     setAmenitiesError(null);
-    const response = await getApi<AmenitiesResponse>("/amenities");
+    const response = await getApi<AmenitiesResponse[]>("/amenities");
     if (response.error || !response.data) {
       setAmenitiesError("Failed to load amenities.");
     } else {
-      setAmenityOptions(response.data.data ?? []);
+      setAmenityOptions(response.data);
     }
     setAmenitiesLoading(false);
   };
