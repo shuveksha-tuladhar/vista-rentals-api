@@ -2,7 +2,7 @@
 
 # Handles host-facing listing management: viewing and updating owned properties.
 class HostListingsController < ApplicationController
-  before_action :set_property, only: [:update]
+  before_action :set_property, only: [:update, :destroy]
 
   PER_PAGE = ENV.fetch('HOST_LISTINGS_PER_PAGE', 12).to_i
 
@@ -21,6 +21,13 @@ class HostListingsController < ApplicationController
     render json: { data: serialize_property(@property.reload), error: nil }
   rescue ActiveRecord::RecordInvalid => e
     render json: { data: nil, error: e.message }, status: :unprocessable_entity
+  end
+
+  def destroy
+    return render json: { data: nil, error: 'Forbidden' }, status: :forbidden if forbidden?
+
+    @property.destroy
+    render json: { data: nil, error: nil }
   end
 
   private
