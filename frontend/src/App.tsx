@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout/Layout";
+import ToastContainer from "./components/Toast/ToastContainer";
 import PropertiesGrid from "./pages/LandingPage/PropertiesGrid";
 import PropertyDetails from "./pages/PropertyDetails/PropertyDetails";
 import PropertiesMapView from "./pages/PropertiesMapView/PropertiesMapView";
@@ -92,6 +93,7 @@ const AppContent = () => {
 
   return (
     <NoticeProvider showNotice={showNotice}>
+      <ToastContainer />
       <Router>
         <Routes>
           <Route path="/become-a-host" element={<ProtectedRoute><BecomeAHost /></ProtectedRoute>} />
