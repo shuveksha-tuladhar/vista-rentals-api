@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import HostNavbar from "../../components/HostNavbar";
-import { getApi } from "../../utils/api";
+import { deleteApi, getApi } from "../../utils/api";
+import { useToastStore } from "../../store/toastStore";
 import type { HostListing, PaginationMeta } from "./types";
 import HostListingCard from "./components/HostListingCard";
 
@@ -13,6 +14,7 @@ interface HostListingsResponse {
 
 const HostListingsPage = () => {
   const navigate = useNavigate();
+  const { addToast } = useToastStore();
   const [listings, setListings] = useState<HostListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,6 +51,16 @@ const HostListingsPage = () => {
 
   const handleEdit = (id: number) => {
     navigate(`/host/listings/${id}/edit`);
+  };
+
+  const handleDelete = async (id: number) => {
+    const response = await deleteApi(`/host/listings/${id}`);
+    if (response.error) {
+      addToast({ message: "Failed to delete listing. Please try again.", type: "error" });
+      return;
+    }
+    setListings((prev) => prev.filter((l) => l.id !== id));
+    addToast({ message: "Listing deleted.", type: "success" });
   };
 
   return (
@@ -114,6 +126,7 @@ const HostListingsPage = () => {
                 key={listing.id}
                 listing={listing}
                 onEdit={handleEdit}
+                onDelete={handleDelete}
               />
             ))}
           </div>
