@@ -3,7 +3,15 @@ import { format } from "date-fns";
 import { useBookingStore } from "../../../store/bookingStore";
 import DatePickerModal from "../../DatepickerModal/DatepickerModal";
 
-const DatepickerContainer: React.FC = () => {
+interface DatepickerContainerProps {
+  datepickerWrapperClassName?: string;
+  datepickerPopupClassName?: string;
+}
+
+const DatepickerContainer: React.FC<DatepickerContainerProps> = ({
+  datepickerWrapperClassName,
+  datepickerPopupClassName,
+}) => {
   const [isOpenDatepicker, setIsOpenDatepicker] = useState(false);
   const { checkIn, checkOut } = useBookingStore();
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -48,8 +56,8 @@ const DatepickerContainer: React.FC = () => {
         <DatePickerModal
           isOpen={isOpenDatepicker}
           onClose={() => setIsOpenDatepicker(false)}
-          wrapperClassName="absolute top-full left-0 z-[1000]"
-          popupPositionClassName="bg-white rounded-xl shadow-md p-4 w-[700px]"
+          wrapperClassName={datepickerWrapperClassName}
+          popupPositionClassName={datepickerPopupClassName}
         />
       )}
     </div>
