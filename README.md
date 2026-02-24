@@ -1,25 +1,29 @@
 # Vista Rentals
 
-Vista Rentals is a modern web application designed as an **Airbnb clone** to serve as a full-featured property rental platform, connecting property owners with potential renters. The project is split into two main parts:
-
-The platform allows users to:
-
-- List their properties with ease
-- Discover vacation rentals in various locations
+Vista Rentals is a modern web application designed as an **Airbnb-inspired** full-stack property rental platform, connecting property owners with potential renters. The project is split into two main parts:
 
 ## Features
 
-- User authentication (sign up, log in, log out)
-- Property listing and detailed property view
-- User dashboard for managing owned properties and bookings
-- Upload multiple images per property
-- Responsive, intuitive UI with filtering and searching
+### Guest experience
+- User authentication — sign up, log in, log out
+- Browse property listings with filtering by location, guests, dates, and price
+- Detailed property view with photo gallery, amenities, host info, reviews, and an interactive map
+- Save and manage favourite properties
+- Book properties with date selection and Stripe-powered checkout
+- View booking confirmation and booking history
+
+### Host experience
+- Become a host via a multi-step listing wizard (property type, location, basics, bed setup, amenities, photos, pricing, description)
+- Host dashboard — view, search, and paginate all owned listings
+- Edit any listing: section-based form with a price slider, photo thumbnail grid (add/remove by URL), and live-fetched amenities with icons
+- Delete a listing with inline confirmation
+- Preview a listing as a guest directly from the listings dashboard
 
 ## Technology Stack
 
-- **Backend:** Ruby on Rails 7
+- **Backend:** Ruby on Rails 8 (API mode) — JWT auth, Stripe, Active Storage, RuboCop
 - **Database:** SQLite (development & test)
-- **Frontend:** React, TypeScript, Vite, Tailwind CSS
+- **Frontend:** React 19, TypeScript, Vite, Tailwind CSS v4, Zustand, react-router-dom, react-hook-form, Leaflet
 
 ## Getting Started
 
@@ -27,7 +31,7 @@ The platform allows users to:
 
 - [Node.js](https://nodejs.org/) & [npm](https://www.npmjs.com/) (for frontend)
 - [Ruby](https://www.ruby-lang.org/) 3.2+
-- [Rails](https://rubyonrails.org/) 7+
+- [Rails](https://rubyonrails.org/) 8+
 - [SQLite3](https://www.sqlite.org/) (for development/test)
 
 ---
@@ -101,5 +105,3 @@ The platform allows users to:
    ```bash
    npm run build
    ```
-
-
