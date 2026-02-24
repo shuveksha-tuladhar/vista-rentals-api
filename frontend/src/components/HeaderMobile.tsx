@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { format } from "date-fns";
 import { FaAirbnb, FaBars, FaCircleUser } from "react-icons/fa6";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { useAuthStore } from "../store/authStore";
 import { useBookingStore } from "../store/bookingStore";
 import { AuthModal } from "./Auth/AuthModal";
@@ -15,6 +15,7 @@ const HeaderMobile: React.FC = () => {
   const { isLoggedIn, isModalOpen, setIsModalOpen } = useAuthStore();
   const { location, checkIn, checkOut, guests } = useBookingStore();
   const routerLocation = useLocation();
+  const navigate = useNavigate();
 
   const hideSearchPill = routerLocation.pathname === "/review";
 
@@ -32,7 +33,9 @@ const HeaderMobile: React.FC = () => {
     <>
       <header className="sticky top-0 z-50 bg-white border-b border-gray-200 px-4 pb-3 pt-2 md:hidden">
         <div className="flex items-center justify-between">
-          <FaAirbnb className="h-7 w-7 text-red-500 rotate-180 flex-shrink-0" />
+          <button onClick={() => navigate("/")} aria-label="Go to home" className="cursor-pointer">
+            <FaAirbnb className="h-7 w-7 text-red-500 rotate-180 flex-shrink-0" />
+          </button>
 
           {!hideSearchPill && (
             <div className="flex-1 mx-3">
@@ -54,7 +57,7 @@ const HeaderMobile: React.FC = () => {
           )}
 
           <button
-            className="flex items-center space-x-2 border border-gray-200 rounded-full p-2 shadow-sm"
+            className="flex items-center space-x-2 border border-gray-200 rounded-full p-2 shadow-sm cursor-pointer"
             onClick={() => setIsMenuOpen(true)}
             aria-label="Open menu"
           >
