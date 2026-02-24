@@ -70,13 +70,13 @@ npm run lint
 | Page | Path | Description |
 |---|---|---|
 | `LandingPage` | `/` | Property grid with search bar (location, check-in/out, guests) |
-| `PropertyDetails` | `/properties/:id` | Full property detail view with map, amenities, reviews, and booking panel |
-| `SummaryPage` | `/summary` | Booking summary with Stripe payment form |
-| `BookingComplete` | `/booking-complete` | Post-booking confirmation screen |
+| `PropertyDetails` | `/property/:id` | Full property detail view with map, amenities, reviews, and booking panel |
+| `SummaryPage` | `/review` | Booking summary with Stripe payment form |
+| `BookingComplete` | `/complete` | Post-booking confirmation screen |
 | `BecomeAHost` | `/become-a-host` | Multi-step form for creating a new property listing |
-| `HostListings` | `/host/listings` | Host dashboard listing all owned properties |
-| `EditListingPage` | `/host/listings/:id/edit` | Edit an existing property listing |
+| `HostListings` | `/host/listings` | Host dashboard listing all owned properties with edit, delete, and preview actions |
+| `EditListingPage` | `/host/listings/:id/edit` | Edit an existing property listing — section-based form with price slider, photo thumbnail grid, and live-fetched amenities |
 | `FavoritesPage` | `/favorites` | Saved/favorited properties |
-| `PropertiesMapView` | `/map` | Full map view of all properties |
-| `AboutUs` | `/about` | About page |
+| `PropertiesMapView` | `/properties` | Full map view of all properties |
+| `AboutUs` | `/about-us` | About page |
 

@@ -104,5 +104,6 @@ The entrypoint runs `db:migrate` and `db:seed` automatically before starting the
 | GET | `/users/:user_id/bookings` | Yes | List all bookings for a user |
 | GET | `/host/listings` | Yes | List current user's property listings |
 | PATCH | `/host/listings/:id` | Yes | Update a host's listing (title, description, price, photos, amenities) |
+| DELETE | `/host/listings/:id` | Yes | Delete a host's listing |
 | POST | `/checkout/create` | Yes | Create a Stripe PaymentIntent |
 | GET | `/checkout/payment-intent-status/:id` | Yes | Get Stripe PaymentIntent status |
