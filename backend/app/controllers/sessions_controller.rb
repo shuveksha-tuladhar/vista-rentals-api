@@ -17,7 +17,7 @@ class SessionsController < ApplicationController
 
       render json: {
                message: "Logged in successfully.",
-               user: user.slice(:id, :first_name, :last_name, :email, :role),
+               user: user.slice(:id, :first_name, :last_name, :email, :role).merge(is_host: user.host.present?),
              }, status: :ok
     else
       render json: { error: "Invalid username or password." }, status: :unauthorized
@@ -38,7 +38,7 @@ class SessionsController < ApplicationController
   def me
     if current_user
       render json: {
-               user: current_user.slice(:id, :first_name, :last_name, :email, :role),
+               user: current_user.slice(:id, :first_name, :last_name, :email, :role).merge(is_host: current_user.host.present?),
              }, status: :ok
     else
       render json: { error: "Not logged in" }, status: :unauthorized

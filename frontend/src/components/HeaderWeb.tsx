@@ -18,7 +18,7 @@ const Header: React.FC = () => {
   const location = useLocation();
 
   const { setCheckIn, setCheckOut } = useBookingStore();
-  const { isLoggedIn, logout, isModalOpen, setIsModalOpen } = useAuthStore();
+  const { isLoggedIn, user, logout, isModalOpen, setIsModalOpen } = useAuthStore();
   const { addToast } = useToastStore();
 
   const debounceTimeout = useRef<number | null>(null);
@@ -110,12 +110,12 @@ const Header: React.FC = () => {
             )}
 
             <div className="flex items-center space-x-4">
-              <a
-                href="#"
-                className="hidden lg:block text-sm font-semibold text-gray-700 hover:bg-gray-100 px-3 py-2 rounded-full transition-colors duration-200"
+              <button
+                onClick={() => navigate(isLoggedIn && user?.is_host ? "/host/listings" : "/become-a-host")}
+                className="hidden lg:block text-sm font-semibold text-gray-700 hover:bg-gray-100 px-3 py-2 rounded-full transition-colors duration-200 cursor-pointer"
               >
-                Become a Host
-              </a>
+                {isLoggedIn && user?.is_host ? "Switch to Listing" : "Become a Host"}
+              </button>
               <button className="hidden sm:block p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 cursor-pointer">
                 <FaGlobe className="h-5 w-5 text-gray-700" />
               </button>
@@ -135,17 +135,26 @@ const Header: React.FC = () => {
                     ref={menuRef}
                     className="absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-lg z-50 py-2 text-sm border border-gray-200"
                   >
-                    <button className="w-full px-4 py-2 hover:bg-gray-100 text-left cursor-pointer" onClick={() => navigate('/about-us')}>
+                    <button
+                      className="w-full px-4 py-2 hover:bg-gray-100 text-left cursor-pointer"
+                      onClick={() => navigate("/about-us")}
+                    >
                       About Us
                     </button>
-                    <button className="w-full px-4 py-2 hover:bg-gray-100 text-left cursor-pointer">
-                      Become a Host
+                    <button
+                      className="w-full px-4 py-2 hover:bg-gray-100 text-left cursor-pointer"
+                      onClick={() => {
+                        navigate(isLoggedIn && user?.is_host ? "/host/listings" : "/become-a-host");
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      {isLoggedIn && user?.is_host ? "Switch to Listing" : "Become a Host"}
                     </button>
                     {isLoggedIn && (
-                      <button 
+                      <button
                         className="w-full px-4 py-2 hover:bg-gray-100 text-left cursor-pointer border-t border-gray-200"
                         onClick={() => {
-                          navigate('/favorites');
+                          navigate("/favorites");
                           setIsMenuOpen(false);
                         }}
                       >

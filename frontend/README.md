@@ -1,69 +1,82 @@
-# React + TypeScript + Vite
+# Vista Rentals — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
 
-Currently, two official plugins are available:
+React frontend for Vista Rentals, a property rental platform. Lets users browse and book properties, manage favorites, and host their own listings.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech Stack
 
-## Expanding the ESLint configuration
+- **React** 19
+- **TypeScript** 5.8
+- **Vite** 7
+- **Tailwind CSS** v4
+- **State management** Zustand 5
+- **Routing** react-router-dom 7
+- **Forms** react-hook-form 7
+- **HTTP** axios
+- **Maps** Leaflet + react-leaflet
+- **Payments** @stripe/react-stripe-js + @stripe/stripe-js
+- **Date picking** react-date-range + date-fns
+- **Icons** react-icons
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Requirements
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Node.js >= 20.19.0
+- npm
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+## Environment Setup
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Copy `.env.example` to `.env` and fill in the values:
+
+```bash
+cp .env.example .env
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+| Variable | Description |
+|---|---|
+| `VITE_API_BASE_URL` | Base URL of the Rails API (e.g. `http://localhost:3000`) |
+| `VITE_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key for the payment form |
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Available Scripts
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Type-check and build for production
+npm run build
+
+# Preview production build locally
+npm run preview
+
+# Run ESLint
+npm run lint
 ```
+
+## Architecture Overview
+
+- **Routing**: `react-router-dom` with protected routes enforced via a `ProtectedRoute` wrapper component.
+- **Global state**: Zustand stores for auth (`authStore`), booking search filters (`bookingStore`), favorites (`favoritesStore`), and toast notifications (`toastStore`).
+- **Forms**: All user-input forms use `react-hook-form`.
+- **API calls**: Centralized via `axios` with `withCredentials: true` to send the session cookie.
+- **Maps**: Leaflet is used on the property details page and a dedicated map view to show property locations.
+- **Payments**: Stripe Elements are embedded in the booking checkout flow.
+
+## Pages
+
+| Page | Path | Description |
+|---|---|---|
+| `LandingPage` | `/` | Property grid with search bar (location, check-in/out, guests) |
+| `PropertyDetails` | `/property/:id` | Full property detail view with map, amenities, reviews, and booking panel |
+| `SummaryPage` | `/review` | Booking summary with Stripe payment form |
+| `BookingComplete` | `/complete` | Post-booking confirmation screen |
+| `BecomeAHost` | `/become-a-host` | Multi-step form for creating a new property listing |
+| `HostListings` | `/host/listings` | Host dashboard listing all owned properties with edit, delete, and preview actions |
+| `EditListingPage` | `/host/listings/:id/edit` | Edit an existing property listing — section-based form with price slider, photo thumbnail grid, and live-fetched amenities |
+| `FavoritesPage` | `/favorites` | Saved/favorited properties |
+| `PropertiesMapView` | `/properties` | Full map view of all properties |
+| `AboutUs` | `/about-us` | About page |
+

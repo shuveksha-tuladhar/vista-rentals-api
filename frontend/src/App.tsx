@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout/Layout";
+import ToastContainer from "./components/Toast/ToastContainer";
 import PropertiesGrid from "./pages/LandingPage/PropertiesGrid";
 import PropertyDetails from "./pages/PropertyDetails/PropertyDetails";
 import PropertiesMapView from "./pages/PropertiesMapView/PropertiesMapView";
@@ -19,6 +20,10 @@ import { NoticeProvider } from "./context/NoticeContext";
 import { LoaderProvider, useLoader } from "./context/LoaderContext";
 import { Loader } from "./components/Loader";
 import AboutUs from "./pages/AboutUs/AboutUs";
+import BecomeAHost from "./pages/BecomeAHost/BecomeAHost";
+import HostListingsPage from "./pages/HostListings";
+import EditListingPage from "./pages/HostListings/EditListingPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 interface MeResponse {
   user: UserResponse;
@@ -36,7 +41,7 @@ const AppContent = () => {
       try {
         await fetchWithTimeout(
           import.meta.env.VITE_API_BASE_URL || "http://localhost:4000",
-          3000
+          3000,
         );
         setShowNotice(false);
       } catch (error) {
@@ -81,29 +86,40 @@ const AppContent = () => {
     return Promise.race([
       fetch(url),
       new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Timeout")), timeout)
+        setTimeout(() => reject(new Error("Timeout")), timeout),
       ),
     ]);
   };
 
   return (
     <NoticeProvider showNotice={showNotice}>
+      <ToastContainer />
       <Router>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<PropertiesGrid />} />
-            <Route path="/about-us" element={<AboutUs />} />
-            <Route path="/favorites" element={<FavoritesPage />} />
-            <Route path="/properties" element={<PropertiesMapView />} />
-            <Route path="/property/:id" element={<PropertyDetails />} />
-            <Route path="/review" element={<SummaryPage />} />
-            <Route path="/complete" element={<BookingComplete />} />
-            <Route path="/403" element={<Forbidden403 />} />
-            <Route path="/500" element={<ServerError500 />} />
-            <Route path="*" element={<NotFound404 />} />
-          </Routes>
-          {showNotice && <StatusCheck />}
-        </Layout>
+        <Routes>
+          <Route path="/become-a-host" element={<ProtectedRoute><BecomeAHost /></ProtectedRoute>} />
+          <Route path="/host/listings" element={<ProtectedRoute><HostListingsPage /></ProtectedRoute>} />
+          <Route path="/host/listings/:id/edit" element={<ProtectedRoute><EditListingPage /></ProtectedRoute>} />
+          <Route
+            path="*"
+            element={
+              <Layout>
+                <Routes>
+                  <Route path="/" element={<PropertiesGrid />} />
+                  <Route path="/about-us" element={<AboutUs />} />
+                  <Route path="/favorites" element={<FavoritesPage />} />
+                  <Route path="/properties" element={<PropertiesMapView />} />
+                  <Route path="/property/:id" element={<PropertyDetails />} />
+                  <Route path="/review" element={<SummaryPage />} />
+                  <Route path="/complete" element={<BookingComplete />} />
+                  <Route path="/403" element={<Forbidden403 />} />
+                  <Route path="/500" element={<ServerError500 />} />
+                  <Route path="*" element={<NotFound404 />} />
+                </Routes>
+                {showNotice && <StatusCheck />}
+              </Layout>
+            }
+          />
+        </Routes>
         <Loader />
       </Router>
     </NoticeProvider>

@@ -16,6 +16,7 @@ export interface UserResponse {
   last_name: string;
   email: string;
   role: string;
+  is_host: boolean;
 }
 interface LoginResponse {
   message: string;
