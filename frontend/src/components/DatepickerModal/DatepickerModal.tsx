@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from "react";
 import { DateRange } from "react-date-range";
-import { format, differenceInCalendarDays, addDays, isSameDay } from "date-fns";
+import { format, differenceInCalendarDays, addDays } from "date-fns";
 import { findNextAvailableDate } from "../../utils/dates";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
@@ -44,27 +44,16 @@ const DatePickerModal = ({
         !checkIn || startIsDisabled
           ? findNextAvailableDate(addDays(new Date(), 7), disabled)
           : checkIn;
-      const endIsDisabled = checkOut && disabledSet.has(checkOut.toDateString());
-      const defaultEnd =
-        !checkOut || endIsDisabled
-          ? findNextAvailableDate(addDays(defaultStart, 1), disabled)
-          : checkOut;
+      const endIsDisabled =
+        !checkOut ||
+        disabledSet.has(checkOut.toDateString()) ||
+        checkOut <= defaultStart;
+      const defaultEnd = endIsDisabled
+        ? findNextAvailableDate(addDays(defaultStart, 1), disabled)
+        : checkOut;
       setSelection({ startDate: defaultStart, endDate: defaultEnd, key: "selection" });
     }
   }, [isOpen, checkIn, checkOut]);
-
-  useEffect(() => {
-    if (
-      selection.startDate &&
-      selection.endDate &&
-      (!isSameDay(checkIn ?? new Date(0), selection.startDate) ||
-        !isSameDay(checkOut ?? new Date(0), selection.endDate))
-    ) {
-      setCheckIn(selection.startDate);
-      setCheckOut(selection.endDate);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selection, setCheckIn, setCheckOut]);
 
   const handleClear = () => {
     const disabled = disabledDatesRef.current;

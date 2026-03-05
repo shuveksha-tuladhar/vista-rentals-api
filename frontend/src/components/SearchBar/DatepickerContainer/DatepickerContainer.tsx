@@ -40,14 +40,11 @@ const DatepickerContainer: React.FC<DatepickerContainerProps> = ({
         type="text"
         placeholder="Any week"
         className="text-sm text-gray-900 font-normal bg-transparent outline-none w-full"
-        {...(checkIn && checkOut
-          ? {
-              value: `${format(checkIn, "MMM d, yyyy")} - ${format(
-                checkOut,
-                "MMM d, yyyy"
-              )}`,
-            }
-          : {})}
+        value={
+          checkIn && checkOut
+            ? `${format(checkIn, "MMM d, yyyy")} - ${format(checkOut, "MMM d, yyyy")}`
+            : ""
+        }
         onClick={() => setIsOpenDatepicker(true)}
         readOnly
       />
