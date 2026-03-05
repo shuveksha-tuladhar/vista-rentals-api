@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DateRange } from "react-date-range";
 import { format, differenceInCalendarDays, addDays, isSameDay } from "date-fns";
 import { findNextAvailableDate } from "../../utils/dates";
@@ -24,28 +24,34 @@ const DatePickerModal = ({
 }: DatePickerModalProps) => {
   const { checkIn, checkOut, setCheckIn, setCheckOut } = useBookingStore();
 
-  const [selection, setSelection] = useState(() => {
-    const defaultStart = checkIn || findNextAvailableDate(addDays(new Date(), 7), disabledDates);
-    const defaultEnd = checkOut || findNextAvailableDate(addDays(defaultStart, 1), disabledDates);
-    return { startDate: defaultStart, endDate: defaultEnd, key: "selection" };
-  });
+  // Keep a ref so the isOpen effect always reads the latest disabledDates
+  // without making it a reactive dependency (which causes an infinite loop).
+  const disabledDatesRef = useRef(disabledDates);
+  disabledDatesRef.current = disabledDates;
+
+  const [selection, setSelection] = useState(() => ({
+    startDate: checkIn || addDays(new Date(), 7),
+    endDate: checkOut || addDays(new Date(), 9),
+    key: "selection",
+  }));
 
   useEffect(() => {
     if (isOpen) {
-      const disabledSet = new Set(disabledDates.map((d) => d.toDateString()));
+      const disabled = disabledDatesRef.current;
+      const disabledSet = new Set(disabled.map((d) => d.toDateString()));
       const startIsDisabled = checkIn && disabledSet.has(checkIn.toDateString());
       const defaultStart =
         !checkIn || startIsDisabled
-          ? findNextAvailableDate(addDays(new Date(), 7), disabledDates)
+          ? findNextAvailableDate(addDays(new Date(), 7), disabled)
           : checkIn;
       const endIsDisabled = checkOut && disabledSet.has(checkOut.toDateString());
       const defaultEnd =
         !checkOut || endIsDisabled
-          ? findNextAvailableDate(addDays(defaultStart, 1), disabledDates)
+          ? findNextAvailableDate(addDays(defaultStart, 1), disabled)
           : checkOut;
       setSelection({ startDate: defaultStart, endDate: defaultEnd, key: "selection" });
     }
-  }, [isOpen, checkIn, checkOut, disabledDates]);
+  }, [isOpen, checkIn, checkOut]);
 
   useEffect(() => {
     if (
@@ -61,8 +67,9 @@ const DatePickerModal = ({
   }, [selection, setCheckIn, setCheckOut]);
 
   const handleClear = () => {
-    const defaultStart = findNextAvailableDate(addDays(new Date(), 7), disabledDates);
-    const defaultEnd = findNextAvailableDate(addDays(defaultStart, 1), disabledDates);
+    const disabled = disabledDatesRef.current;
+    const defaultStart = findNextAvailableDate(addDays(new Date(), 7), disabled);
+    const defaultEnd = findNextAvailableDate(addDays(defaultStart, 1), disabled);
     setSelection({ startDate: defaultStart, endDate: defaultEnd, key: "selection" });
   };
 
