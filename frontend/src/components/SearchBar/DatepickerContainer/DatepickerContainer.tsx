@@ -32,7 +32,7 @@ const DatepickerContainer: React.FC<DatepickerContainerProps> = ({
   return (
     <div
       ref={wrapperRef}
-      className="relative flex flex-col px-4 py-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors duration-200 w-full md:w-auto"
+      className="relative flex flex-col px-4 py-2 hover:bg-gray-100 rounded-full cursor-pointer w-full md:w-auto"
     >
       <span className="text-xs font-bold text-gray-900">When</span>
 

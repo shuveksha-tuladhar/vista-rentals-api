@@ -20,7 +20,7 @@ const DatePickerModal = ({
   onClose,
   disabledDates = [],
   wrapperClassName = "fixed inset-0 z-[1000] flex items-center justify-center bg-black/25",
-  popupPositionClassName = "w-full max-w-3xl bg-white rounded-2xl shadow-xl p-6",
+  popupPositionClassName = "w-full max-w-3xl bg-white rounded-2xl p-6",
 }: DatePickerModalProps) => {
   const { checkIn, checkOut, setCheckIn, setCheckOut } = useBookingStore();
 
@@ -119,7 +119,7 @@ const DatePickerModal = ({
               <label className="text-xs text-gray-500">CHECK-IN</label>
               <input
                 readOnly
-                className="block border border-black rounded-md px-3 py-2 w-32"
+                className="block border border-gray-300 rounded-md px-3 py-2 w-32"
                 value={format(selection.startDate, "MM/dd/yyyy")}
               />
             </div>
@@ -127,7 +127,7 @@ const DatePickerModal = ({
               <label className="text-xs text-gray-500">CHECK-OUT</label>
               <input
                 readOnly
-                className="block border border-black rounded-md px-3 py-2 w-32"
+                className="block border border-gray-300 rounded-md px-3 py-2 w-32"
                 value={format(selection.endDate, "MM/dd/yyyy")}
               />
             </div>

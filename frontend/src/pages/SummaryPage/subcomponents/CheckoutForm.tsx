@@ -95,11 +95,11 @@ const CheckoutForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 animate-fade-in">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <PaymentElement id="payment-element" />
 
       {error && (
-        <div className="bg-red-50 border border-red-300 text-red-700 text-sm rounded-md px-4 py-3">
+        <div className="border-l-4 border-red-500 bg-white text-red-700 text-sm rounded-lg px-4 py-3">
           {error}
         </div>
       )}
