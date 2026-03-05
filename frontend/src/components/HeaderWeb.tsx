@@ -53,6 +53,8 @@ const Header: React.FC = () => {
   }, [handleScroll]);
 
   const handleSearchClick = () => {
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    window.scrollTo({ top: 0, behavior: "smooth" });
     setIsSearchExpanded(true);
   };
 
