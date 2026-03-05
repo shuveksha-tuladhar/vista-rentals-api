@@ -28,14 +28,11 @@ class PropertiesController < ApplicationController
     if params[:checkIn].present? && params[:checkOut].present?
       check_in = Date.parse(params[:checkIn])
       check_out = Date.parse(params[:checkOut])
-      
-      booked_property_ids = Booking.where(
-        "(start_date <= ? AND end_date >= ?) OR (start_date <= ? AND end_date >= ?) OR (start_date >= ? AND end_date <= ?)",
-        check_out, check_in,
-        check_out, check_out,
-        check_in, check_out
-      ).pluck(:property_id).uniq
-      
+
+      booked_property_ids = Booking.where(payment_status: "complete")
+                                   .where("start_date < ? AND end_date > ?", check_out, check_in)
+                                   .pluck(:property_id).uniq
+
       @properties = @properties.where.not(id: booked_property_ids)
     end
 
