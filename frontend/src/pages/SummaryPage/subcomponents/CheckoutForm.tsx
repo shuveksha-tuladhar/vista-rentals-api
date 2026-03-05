@@ -98,7 +98,11 @@ const CheckoutForm = ({
     <form onSubmit={handleSubmit} className="space-y-4 animate-fade-in">
       <PaymentElement id="payment-element" />
 
-      {error && <div className="text-red-500 text-sm">{error}</div>}
+      {error && (
+        <div className="bg-red-50 border border-red-300 text-red-700 text-sm rounded-md px-4 py-3">
+          {error}
+        </div>
+      )}
 
       <div className="text-sm text-gray-600">
         By clicking "Confirm and Pay", I agree to the charges and terms of
