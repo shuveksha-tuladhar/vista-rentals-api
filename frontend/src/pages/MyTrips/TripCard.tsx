@@ -29,7 +29,7 @@ interface TripCardProps {
 
 const TripCard: React.FC<TripCardProps> = ({ booking }) => {
   const navigate = useNavigate();
-  const { property, start_date, end_date } = booking;
+  const { property, start_date, end_date, payment_status } = booking;
 
   const start = parseISO(start_date);
   const end = parseISO(end_date);
@@ -47,10 +47,10 @@ const TripCard: React.FC<TripCardProps> = ({ booking }) => {
 
   return (
     <div
-      className="flex items-center border border-gray-200 rounded-lg p-4 cursor-pointer"
+      className="flex items-center border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-50"
       onClick={() => navigate(`/property/${property.id}`)}
     >
-      <div className="flex-shrink-0 w-40 h-[120px] rounded-md overflow-hidden bg-gray-100">
+      <div className="flex-shrink-0 w-40 h-[120px] rounded-lg overflow-hidden bg-gray-100">
         {thumbnail ? (
           <img
             src={thumbnail}
@@ -68,8 +68,14 @@ const TripCard: React.FC<TripCardProps> = ({ booking }) => {
           {dateRange} · {nights} {nights === 1 ? "night" : "nights"}
         </p>
         <div className="flex items-center mt-2">
-          <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-2" />
-          <span className="text-sm text-gray-700">Confirmed</span>
+          <span
+            className={`inline-block w-2 h-2 rounded-full mr-2 ${
+              payment_status === "complete" ? "bg-green-500" : "bg-yellow-400"
+            }`}
+          />
+          <span className="text-sm text-gray-700">
+            {payment_status === "complete" ? "Confirmed" : "Pending"}
+          </span>
         </div>
       </div>
 

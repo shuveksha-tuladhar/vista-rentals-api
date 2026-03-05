@@ -82,7 +82,7 @@ const MyTripsPage: React.FC = () => {
       </div>
 
       {displayed.length === 0 ? (
-        <div className="flex flex-col items-center py-16 text-center">
+        <div className="flex flex-col items-center py-24 text-center">
           <FiMap className="w-12 h-12 text-gray-400 mb-4" />
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
             {emptyMessage.heading}
@@ -90,7 +90,7 @@ const MyTripsPage: React.FC = () => {
           <p className="text-gray-500 mb-6">{emptyMessage.sub}</p>
           <button
             onClick={() => navigate("/")}
-            className="px-5 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-lg cursor-pointer"
+            className="px-5 py-2.5 bg-black text-white text-sm font-medium rounded-lg cursor-pointer"
           >
             Explore properties
           </button>
