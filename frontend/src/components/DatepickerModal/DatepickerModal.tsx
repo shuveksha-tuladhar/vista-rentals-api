@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { DateRange } from "react-date-range";
 import { format, differenceInCalendarDays, addDays, isSameDay } from "date-fns";
+import { findNextAvailableDate } from "../../utils/dates";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import { useBookingStore } from "../../store/bookingStore";
@@ -23,19 +24,17 @@ const DatePickerModal = ({
 }: DatePickerModalProps) => {
   const { checkIn, checkOut, setCheckIn, setCheckOut } = useBookingStore();
 
-  const [selection, setSelection] = useState({
-    startDate: checkIn || addDays(new Date(), 7),
-    endDate: checkOut || addDays(new Date(), 9),
-    key: "selection",
+  const [selection, setSelection] = useState(() => {
+    const defaultStart = checkIn || findNextAvailableDate(addDays(new Date(), 7), disabledDates);
+    const defaultEnd = checkOut || findNextAvailableDate(addDays(defaultStart, 1), disabledDates);
+    return { startDate: defaultStart, endDate: defaultEnd, key: "selection" };
   });
 
   useEffect(() => {
     if (isOpen) {
-      setSelection({
-        startDate: checkIn || addDays(new Date(), 7),
-        endDate: checkOut || addDays(new Date(), 9),
-        key: "selection",
-      });
+      const defaultStart = checkIn || findNextAvailableDate(addDays(new Date(), 7), disabledDates);
+      const defaultEnd = checkOut || findNextAvailableDate(addDays(defaultStart, 1), disabledDates);
+      setSelection({ startDate: defaultStart, endDate: defaultEnd, key: "selection" });
     }
   }, [isOpen, checkIn, checkOut]);
 
@@ -53,11 +52,9 @@ const DatePickerModal = ({
   }, [selection, setCheckIn, setCheckOut]);
 
   const handleClear = () => {
-    setSelection({
-      startDate: addDays(new Date(), 7),
-      endDate: addDays(new Date(), 9),
-      key: "selection",
-    });
+    const defaultStart = findNextAvailableDate(addDays(new Date(), 7), disabledDates);
+    const defaultEnd = findNextAvailableDate(addDays(defaultStart, 1), disabledDates);
+    setSelection({ startDate: defaultStart, endDate: defaultEnd, key: "selection" });
   };
 
   const handleClose = () => {
