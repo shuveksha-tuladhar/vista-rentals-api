@@ -59,8 +59,12 @@ const CheckoutForm = ({
     });
 
     if (responseBooking.error) {
-      console.error("Error saving bookings");
-      addToast({ message: "There was an error with booking", type: "error" });
+      setLoading(false);
+      if (responseBooking.error.status === 422) {
+        setError("These dates are no longer available. Please select different dates.");
+      } else {
+        addToast({ message: "There was an error with booking", type: "error" });
+      }
       return;
     }
 
