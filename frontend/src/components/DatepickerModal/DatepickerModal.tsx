@@ -24,10 +24,14 @@ const DatePickerModal = ({
 }: DatePickerModalProps) => {
   const { checkIn, checkOut, setCheckIn, setCheckOut } = useBookingStore();
 
-  // Keep a ref so the isOpen effect always reads the latest disabledDates
-  // without making it a reactive dependency (which causes an infinite loop).
+  // Keep refs so effects always read the latest values without making them
+  // reactive dependencies (which cause infinite loops).
   const disabledDatesRef = useRef(disabledDates);
   disabledDatesRef.current = disabledDates;
+  const checkInRef = useRef(checkIn);
+  checkInRef.current = checkIn;
+  const checkOutRef = useRef(checkOut);
+  checkOutRef.current = checkOut;
 
   const [selection, setSelection] = useState(() => ({
     startDate: checkIn || addDays(new Date(), 7),
@@ -36,24 +40,35 @@ const DatePickerModal = ({
   }));
 
   useEffect(() => {
-    if (isOpen) {
-      const disabled = disabledDatesRef.current;
-      const disabledSet = new Set(disabled.map((d) => d.toDateString()));
-      const startIsDisabled = checkIn && disabledSet.has(checkIn.toDateString());
-      const defaultStart =
-        !checkIn || startIsDisabled
-          ? findNextAvailableDate(addDays(new Date(), 7), disabled)
-          : checkIn;
-      const endIsDisabled =
-        !checkOut ||
-        disabledSet.has(checkOut.toDateString()) ||
-        checkOut <= defaultStart;
-      const defaultEnd = endIsDisabled
-        ? findNextAvailableDate(addDays(defaultStart, 1), disabled)
-        : checkOut;
-      setSelection({ startDate: defaultStart, endDate: defaultEnd, key: "selection" });
+    if (!isOpen) return;
+
+    const disabled = disabledDatesRef.current;
+    const ci = checkInRef.current;
+    const co = checkOutRef.current;
+    const disabledSet = new Set(disabled.map((d) => d.toDateString()));
+
+    const startIsDisabled = ci != null && disabledSet.has(ci.toDateString());
+    const defaultStart =
+      !ci || startIsDisabled
+        ? findNextAvailableDate(addDays(new Date(), 7), disabled)
+        : ci;
+    const endIsDisabled =
+      !co ||
+      disabledSet.has(co.toDateString()) ||
+      co <= defaultStart;
+    const defaultEnd = endIsDisabled
+      ? findNextAvailableDate(addDays(defaultStart, 1), disabled)
+      : co;
+
+    setSelection({ startDate: defaultStart, endDate: defaultEnd, key: "selection" });
+
+    // Write to store so the search bar input shows the default dates.
+    // Only do this when dates were absent or fell on a disabled day.
+    if (!ci || startIsDisabled) {
+      setCheckIn(defaultStart);
+      setCheckOut(defaultEnd);
     }
-  }, [isOpen, checkIn, checkOut]);
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleClear = () => {
     const disabled = disabledDatesRef.current;
