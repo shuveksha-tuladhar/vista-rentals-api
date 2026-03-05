@@ -7,6 +7,9 @@ Rails.application.routes.draw do
     collection do
       get :location   # GET /properties/location
     end
+    member do
+      get "booked-dates", to: "properties#booked_dates", as: :booked_dates
+    end
   end
 
   resources :amenities

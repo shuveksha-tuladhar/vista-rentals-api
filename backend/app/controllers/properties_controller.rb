@@ -1,6 +1,6 @@
 class PropertiesController < ApplicationController
   before_action :set_property, only: [:show, :update, :destroy]
-  skip_before_action :authorize_request, only: [:index, :show, :location]
+  skip_before_action :authorize_request, only: [:index, :show, :location, :booked_dates]
 
   # GET /properties
   def index
@@ -70,6 +70,19 @@ class PropertiesController < ApplicationController
   def location
     locations = Property.select(:city, :state).distinct.order(:state, :city)
     render json: locations
+  end
+
+  # GET /properties/:id/booked-dates
+  def booked_dates
+    property = Property.find_by(id: params[:id])
+    return render json: { error: "Property not found" }, status: :not_found unless property
+
+    bookings = Booking.where(property_id: property.id, payment_status: "complete")
+                      .where("end_date >= ?", Date.today)
+
+    render json: {
+      booked_dates: bookings.map { |b| { start_date: b.start_date.to_date.iso8601, end_date: b.end_date.to_date.iso8601 } }
+    }
   end
 
   # POST /properties
