@@ -32,11 +32,20 @@ const DatePickerModal = ({
 
   useEffect(() => {
     if (isOpen) {
-      const defaultStart = checkIn || findNextAvailableDate(addDays(new Date(), 7), disabledDates);
-      const defaultEnd = checkOut || findNextAvailableDate(addDays(defaultStart, 1), disabledDates);
+      const disabledSet = new Set(disabledDates.map((d) => d.toDateString()));
+      const startIsDisabled = checkIn && disabledSet.has(checkIn.toDateString());
+      const defaultStart =
+        !checkIn || startIsDisabled
+          ? findNextAvailableDate(addDays(new Date(), 7), disabledDates)
+          : checkIn;
+      const endIsDisabled = checkOut && disabledSet.has(checkOut.toDateString());
+      const defaultEnd =
+        !checkOut || endIsDisabled
+          ? findNextAvailableDate(addDays(defaultStart, 1), disabledDates)
+          : checkOut;
       setSelection({ startDate: defaultStart, endDate: defaultEnd, key: "selection" });
     }
-  }, [isOpen, checkIn, checkOut]);
+  }, [isOpen, checkIn, checkOut, disabledDates]);
 
   useEffect(() => {
     if (
