@@ -16,7 +16,7 @@ import { FiHome } from "react-icons/fi";
 import HostPortalNavbar from "../../components/HostPortalNavbar";
 import { getApi } from "../../utils/api";
 import StatCard from "./StatCard";
-import type { DashboardData } from "./types";
+import type { DashboardData, FilterOptions, ActiveFilter } from "./types";
 
 ChartJS.register(
   BarElement,
@@ -81,23 +81,37 @@ function StarRating({ rating }: { rating: number }) {
 export default function HostDashboardPage() {
   const navigate = useNavigate();
   const [data, setData] = useState<DashboardData | null>(null);
+  const [filterOptions, setFilterOptions] = useState<FilterOptions | null>(null);
+  const [filter, setFilter] = useState<ActiveFilter>({ type: null, value: null });
   const [loading, setLoading] = useState(true);
+  const [fetching, setFetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchDashboard() {
-      const { data, error: err } =
-        await getApi<DashboardData>("/host/dashboard");
-      if (data) {
-        setData(data);
+      if (data !== null) {
+        setFetching(true);
+      }
+
+      const params = new URLSearchParams();
+      if (filter.type === "property" && filter.value) params.set("property_id", String(filter.value));
+      if (filter.type === "city" && filter.value) params.set("city", String(filter.value));
+      if (filter.type === "state" && filter.value) params.set("state", String(filter.value));
+      const url = `/host/dashboard${params.toString() ? `?${params}` : ""}`;
+
+      const { data: responseData, error: err } = await getApi<DashboardData>(url);
+      if (responseData) {
+        setData(responseData);
+        setFilterOptions(responseData.filter_options);
       } else {
         setError("Failed to load dashboard. Please try again.");
         console.error(err);
       }
       setLoading(false);
+      setFetching(false);
     }
     fetchDashboard();
-  }, []);
+  }, [filter]);
 
   if (loading) {
     return (
@@ -162,16 +176,10 @@ export default function HostDashboardPage() {
     year: "numeric",
   });
 
-  const allZero6 = revenue_by_6_months.every(
-    (m) => parseFloat(m.revenue) === 0,
-  );
-  const allZero12 = revenue_by_12_months.every(
-    (m) => parseFloat(m.revenue) === 0,
-  );
+  const allZero6 = revenue_by_6_months.every((m) => parseFloat(m.revenue) === 0);
+  const allZero12 = revenue_by_12_months.every((m) => parseFloat(m.revenue) === 0);
   const noRatings = Object.values(rating_breakdown).every((v) => v === 0);
-  const noPropertyRevenue = property_performance.every(
-    (p) => parseFloat(p.revenue) === 0,
-  );
+  const noPropertyRevenue = property_performance.every((p) => parseFloat(p.revenue) === 0);
 
   const bar6Data = {
     labels: revenue_by_6_months.map((m) => m.month),
@@ -208,11 +216,7 @@ export default function HostDashboardPage() {
       {
         data: [
           occupancy_this_month.booked_nights,
-          Math.max(
-            0,
-            occupancy_this_month.total_nights -
-              occupancy_this_month.booked_nights,
-          ),
+          Math.max(0, occupancy_this_month.total_nights - occupancy_this_month.booked_nights),
         ],
         backgroundColor: [CHART_GRAY_900, CHART_GRAY_200],
         borderWidth: 0,
@@ -255,151 +259,171 @@ export default function HostDashboardPage() {
       <HostPortalNavbar />
 
       <div className="max-w-7xl mx-auto px-6 py-10">
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-black">Dashboard</h1>
+        <div className="mb-6">
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-semibold text-black">Dashboard</h1>
+            {fetching && <span className="text-xs text-gray-400">Updating...</span>}
+          </div>
           <p className="text-sm text-gray-500 mt-1">
             Overview of your rental business
           </p>
         </div>
 
-        {/* Stat cards — row 1 */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
-          <StatCard
-            label="Total Revenue"
-            value={`$${parseFloat(stats.revenue_total).toLocaleString()}`}
-          />
-          <StatCard
-            label="This Month"
-            value={`$${parseFloat(stats.revenue_this_month).toLocaleString()}`}
-          />
-          <StatCard
-            label="Avg Rating"
-            value={stats.avg_rating !== null ? `${stats.avg_rating} ★` : "—"}
-          />
+        {/* Filter bar */}
+        <div className="flex items-center gap-3 mb-6">
+          <select
+            value={filter.type === "city" ? String(filter.value) : ""}
+            disabled={filter.type === "property"}
+            onChange={(e) => {
+              const v = e.target.value;
+              setFilter(v ? { type: "city", value: v } : { type: null, value: null });
+            }}
+            className="border border-gray-300 bg-white text-sm text-gray-700 px-3 py-2 rounded-none outline-none disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <option value="">All Cities</option>
+            {filterOptions?.cities.map((city) => (
+              <option key={city} value={city}>{city}</option>
+            ))}
+          </select>
+
+          <select
+            value={filter.type === "state" ? String(filter.value) : ""}
+            disabled={filter.type === "property"}
+            onChange={(e) => {
+              const v = e.target.value;
+              setFilter(v ? { type: "state", value: v } : { type: null, value: null });
+            }}
+            className="border border-gray-300 bg-white text-sm text-gray-700 px-3 py-2 rounded-none outline-none disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <option value="">All States</option>
+            {filterOptions?.states.map((state) => (
+              <option key={state} value={state}>{state}</option>
+            ))}
+          </select>
+
+          <select
+            value={filter.type === "property" ? String(filter.value) : ""}
+            disabled={filter.type === "city" || filter.type === "state"}
+            onChange={(e) => {
+              const v = e.target.value;
+              setFilter(v ? { type: "property", value: Number(v) } : { type: null, value: null });
+            }}
+            className="border border-gray-300 bg-white text-sm text-gray-700 px-3 py-2 rounded-none outline-none disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <option value="">All Properties</option>
+            {filterOptions?.properties.map((p) => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
+
+          {filter.type !== null && (
+            <button
+              onClick={() => setFilter({ type: null, value: null })}
+              className="text-sm text-gray-500 underline cursor-pointer bg-transparent border-none"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+
+        {/* Stat cards — single 8-column row */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 mb-6">
+          <StatCard label="Total Revenue" value={`$${parseFloat(stats.revenue_total).toLocaleString()}`} />
+          <StatCard label="This Month" value={`$${parseFloat(stats.revenue_this_month).toLocaleString()}`} />
+          <StatCard label="Avg Rating" value={stats.avg_rating !== null ? `${stats.avg_rating} ★` : "—"} />
           <StatCard
             label="Total Bookings"
             value={stats.bookings_total}
-            sub={
-              stats.bookings_pending > 0
-                ? `${stats.bookings_pending} pending`
-                : undefined
-            }
+            sub={stats.bookings_pending > 0 ? `${stats.bookings_pending} pending` : undefined}
           />
-        </div>
-
-        {/* Stat cards — row 2 */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
           <StatCard label="Active Stays" value={stats.active_stays} />
           <StatCard
             label="Avg Stay"
-            value={
-              stats.avg_stay_duration !== null
-                ? `${stats.avg_stay_duration} nights`
-                : "—"
-            }
+            value={stats.avg_stay_duration !== null ? `${stats.avg_stay_duration} nights` : "—"}
           />
           <StatCard
-            label="Booking Lead Time"
-            value={
-              stats.booking_lead_time !== null
-                ? `${stats.booking_lead_time} days`
-                : "—"
-            }
+            label="Lead Time"
+            value={stats.booking_lead_time !== null ? `${stats.booking_lead_time} days` : "—"}
           />
-          <StatCard
-            label="Total Nights Booked"
-            value={stats.total_nights_booked}
-          />
+          <StatCard label="Nights Booked" value={stats.total_nights_booked} />
         </div>
 
-        {/* Revenue charts — side by side */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+        {/* 4 charts in one row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <div>
-            <SectionHeading>Revenue — Last 6 Months</SectionHeading>
-            {allZero6 ? (
-              <ChartBox>
-                <EmptyText>No revenue data yet.</EmptyText>
-              </ChartBox>
-            ) : (
-              <ChartBox>
-                <Bar data={bar6Data} options={baseChartOptions} />
-              </ChartBox>
-            )}
+            <SectionHeading>Revenue 6mo</SectionHeading>
+            <ChartBox>
+              {allZero6 ? <EmptyText>No data yet.</EmptyText> : (
+                <div className="h-40">
+                  <Bar data={bar6Data} options={{ ...baseChartOptions, maintainAspectRatio: false }} />
+                </div>
+              )}
+            </ChartBox>
           </div>
           <div>
-            <SectionHeading>Revenue Trend — 12 Months</SectionHeading>
-            {allZero12 ? (
-              <ChartBox>
-                <EmptyText>No revenue data yet.</EmptyText>
-              </ChartBox>
-            ) : (
-              <ChartBox>
-                <Line data={line12Data} options={baseChartOptions} />
-              </ChartBox>
-            )}
+            <SectionHeading>Revenue 12mo</SectionHeading>
+            <ChartBox>
+              {allZero12 ? <EmptyText>No data yet.</EmptyText> : (
+                <div className="h-40">
+                  <Line data={line12Data} options={{ ...baseChartOptions, maintainAspectRatio: false }} />
+                </div>
+              )}
+            </ChartBox>
           </div>
-        </div>
-
-        {/* Occupancy + Rating breakdown */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
           <div>
-            <SectionHeading>Occupancy — This Month</SectionHeading>
-            {occupancy_this_month.total_nights === 0 ? (
-              <ChartBox>
-                <EmptyText>—</EmptyText>
-              </ChartBox>
-            ) : (
-              <ChartBox>
-                <div className="flex flex-col items-center py-4">
-                  <div className="w-40">
+            <SectionHeading>Occupancy</SectionHeading>
+            <ChartBox>
+              {occupancy_this_month.total_nights === 0 ? <EmptyText>—</EmptyText> : (
+                <div className="flex flex-col items-center">
+                  <div className="h-28 w-28">
                     <Doughnut
                       data={donutData}
                       options={{
                         responsive: true,
+                        maintainAspectRatio: false,
                         cutout: "68%",
                         plugins: { legend: { display: false } },
                       }}
                     />
                   </div>
-                  <p className="text-3xl font-semibold text-black mt-4">
-                    {occupancy_this_month.rate}%
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1 uppercase tracking-wide">
-                    Occupied
-                  </p>
-                  <p className="text-xs text-gray-400 mt-2">
-                    {occupancy_this_month.booked_nights} of{" "}
-                    {occupancy_this_month.total_nights} nights booked
+                  <p className="text-xl font-semibold text-black mt-2">{occupancy_this_month.rate}%</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {occupancy_this_month.booked_nights}/{occupancy_this_month.total_nights} nights
                   </p>
                 </div>
-              </ChartBox>
-            )}
+              )}
+            </ChartBox>
           </div>
-
           <div>
-            <SectionHeading>Rating Breakdown</SectionHeading>
-            {noRatings ? (
-              <ChartBox>
-                <EmptyText>No reviews yet.</EmptyText>
-              </ChartBox>
-            ) : (
-              <ChartBox>
-                <Bar data={ratingBarData} options={hBarOptions} />
-              </ChartBox>
-            )}
+            <SectionHeading>Ratings</SectionHeading>
+            <ChartBox>
+              {noRatings ? <EmptyText>No reviews yet.</EmptyText> : (
+                <div className="h-40">
+                  <Bar data={ratingBarData} options={{ ...hBarOptions, maintainAspectRatio: false }} />
+                </div>
+              )}
+            </ChartBox>
           </div>
         </div>
 
         {/* Property performance */}
-        <div className="mb-10">
+        <div className="mb-6">
           <SectionHeading>Property Performance</SectionHeading>
           {noPropertyRevenue ? (
-            <ChartBox>
-              <EmptyText>No revenue data yet.</EmptyText>
-            </ChartBox>
+            <ChartBox><EmptyText>No revenue data yet.</EmptyText></ChartBox>
           ) : (
             <ChartBox>
-              <Bar data={propBarData} options={hBarOptions} />
+              {property_performance.length > 10 ? (
+                <div className="overflow-y-auto" style={{ maxHeight: "260px" }}>
+                  <div style={{ height: `${property_performance.length * 36}px` }}>
+                    <Bar data={propBarData} options={{ ...hBarOptions, maintainAspectRatio: false }} />
+                  </div>
+                </div>
+              ) : (
+                <div className="h-48">
+                  <Bar data={propBarData} options={{ ...hBarOptions, maintainAspectRatio: false }} />
+                </div>
+              )}
             </ChartBox>
           )}
         </div>

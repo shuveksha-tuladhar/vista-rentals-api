@@ -65,4 +65,21 @@ export interface DashboardData {
   property_performance: PropertyPerformance[];
   recent_reviews: RecentReview[];
   upcoming_checkins: UpcomingCheckin[];
+  filter_options: FilterOptions;
+}
+
+export interface FilterOption {
+  id: number;
+  name: string;
+}
+
+export interface FilterOptions {
+  cities: string[];
+  states: string[];
+  properties: FilterOption[];
+}
+
+export interface ActiveFilter {
+  type: "property" | "city" | "state" | null;
+  value: string | number | null;
 }
