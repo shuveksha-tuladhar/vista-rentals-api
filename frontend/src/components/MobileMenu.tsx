@@ -58,7 +58,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
           className="w-full px-4 py-3 text-left text-sm text-gray-900 hover:bg-gray-100"
           onClick={() =>
             handleNav(
-              isLoggedIn && user?.is_host ? "/host/listings" : "/become-a-host",
+              isLoggedIn && user?.is_host
+                ? "/host/dashboard"
+                : "/become-a-host",
             )
           }
         >

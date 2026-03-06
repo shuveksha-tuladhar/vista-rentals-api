@@ -3,6 +3,7 @@ import { FaAirbnb } from "react-icons/fa6";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 
 const NAV_LINKS = [
+  { label: "Dashboard", path: "/host/dashboard" },
   { label: "Listings", path: "/host/listings" },
   { label: "Bookings", path: "/host/bookings" },
 ];

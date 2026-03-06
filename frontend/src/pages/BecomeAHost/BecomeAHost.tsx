@@ -133,7 +133,10 @@ const BecomeAHost: React.FC = () => {
     setListingData({ ...listingData, bedSetup: updated });
   };
 
-  const reconcileBedSetup = (current: BedSetupData, bedroomCount: number): BedSetupData => {
+  const reconcileBedSetup = (
+    current: BedSetupData,
+    bedroomCount: number,
+  ): BedSetupData => {
     const existing = current.bedrooms;
     if (bedroomCount > existing.length) {
       const additions: BedroomConfig[] = Array.from(
@@ -141,7 +144,7 @@ const BecomeAHost: React.FC = () => {
         (_, i) => ({
           room: `Bedroom ${existing.length + i + 1}`,
           beds: [{ bedType: "" } as BedEntry],
-        })
+        }),
       );
       return { bedrooms: [...existing, ...additions] };
     }
@@ -166,7 +169,7 @@ const BecomeAHost: React.FC = () => {
         return listingData.bedSetup.bedrooms.every(
           (bedroom) =>
             bedroom.beds.length >= 1 &&
-            bedroom.beds.every((bed) => bed.bedType !== "")
+            bedroom.beds.every((bed) => bed.bedType !== ""),
         );
       case 4:
         return listingData.amenities.length > 0;
@@ -196,7 +199,7 @@ const BecomeAHost: React.FC = () => {
     if (currentStep === 2) {
       const reconciled = reconcileBedSetup(
         listingData.bedSetup,
-        listingData.basics.bedrooms
+        listingData.basics.bedrooms,
       );
       setListingData((prev) => ({ ...prev, bedSetup: reconciled }));
     }
@@ -223,12 +226,13 @@ const BecomeAHost: React.FC = () => {
       return;
     }
 
-    const bedInfosAttributes = listingData.bedSetup.bedrooms.flatMap((bedroom) =>
-      bedroom.beds.map((bed) => ({
-        room: bedroom.room,
-        bed_type: bed.bedType,
-        is_active: true,
-      }))
+    const bedInfosAttributes = listingData.bedSetup.bedrooms.flatMap(
+      (bedroom) =>
+        bedroom.beds.map((bed) => ({
+          room: bedroom.room,
+          bed_type: bed.bedType,
+          is_active: true,
+        })),
     );
 
     const payload = {
@@ -257,13 +261,19 @@ const BecomeAHost: React.FC = () => {
     setIsSubmitting(false);
 
     if (response.error) {
-      addToast({ message: "Failed to create listing. Please try again.", type: "error" });
+      addToast({
+        message: "Failed to create listing. Please try again.",
+        type: "error",
+      });
       return;
     }
 
-    addToast({ message: "Your listing has been created successfully!", type: "success" });
+    addToast({
+      message: "Your listing has been created successfully!",
+      type: "success",
+    });
     if (user) setUser({ ...user, is_host: true });
-    navigate("/host/listings");
+    navigate("/host/dashboard");
   };
 
   const renderStep = () => {
@@ -320,7 +330,10 @@ const BecomeAHost: React.FC = () => {
         );
       case 7:
         return (
-          <PricingStep price={listingData.price} onPriceChange={handlePriceChange} />
+          <PricingStep
+            price={listingData.price}
+            onPriceChange={handlePriceChange}
+          />
         );
       default:
         return null;
@@ -330,15 +343,23 @@ const BecomeAHost: React.FC = () => {
   const getValidationMessage = () => {
     switch (currentStep) {
       case 0:
-        return listingData.propertyType === "" ? "Please select a property type" : "";
+        return listingData.propertyType === ""
+          ? "Please select a property type"
+          : "";
       case 1:
         return !validateStep(1) ? "Please fill in all location fields" : "";
       case 3:
-        return !validateStep(3) ? "Select a bed type for every bed in each room" : "";
+        return !validateStep(3)
+          ? "Select a bed type for every bed in each room"
+          : "";
       case 4:
-        return listingData.amenities.length === 0 ? "Please select at least one amenity" : "";
+        return listingData.amenities.length === 0
+          ? "Please select at least one amenity"
+          : "";
       case 5:
-        return listingData.photos.length < 5 ? `Add ${5 - listingData.photos.length} more photo(s)` : "";
+        return listingData.photos.length < 5
+          ? `Add ${5 - listingData.photos.length} more photo(s)`
+          : "";
       case 6:
         return !validateStep(6) ? "Please add a title and description" : "";
       case 7:
@@ -351,13 +372,11 @@ const BecomeAHost: React.FC = () => {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <HostNavbar />
-      
+
       <div className="flex-1">
         <Stepper steps={steps} currentStep={currentStep} />
-        
-        <div className="pb-24">
-          {renderStep()}
-        </div>
+
+        <div className="pb-24">{renderStep()}</div>
       </div>
 
       {/* Fixed Bottom Navigation */}
@@ -382,7 +401,7 @@ const BecomeAHost: React.FC = () => {
                   {getValidationMessage()}
                 </span>
               )}
-              
+
               {currentStep === steps.length - 1 ? (
                 <button
                   onClick={handleSubmit}

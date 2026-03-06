@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Layout from "./components/Layout/Layout";
 import ToastContainer from "./components/Toast/ToastContainer";
 import PropertiesGrid from "./pages/LandingPage/PropertiesGrid";
@@ -23,6 +28,7 @@ import AboutUs from "./pages/AboutUs/AboutUs";
 import BecomeAHost from "./pages/BecomeAHost/BecomeAHost";
 import HostListingsPage from "./pages/HostListings";
 import HostBookingsPage from "./pages/HostBookings";
+import HostDashboardPage from "./pages/HostDashboard";
 import EditListingPage from "./pages/HostListings/EditListingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MyTripsPage from "./pages/MyTrips/MyTripsPage";
@@ -105,6 +111,18 @@ const AppContent = () => {
                 <BecomeAHost />
               </ProtectedRoute>
             }
+          />
+          <Route
+            path="/host/dashboard"
+            element={
+              <ProtectedRoute>
+                <HostDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/host"
+            element={<Navigate to="/host/dashboard" replace />}
           />
           <Route
             path="/host/listings"

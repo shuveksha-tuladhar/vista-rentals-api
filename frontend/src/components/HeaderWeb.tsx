@@ -117,7 +117,7 @@ const Header: React.FC = () => {
                 onClick={() =>
                   navigate(
                     isLoggedIn && user?.is_host
-                      ? "/host/listings"
+                      ? "/host/dashboard"
                       : "/become-a-host",
                   )
                 }
@@ -157,7 +157,7 @@ const Header: React.FC = () => {
                       onClick={() => {
                         navigate(
                           isLoggedIn && user?.is_host
-                            ? "/host/listings"
+                            ? "/host/dashboard"
                             : "/become-a-host",
                         );
                         setIsMenuOpen(false);
