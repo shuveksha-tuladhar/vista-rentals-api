@@ -111,7 +111,7 @@ const HostBookingsPage = () => {
           <select
             value={propertyId}
             onChange={(e) => handlePropertyChange(e.target.value)}
-            className="border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none"
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none"
           >
             <option value="">All Properties</option>
             {propertyOptions.map((p) => (
@@ -124,7 +124,7 @@ const HostBookingsPage = () => {
           <select
             value={paymentStatus}
             onChange={(e) => handleStatusChange(e.target.value)}
-            className="border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none"
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none"
           >
             {PAYMENT_STATUS_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -204,11 +204,11 @@ const HostBookingsPage = () => {
         )}
 
         {meta && meta.total_pages > 1 && (
-          <div className="flex items-center justify-center gap-4 mt-8">
+          <div className="flex items-center justify-center gap-4 mt-10">
             <button
               onClick={() => setPage((p) => p - 1)}
               disabled={page === 1}
-              className="border border-gray-200 rounded-md px-4 py-2 text-sm disabled:opacity-40"
+              className="border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-40"
             >
               Prev
             </button>
@@ -218,7 +218,7 @@ const HostBookingsPage = () => {
             <button
               onClick={() => setPage((p) => p + 1)}
               disabled={page === meta.total_pages}
-              className="border border-gray-200 rounded-md px-4 py-2 text-sm disabled:opacity-40"
+              className="border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-40"
             >
               Next
             </button>

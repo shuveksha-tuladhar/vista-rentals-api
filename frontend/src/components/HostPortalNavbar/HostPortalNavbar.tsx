@@ -19,10 +19,8 @@ const HostPortalNavbar: React.FC = () => {
             onClick={() => navigate("/")}
             className="flex items-center space-x-2"
           >
-            <FaAirbnb className="h-8 w-8 text-black-500 rotate-180" />
-            <span className="text-black-500 text-xl font-bold">
-              Vista Rentals
-            </span>
+            <FaAirbnb className="h-8 w-8 text-black rotate-180" />
+            <span className="text-black text-xl font-bold">Vista Rentals</span>
           </button>
         </div>
 
@@ -38,7 +36,7 @@ const HostPortalNavbar: React.FC = () => {
           ))}
           <button
             onClick={() => navigate("/")}
-            className="text-sm font-semibold text-gray-700 px-4 py-2 rounded-full border border-gray-300"
+            className="text-sm font-semibold text-gray-700 px-4 py-2 rounded-lg border border-gray-300"
           >
             Exit
           </button>
