@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import HostNavbar from "../../components/HostNavbar";
+import HostPortalNavbar from "../../components/HostPortalNavbar";
 import { deleteApi, getApi } from "../../utils/api";
 import { useToastStore } from "../../store/toastStore";
 import type { HostListing, PaginationMeta } from "./types";
@@ -28,7 +28,9 @@ const HostListingsPage = () => {
       setLoading(true);
       const params = new URLSearchParams({ page: String(page) });
       if (search) params.set("search", search);
-      const response = await getApi<HostListingsResponse>(`/host/listings?${params}`);
+      const response = await getApi<HostListingsResponse>(
+        `/host/listings?${params}`,
+      );
       if (response.error) {
         setError("Failed to load your listings. Please try again.");
       } else if (response.data) {
@@ -56,7 +58,10 @@ const HostListingsPage = () => {
   const handleDelete = async (id: number) => {
     const response = await deleteApi(`/host/listings/${id}`);
     if (response.error) {
-      addToast({ message: "Failed to delete listing. Please try again.", type: "error" });
+      addToast({
+        message: "Failed to delete listing. Please try again.",
+        type: "error",
+      });
       return;
     }
     setListings((prev) => prev.filter((l) => l.id !== id));
@@ -65,7 +70,7 @@ const HostListingsPage = () => {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <HostNavbar />
+      <HostPortalNavbar />
 
       <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between mb-8">
