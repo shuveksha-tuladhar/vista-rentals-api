@@ -18,6 +18,12 @@ interface PaymentResponse {
   clientSecret: string;
 }
 
+// Initialized once outside the component to prevent Stripe from re-mounting
+// Elements on every render, which breaks the payment form.
+const stripePromise = loadStripe(
+  import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "",
+);
+
 const SummaryPaymentDetails = ({
   isVisible,
   total,
@@ -28,22 +34,17 @@ const SummaryPaymentDetails = ({
 }: Props) => {
   const { isLoggedIn } = useAuthStore();
   const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const stripePromise = loadStripe(
-    import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || ""
-  );
 
   useEffect(() => {
-    if (!clientSecret) {
-      postApi<PaymentResponse>("/checkout/create", {
-        amount: total * 100,
-      }).then((response) =>
-        setClientSecret(response.data?.clientSecret ?? null)
-      );
-    }
-  }, [clientSecret, total]);
+    if (!isLoggedIn || clientSecret) return;
+
+    postApi<PaymentResponse>("/checkout/create", {
+      amount: total * 100,
+    }).then((response) => setClientSecret(response.data?.clientSecret ?? null));
+  }, [isLoggedIn, clientSecret, total]);
 
   return (
-    <div className="bg-white border rounded-2xl p-6 border-gray-300 shadow-sm transition-all duration-300 ease-in-out overflow-hidden">
+    <div className="bg-white border rounded-2xl p-6 border-gray-300">
       <div className="font-medium mb-4">
         2. Add a payment and complete reservation
       </div>
@@ -58,7 +59,7 @@ const SummaryPaymentDetails = ({
           />
         </Elements>
       )}
-      {!clientSecret && <p>Loading</p>}
+      {!clientSecret && isLoggedIn && <p>Loading</p>}
     </div>
   );
 };
