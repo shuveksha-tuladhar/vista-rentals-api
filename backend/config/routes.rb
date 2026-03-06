@@ -1,37 +1,40 @@
+# frozen_string_literal: true
+
 Rails.application.routes.draw do
-  get "up" => "rails/health#show", as: :rails_health_check
-  get "status", to: "home#status"
-  root "home#index"
+  get 'up' => 'rails/health#show', as: :rails_health_check
+  get 'status', to: 'home#status'
+  root 'home#index'
 
   resources :properties do
     collection do
-      get :location   # GET /properties/location
+      get :location # GET /properties/location
     end
     member do
-      get "booked-dates", to: "properties#booked_dates", as: :booked_dates
+      get 'booked-dates', to: 'properties#booked_dates', as: :booked_dates
     end
   end
 
   resources :amenities
-  resources :bookings, only: [:create, :show, :update]
+  resources :bookings, only: %i[create show update]
 
-  get  "/host/listings",      to: "host_listings#index"
-  patch "/host/listings/:id", to: "host_listings#update"
-  delete "/host/listings/:id", to: "host_listings#destroy"
+  get  '/host/bookings',      to: 'host_bookings#index'
+  get  '/host/listings',      to: 'host_listings#index'
+  patch '/host/listings/:id', to: 'host_listings#update'
+  delete '/host/listings/:id', to: 'host_listings#destroy'
 
   resources :users do
-    resources :bookings, only: [:index], controller: "bookings", action: :index_by_user # GET /users/:user_id/bookings
+    resources :bookings, only: [:index], controller: 'bookings', action: :index_by_user # GET /users/:user_id/bookings
   end
 
-  post "/checkout/create", to: "checkouts#create_payment_intent"
-  get "/checkout/payment-intent-status/:id", to: "checkouts#payment_intent_status"
+  post '/checkout/create', to: 'checkouts#create_payment_intent'
+  get '/checkout/payment-intent-status/:id', to: 'checkouts#payment_intent_status'
 
   # User routes
-  get "login", to: "sessions#new"
-  post "login", to: "sessions#create"
-  delete "logout", to: "sessions#destroy"
-  get "/me", to: "sessions#me"
+  get 'login', to: 'sessions#new'
+  post 'login', to: 'sessions#create'
+  delete 'logout', to: 'sessions#destroy'
+  get '/me', to: 'sessions#me'
 
-  get "signup", to: "users#new"
-  post "signup", to: "users#create"
+  get 'signup', to: 'users#new'
+  post 'signup', to: 'users#create'
 end
