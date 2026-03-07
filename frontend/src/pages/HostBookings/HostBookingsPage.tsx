@@ -3,8 +3,15 @@ import { FiClipboard } from "react-icons/fi";
 import { parseISO, format, isSameMonth, isSameYear } from "date-fns";
 import HostPortalNavbar from "../../components/HostPortalNavbar";
 import { getApi } from "../../utils/api";
+import { useLoader } from "../../context/LoaderContext";
 import type { HostBooking, HostBookingsResponse } from "./types";
 import type { PaginationMeta } from "../HostListings/types";
+
+interface ExtendedMeta extends PaginationMeta {
+  total_revenue: string;
+  confirmed_count: number;
+  pending_count: number;
+}
 
 function formatDateRange(startDate: string, endDate: string): string {
   const start = parseISO(startDate);
@@ -15,213 +22,243 @@ function formatDateRange(startDate: string, endDate: string): string {
   return `${format(start, "MMM d")} – ${format(end, "MMM d, yyyy")}`;
 }
 
-function StatusBadge({ status }: { status: string }) {
-  if (status === "complete") {
-    return (
-      <span className="flex items-center gap-1.5 text-sm text-green-700">
-        <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
-        Confirmed
-      </span>
-    );
-  }
-  if (status === "failed") {
-    return (
-      <span className="flex items-center gap-1.5 text-sm text-red-700">
-        <span className="w-2 h-2 rounded-full bg-red-500 inline-block" />
-        Failed
-      </span>
-    );
-  }
-  return (
-    <span className="flex items-center gap-1.5 text-sm text-gray-600">
-      <span className="w-2 h-2 rounded-full bg-gray-400 inline-block" />
-      Pending
-    </span>
-  );
-}
-
-const PAYMENT_STATUS_OPTIONS = [
-  { label: "All Statuses", value: "" },
-  { label: "Complete", value: "complete" },
+const STATUS_TABS = [
+  { label: "All", value: "" },
+  { label: "Confirmed", value: "complete" },
   { label: "Pending", value: "pending" },
   { label: "Failed", value: "failed" },
 ];
 
+const statusBorderClass: Record<string, string> = {
+  complete: "border-l-green-500",
+  pending: "border-l-yellow-400",
+  failed: "border-l-red-500",
+};
+
+const statusLabelClass: Record<string, string> = {
+  complete: "text-green-700",
+  pending: "text-yellow-600",
+  failed: "text-red-600",
+};
+
+const statusLabel: Record<string, string> = {
+  complete: "Confirmed",
+  pending: "Pending",
+  failed: "Failed",
+};
+
+function StatCard({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="border border-gray-200 px-5 py-4">
+      <p className="text-xs text-gray-400 uppercase tracking-wide">{label}</p>
+      <p className="text-xl font-semibold text-black mt-1">{value}</p>
+    </div>
+  );
+}
+
+function BookingCard({ booking }: { booking: HostBooking }) {
+  const borderClass = statusBorderClass[booking.payment_status] ?? "border-l-gray-300";
+  const labelClass = statusLabelClass[booking.payment_status] ?? "text-gray-500";
+  const label = statusLabel[booking.payment_status] ?? booking.payment_status;
+
+  return (
+    <div className={`border border-gray-200 border-l-4 ${borderClass} flex items-center gap-4 px-4 py-4 hover:bg-gray-50 cursor-pointer`}>
+      {booking.property.image_url ? (
+        <img
+          src={booking.property.image_url}
+          alt={booking.property.name}
+          className="w-12 h-12 object-cover flex-shrink-0"
+        />
+      ) : (
+        <div className="w-12 h-12 bg-gray-100 flex-shrink-0" />
+      )}
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-black truncate">{booking.property.name}</p>
+        <p className="text-xs text-gray-400 mt-0.5 truncate">
+          {booking.guest.first_name} {booking.guest.last_name} · {booking.guest.email}
+        </p>
+      </div>
+      <div className="text-right flex-shrink-0 ml-4">
+        <p className="text-xs text-gray-500">{formatDateRange(booking.start_date, booking.end_date)} · {booking.total_nights} night{booking.total_nights !== 1 ? "s" : ""}</p>
+        <div className="flex items-center justify-end gap-3 mt-1">
+          <p className="text-sm font-semibold text-black">${booking.total_price}</p>
+          <span className={`text-xs font-medium ${labelClass}`}>{label}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface HostListingItem {
+  id: number;
+  name: string;
+}
+
+interface HostListingsApiResponse {
+  data: HostListingItem[];
+}
+
 const HostBookingsPage = () => {
   const [bookings, setBookings] = useState<HostBooking[]>([]);
-  const [meta, setMeta] = useState<PaginationMeta | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [meta, setMeta] = useState<ExtendedMeta | null>(null);
+  const [fetching, setFetching] = useState(true);
   const [page, setPage] = useState(1);
+  const [activeStatus, setActiveStatus] = useState("");
   const [propertyId, setPropertyId] = useState("");
-  const [paymentStatus, setPaymentStatus] = useState("");
-  const [propertyOptions, setPropertyOptions] = useState<
-    { id: number; name: string }[]
-  >([]);
+  const [startDateFrom, setStartDateFrom] = useState("");
+  const [startDateTo, setStartDateTo] = useState("");
+  const [propertyOptions, setPropertyOptions] = useState<{ id: number; name: string }[]>([]);
+  const { setIsLoading } = useLoader();
+
+  useEffect(() => {
+    const fetchProperties = async () => {
+      const response = await getApi<HostListingsApiResponse>("/host/listings?per_page=100");
+      if (response.data?.data) {
+        setPropertyOptions(response.data.data.map((p) => ({ id: p.id, name: p.name })));
+      }
+    };
+    fetchProperties();
+  }, []);
 
   useEffect(() => {
     const fetchBookings = async () => {
-      setLoading(true);
+      setIsLoading(true);
+      setFetching(true);
       const params = new URLSearchParams({ page: String(page) });
       if (propertyId) params.set("property_id", propertyId);
-      if (paymentStatus) params.set("payment_status", paymentStatus);
+      if (activeStatus) params.set("payment_status", activeStatus);
+      if (startDateFrom) params.set("start_date_from", startDateFrom);
+      if (startDateTo) params.set("start_date_to", startDateTo);
 
-      const response = await getApi<HostBookingsResponse>(
-        `/host/bookings?${params}`,
-      );
+      const response = await getApi<HostBookingsResponse>(`/host/bookings?${params}`);
       if (response.data) {
         setBookings(response.data.bookings);
-        setMeta(response.data.meta);
-
-        if (page === 1 && !propertyId && !paymentStatus) {
-          const seen = new Set<number>();
-          const options = response.data.bookings
-            .map((b) => b.property)
-            .filter((p) => {
-              if (seen.has(p.id)) return false;
-              seen.add(p.id);
-              return true;
-            });
-          setPropertyOptions(options);
-        }
+        setMeta(response.data.meta as ExtendedMeta);
       }
-      setLoading(false);
+      setIsLoading(false);
+      setFetching(false);
     };
-
     fetchBookings();
-  }, [page, propertyId, paymentStatus]);
+  }, [page, activeStatus, propertyId, startDateFrom, startDateTo, setIsLoading]);
+
+  const handleTabChange = (value: string) => {
+    setPage(1);
+    setActiveStatus(value);
+  };
 
   const handlePropertyChange = (value: string) => {
     setPage(1);
     setPropertyId(value);
   };
 
-  const handleStatusChange = (value: string) => {
-    setPage(1);
-    setPaymentStatus(value);
-  };
+  const startIndex = meta ? (meta.current_page - 1) * meta.per_page + 1 : 0;
+  const endIndex = meta ? Math.min(meta.current_page * meta.per_page, meta.total_count) : 0;
+
+  if (fetching && !meta) return null;
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <HostPortalNavbar />
 
-      <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Bookings</h1>
+      <div className="max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+        <h1 className="text-2xl font-semibold text-black mb-6">Bookings</h1>
 
-        <div className="flex items-center gap-3 mb-6">
+        {meta && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+            <StatCard label="Total Bookings" value={meta.total_count} />
+            <StatCard label="Total Revenue" value={`$${parseFloat(meta.total_revenue).toLocaleString()}`} />
+            <StatCard label="Confirmed" value={meta.confirmed_count} />
+            <StatCard label="Pending" value={meta.pending_count} />
+          </div>
+        )}
+
+        <div className="flex items-center gap-1 border-b border-gray-200 mb-4">
+          {STATUS_TABS.map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => handleTabChange(tab.value)}
+              className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px ${
+                activeStatus === tab.value
+                  ? "border-black text-black"
+                  : "border-transparent text-gray-500"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 mb-6">
           <select
             value={propertyId}
             onChange={(e) => handlePropertyChange(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none"
+            className="border border-gray-300 px-3 py-1.5 text-sm outline-none"
           >
             <option value="">All Properties</option>
             {propertyOptions.map((p) => (
-              <option key={p.id} value={String(p.id)}>
-                {p.name}
-              </option>
+              <option key={p.id} value={String(p.id)}>{p.name}</option>
             ))}
           </select>
-
-          <select
-            value={paymentStatus}
-            onChange={(e) => handleStatusChange(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none"
-          >
-            {PAYMENT_STATUS_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+          <input
+            type="date"
+            value={startDateFrom}
+            onChange={(e) => { setPage(1); setStartDateFrom(e.target.value); }}
+            className="border border-gray-300 px-3 py-1.5 text-sm outline-none text-gray-700"
+          />
+          <span className="text-sm text-gray-400">to</span>
+          <input
+            type="date"
+            value={startDateTo}
+            onChange={(e) => { setPage(1); setStartDateTo(e.target.value); }}
+            className="border border-gray-300 px-3 py-1.5 text-sm outline-none text-gray-700"
+          />
+          {(startDateFrom || startDateTo || propertyId) && (
+            <button
+              onClick={() => { setPage(1); setPropertyId(""); setStartDateFrom(""); setStartDateTo(""); }}
+              className="text-sm text-gray-400 underline"
+            >
+              Clear
+            </button>
+          )}
         </div>
 
-        {loading && (
-          <div className="flex items-center justify-center py-24">
-            <p className="text-gray-500 text-sm">Loading...</p>
-          </div>
-        )}
-
-        {!loading && bookings.length === 0 && (
+        {!fetching && bookings.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
             <FiClipboard className="w-10 h-10 text-gray-300" />
-            <p className="text-gray-900 font-medium">No bookings yet</p>
-            <p className="text-gray-500 text-sm">
-              Guests who book your properties will appear here.
+            <p className="text-gray-900 font-medium">No bookings found</p>
+            <p className="text-gray-500 text-sm">Try adjusting your filters.</p>
+          </div>
+        )}
+
+        {bookings.length > 0 && (
+          <div className="space-y-2">
+            {bookings.map((booking) => (
+              <BookingCard key={booking.id} booking={booking} />
+            ))}
+          </div>
+        )}
+
+        {meta && meta.total_pages >= 1 && bookings.length > 0 && (
+          <div className="flex items-center justify-between mt-8">
+            <p className="text-sm text-gray-400">
+              Showing {startIndex}–{endIndex} of {meta.total_count} bookings
             </p>
-          </div>
-        )}
-
-        {!loading && bookings.length > 0 && (
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                    Guest
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                    Property
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                    Dates
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                    Nights
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                    Amount
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {bookings.map((booking) => (
-                  <tr key={booking.id} className="bg-white">
-                    <td className="px-4 py-3 text-sm text-gray-900">
-                      {booking.guest.first_name} {booking.guest.last_name}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-700">
-                      {booking.property.name}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-700">
-                      {formatDateRange(booking.start_date, booking.end_date)}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-700">
-                      {booking.total_nights}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-900 font-medium">
-                      ${booking.total_price}
-                    </td>
-                    <td className="px-4 py-3">
-                      <StatusBadge status={booking.payment_status} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {meta && meta.total_pages > 1 && (
-          <div className="flex items-center justify-center gap-4 mt-10">
-            <button
-              onClick={() => setPage((p) => p - 1)}
-              disabled={page === 1}
-              className="border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-40"
-            >
-              Prev
-            </button>
-            <span className="text-sm text-gray-600">
-              Page {meta.current_page} of {meta.total_pages}
-            </span>
-            <button
-              onClick={() => setPage((p) => p + 1)}
-              disabled={page === meta.total_pages}
-              className="border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-40"
-            >
-              Next
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setPage((p) => p - 1)}
+                disabled={page === 1}
+                className="border border-gray-300 px-4 py-1.5 text-sm font-medium disabled:opacity-40"
+              >
+                Prev
+              </button>
+              <button
+                onClick={() => setPage((p) => p + 1)}
+                disabled={page === meta.total_pages}
+                className="border border-gray-300 px-4 py-1.5 text-sm font-medium disabled:opacity-40"
+              >
+                Next
+              </button>
+            </div>
           </div>
         )}
       </div>

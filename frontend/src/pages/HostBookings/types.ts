@@ -10,6 +10,7 @@ export interface HostBookingGuest {
 export interface HostBookingProperty {
   id: number;
   name: string;
+  image_url?: string | null;
 }
 
 export interface HostBooking {
