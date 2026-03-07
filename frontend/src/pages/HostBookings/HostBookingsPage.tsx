@@ -7,12 +7,6 @@ import { useLoader } from "../../context/LoaderContext";
 import type { HostBooking, HostBookingsResponse } from "./types";
 import type { PaginationMeta } from "../HostListings/types";
 
-interface ExtendedMeta extends PaginationMeta {
-  total_revenue: string;
-  confirmed_count: number;
-  pending_count: number;
-}
-
 function formatDateRange(startDate: string, endDate: string): string {
   const start = parseISO(startDate);
   const end = parseISO(endDate);
@@ -21,31 +15,6 @@ function formatDateRange(startDate: string, endDate: string): string {
   }
   return `${format(start, "MMM d")} – ${format(end, "MMM d, yyyy")}`;
 }
-
-const STATUS_TABS = [
-  { label: "All", value: "" },
-  { label: "Confirmed", value: "complete" },
-  { label: "Pending", value: "pending" },
-  { label: "Failed", value: "failed" },
-];
-
-const statusBorderClass: Record<string, string> = {
-  complete: "border-l-green-500",
-  pending: "border-l-yellow-400",
-  failed: "border-l-red-500",
-};
-
-const statusLabelClass: Record<string, string> = {
-  complete: "text-green-700",
-  pending: "text-yellow-600",
-  failed: "text-red-600",
-};
-
-const statusLabel: Record<string, string> = {
-  complete: "Confirmed",
-  pending: "Pending",
-  failed: "Failed",
-};
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
@@ -57,12 +26,8 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
 }
 
 function BookingCard({ booking }: { booking: HostBooking }) {
-  const borderClass = statusBorderClass[booking.payment_status] ?? "border-l-gray-300";
-  const labelClass = statusLabelClass[booking.payment_status] ?? "text-gray-500";
-  const label = statusLabel[booking.payment_status] ?? booking.payment_status;
-
   return (
-    <div className={`border border-gray-200 border-l-4 ${borderClass} flex items-center gap-4 px-4 py-4 hover:bg-gray-50 cursor-pointer`}>
+    <div className="border border-gray-200 border-l-4 border-l-green-500 flex items-center gap-4 px-4 py-4 hover:bg-gray-50 cursor-pointer">
       {booking.property.image_url ? (
         <img
           src={booking.property.image_url}
@@ -80,10 +45,7 @@ function BookingCard({ booking }: { booking: HostBooking }) {
       </div>
       <div className="text-right flex-shrink-0 ml-4">
         <p className="text-xs text-gray-500">{formatDateRange(booking.start_date, booking.end_date)} · {booking.total_nights} night{booking.total_nights !== 1 ? "s" : ""}</p>
-        <div className="flex items-center justify-end gap-3 mt-1">
-          <p className="text-sm font-semibold text-black">${booking.total_price}</p>
-          <span className={`text-xs font-medium ${labelClass}`}>{label}</span>
-        </div>
+        <p className="text-sm font-semibold text-black mt-1">${booking.total_price}</p>
       </div>
     </div>
   );
@@ -100,10 +62,9 @@ interface HostListingsApiResponse {
 
 const HostBookingsPage = () => {
   const [bookings, setBookings] = useState<HostBooking[]>([]);
-  const [meta, setMeta] = useState<ExtendedMeta | null>(null);
+  const [meta, setMeta] = useState<HostBookingsResponse["meta"] | null>(null);
   const [fetching, setFetching] = useState(true);
   const [page, setPage] = useState(1);
-  const [activeStatus, setActiveStatus] = useState("");
   const [propertyId, setPropertyId] = useState("");
   const [startDateFrom, setStartDateFrom] = useState("");
   const [startDateTo, setStartDateTo] = useState("");
@@ -126,25 +87,19 @@ const HostBookingsPage = () => {
       setFetching(true);
       const params = new URLSearchParams({ page: String(page) });
       if (propertyId) params.set("property_id", propertyId);
-      if (activeStatus) params.set("payment_status", activeStatus);
       if (startDateFrom) params.set("start_date_from", startDateFrom);
       if (startDateTo) params.set("start_date_to", startDateTo);
 
       const response = await getApi<HostBookingsResponse>(`/host/bookings?${params}`);
       if (response.data) {
         setBookings(response.data.bookings);
-        setMeta(response.data.meta as ExtendedMeta);
+        setMeta(response.data.meta);
       }
       setIsLoading(false);
       setFetching(false);
     };
     fetchBookings();
-  }, [page, activeStatus, propertyId, startDateFrom, startDateTo, setIsLoading]);
-
-  const handleTabChange = (value: string) => {
-    setPage(1);
-    setActiveStatus(value);
-  };
+  }, [page, propertyId, startDateFrom, startDateTo, setIsLoading]);
 
   const handlePropertyChange = (value: string) => {
     setPage(1);
@@ -164,29 +119,11 @@ const HostBookingsPage = () => {
         <h1 className="text-2xl font-semibold text-black mb-6">Bookings</h1>
 
         {meta && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+          <div className="grid grid-cols-2 gap-3 mb-8">
             <StatCard label="Total Bookings" value={meta.total_count} />
             <StatCard label="Total Revenue" value={`$${parseFloat(meta.total_revenue).toLocaleString()}`} />
-            <StatCard label="Confirmed" value={meta.confirmed_count} />
-            <StatCard label="Pending" value={meta.pending_count} />
           </div>
         )}
-
-        <div className="flex items-center gap-1 border-b border-gray-200 mb-4">
-          {STATUS_TABS.map((tab) => (
-            <button
-              key={tab.value}
-              onClick={() => handleTabChange(tab.value)}
-              className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px ${
-                activeStatus === tab.value
-                  ? "border-black text-black"
-                  : "border-transparent text-gray-500"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
 
         <div className="flex flex-wrap items-center gap-3 mb-6">
           <select

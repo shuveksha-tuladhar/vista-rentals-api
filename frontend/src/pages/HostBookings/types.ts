@@ -1,5 +1,9 @@
 import type { PaginationMeta } from "../HostListings/types";
 
+interface HostBookingsMeta extends PaginationMeta {
+  total_revenue: string;
+}
+
 export interface HostBookingGuest {
   id: number;
   first_name: string;
@@ -28,5 +32,5 @@ export interface HostBooking {
 
 export interface HostBookingsResponse {
   bookings: HostBooking[];
-  meta: PaginationMeta;
+  meta: HostBookingsMeta;
 }

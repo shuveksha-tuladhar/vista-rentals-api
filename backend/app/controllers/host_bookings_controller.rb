@@ -8,8 +8,6 @@ class HostBookingsController < ApplicationController
   def index
     scope = filtered_scope
     total_count = scope.count
-    confirmed_count = scope.where(payment_status: 'complete').count
-    pending_count = scope.where(payment_status: 'pending').count
     page = [params[:page].to_i, 1].max
     total_pages = [(total_count.to_f / PER_PAGE).ceil, 1].max
     bookings = scope.includes(:user, property: :property_images).offset((page - 1) * PER_PAGE).limit(PER_PAGE)
@@ -23,9 +21,7 @@ class HostBookingsController < ApplicationController
         per_page: PER_PAGE,
         total_count: total_count,
         total_pages: total_pages,
-        total_revenue: format('%.2f', total_revenue),
-        confirmed_count: confirmed_count,
-        pending_count: pending_count
+        total_revenue: format('%.2f', total_revenue)
       }
     }
   end
@@ -36,6 +32,7 @@ class HostBookingsController < ApplicationController
   def base_scope
     Booking.joins(:property)
            .where(properties: { user_id: current_user.id })
+           .where(payment_status: 'complete')
            .order(start_date: :desc)
   end
 
@@ -43,7 +40,6 @@ class HostBookingsController < ApplicationController
   def filtered_scope
     scope = base_scope
     scope = scope.where(property_id: params[:property_id]) if params[:property_id].present?
-    scope = scope.where(payment_status: params[:payment_status]) if params[:payment_status].present?
     scope = scope.where('DATE(start_date) >= ?', params[:start_date_from]) if params[:start_date_from].present?
     scope = scope.where('DATE(start_date) <= ?', params[:start_date_to]) if params[:start_date_to].present?
     scope
