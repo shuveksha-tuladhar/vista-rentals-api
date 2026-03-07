@@ -16,6 +16,7 @@ Rails.application.routes.draw do
 
   resources :amenities
   resources :bookings, only: %i[create show update]
+  resources :reviews, only: [:create]
 
   get  '/host/dashboard',     to: 'host_dashboard#show'
   get  '/host/bookings',      to: 'host_bookings#index'
