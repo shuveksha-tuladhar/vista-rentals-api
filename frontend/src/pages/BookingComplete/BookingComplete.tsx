@@ -4,9 +4,8 @@ import { getApi, patchApi } from "../../utils/api";
 import type { BookingResponse } from "../SummaryPage/subcomponents/CheckoutForm";
 import { calculateBookingCosts } from "../../utils/bookings";
 import type { BookingCosts } from "../PropertyDetails/subcomponents/Bookings/types/BookingCostType";
-import SummaryCard from "../SummaryPage/subcomponents/SummaryCard";
-import { FaArrowLeft } from "react-icons/fa6";
 import { useLoader } from "../../context/LoaderContext";
+
 interface PaymentSummary {
   status: string;
   amount_received: number;
@@ -21,12 +20,12 @@ export default function BookingComplete() {
 
   const [summary, setSummary] = useState<PaymentSummary | null>(null);
   const [bookingSummary, setBookingSummary] = useState<BookingResponse | null>(
-    null
+    null,
   );
 
   const { setIsLoading } = useLoader();
 
-  const [loading, setLoading] = useState(true);
+  const [fetching, setFetching] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const paymentIntentId = searchParams.get("payment_intent");
@@ -43,7 +42,7 @@ export default function BookingComplete() {
       bookingSummary.property?.price,
       new Date(bookingSummary.start_date),
       new Date(bookingSummary.end_date),
-      bookingSummary.is_refundable
+      bookingSummary.is_refundable,
     );
   }
 
@@ -51,16 +50,14 @@ export default function BookingComplete() {
     const fetchPaymentIntentStatus = async () => {
       if (!paymentIntentId) {
         setError("Missing payment intent ID in URL");
-        setLoading(false);
         return;
       }
 
       try {
         setIsLoading(true);
         const response = await getApi<PaymentSummary>(
-          `/checkout/payment-intent-status/${paymentIntentId}`
+          `/checkout/payment-intent-status/${paymentIntentId}`,
         );
-        setIsLoading(false);
 
         if (response.error) {
           throw Error("Error with payment");
@@ -70,36 +67,28 @@ export default function BookingComplete() {
           `/bookings/${bookingId}`,
           {
             payment_token: response.data?.id,
-          }
+          },
         );
 
         if (responseBooking.data) {
           setBookingSummary(responseBooking.data);
-        }
-
-        if (responseBooking.error) {
+          setSummary(response.data);
+        } else {
           throw Error("Failed to update the booking in the backend");
         }
-
-        setSummary(response.data);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err: unknown) {
         setError("Error with payment/bookings.");
       } finally {
-        setLoading(false);
+        setIsLoading(false);
+        setFetching(false);
       }
     };
 
     fetchPaymentIntentStatus();
-  }, [paymentIntentId, bookingId]);
+  }, [paymentIntentId, bookingId, setIsLoading]);
 
-  if (loading) {
-    return (
-      <div className="text-center mt-10 text-gray-500">
-        Loading payment details...
-      </div>
-    );
-  }
+  if (fetching) return null;
 
   if (error) {
     return <div className="text-center mt-10 text-red-500">{error}</div>;
@@ -116,58 +105,144 @@ export default function BookingComplete() {
   const isSuccess = summary.status === "succeeded";
 
   return (
-    <div className="max-w-6xl mx-auto mt-12 px-4">
-      <div className="max-w-7xl mx-auto pt-4 my-4 flex items-center gap-4">
-        <button
-          type="button"
-          onClick={() => navigate("/")}
-          className="text-gray-600 hover:text-gray-900 focus:outline-none"
-          aria-label="Go back"
-        >
-          <FaArrowLeft />
-        </button>
-        <h1 className="text-2xl font-semibold">Back to Home</h1>
-      </div>
-      <div className="flex flex-col lg:flex-row gap-8">
-        <div className="w-full lg:w-1/2 bg-white shadow-lg rounded-xl border border-gray-200 p-6">
-          <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold text-red-500">
-              {isSuccess ? "Booking Confirmed" : "Payment Failed"}
-            </h1>
-            <p className="text-gray-600 mt-1 text-sm">
-              Here’s your payment summary:
-            </p>
-          </div>
-
-          <div className="space-y-3 text-sm text-gray-700">
-            <p>
-              <span className="font-semibold">Payment Status:</span>{" "}
-              <span className="capitalize">{summary.status}</span>
-            </p>
-            <p>
-              <span className="font-semibold">Payment Intent ID:</span>{" "}
-              {summary.id}
-            </p>
-            <p>
-              <span className="font-semibold">Amount Paid:</span> $
-              {(summary.amount_received / 100).toFixed(2)}{" "}
-              {summary.currency?.toUpperCase()}
-            </p>
-          </div>
+    <div className="bg-white flex flex-col items-center justify-center px-4 py-16">
+      <div className="w-full max-w-lg">
+        <div className="mb-8 text-center">
+          <p
+            className={`text-3xl font-semibold ${isSuccess ? "text-green-600" : "text-red-600"}`}
+          >
+            {isSuccess ? "Booking Confirmed!" : "Payment Failed"}
+          </p>
+          <p className="text-gray-500 text-sm mt-2">
+            {isSuccess
+              ? "Your reservation is all set. Check your trips for details."
+              : "Something went wrong with your payment. Please try again."}
+          </p>
         </div>
 
         {bookingSummary?.property && bookingCosts && (
-          <div className="w-full lg:w-1/2">
-            <SummaryCard
-              property={bookingSummary.property}
-              bookingCosts={bookingCosts}
-              checkInDate={bookingSummary.start_date}
-              checkOutDate={bookingSummary.end_date}
-              isRefundable={bookingSummary.is_refundable}
-              bookingComplete
-            />
+          <div className="border border-gray-200 mb-6">
+            <div className="flex gap-4 p-4 border-b border-gray-100">
+              {bookingSummary.property.property_images?.[0]?.url && (
+                <img
+                  src={bookingSummary.property.property_images[0].url}
+                  alt={bookingSummary.property.name}
+                  className="w-20 h-20 object-cover flex-shrink-0"
+                />
+              )}
+              <div>
+                <p className="font-medium text-black text-sm">
+                  {bookingSummary.property.name ??
+                    bookingSummary.property.title}
+                </p>
+                <p className="text-gray-500 text-sm">
+                  {bookingSummary.property.city},{" "}
+                  {bookingSummary.property.state}
+                </p>
+                {bookingSummary.property.rating && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    &#9733; {bookingSummary.property.rating}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 p-4 border-b border-gray-100">
+              <div>
+                <p className="text-xs text-gray-400 uppercase tracking-wide">
+                  Check-in
+                </p>
+                <p className="text-sm font-medium text-black mt-1">
+                  {new Date(bookingSummary.start_date).toLocaleDateString(
+                    "en-US",
+                    { month: "short", day: "numeric", year: "numeric" },
+                  )}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-400 uppercase tracking-wide">
+                  Check-out
+                </p>
+                <p className="text-sm font-medium text-black mt-1">
+                  {new Date(bookingSummary.end_date).toLocaleDateString(
+                    "en-US",
+                    { month: "short", day: "numeric", year: "numeric" },
+                  )}
+                </p>
+              </div>
+            </div>
+
+            <div className="p-4 space-y-2 text-sm text-gray-700">
+              <div className="flex justify-between">
+                <span>
+                  ${bookingCosts.nightlyPrice.toFixed(2)} x{" "}
+                  {bookingCosts.nights} night
+                  {bookingCosts.nights !== 1 ? "s" : ""}
+                </span>
+                <span>${bookingCosts.baseTotal.toFixed(2)}</span>
+              </div>
+              {bookingCosts.cleaningFee > 0 && (
+                <div className="flex justify-between">
+                  <span>Cleaning fee</span>
+                  <span>${bookingCosts.cleaningFee.toFixed(2)}</span>
+                </div>
+              )}
+              {bookingCosts.serviceFee > 0 && (
+                <div className="flex justify-between">
+                  <span>Service fee</span>
+                  <span>${bookingCosts.serviceFee.toFixed(2)}</span>
+                </div>
+              )}
+              {!bookingSummary.is_refundable && bookingCosts.discount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span>Discount</span>
+                  <span>-${bookingCosts.discount.toFixed(2)}</span>
+                </div>
+              )}
+              <div className="border-t border-gray-200 pt-2 flex justify-between font-semibold text-black">
+                <span>Total USD</span>
+                <span>${bookingCosts.totalBeforeTaxes.toFixed(2)}</span>
+              </div>
+            </div>
           </div>
         )}
+
+        {summary && (
+          <div className="text-sm text-gray-600 mb-6 space-y-1">
+            <p>
+              Amount charged:{" "}
+              <span className="font-medium text-black">
+                ${(summary.amount_received / 100).toFixed(2)}{" "}
+                {summary.currency?.toUpperCase()}
+              </span>
+            </p>
+            {bookingSummary && (
+              <p>
+                Cancellation policy:{" "}
+                <span className="font-medium text-black">
+                  {bookingSummary.is_refundable
+                    ? "Free cancellation"
+                    : "Non-refundable"}
+                </span>
+              </p>
+            )}
+          </div>
+        )}
+
+        <div className="flex gap-3">
+          <button
+            onClick={() => navigate("/")}
+            className="flex-1 border border-gray-300 text-sm font-medium text-gray-700 px-4 py-2"
+          >
+            Explore Properties
+          </button>
+          <button
+            onClick={() => navigate("/trips")}
+            className="flex-1 bg-red-600 text-white text-sm font-medium px-4 py-2"
+          >
+            View My Trips
+          </button>
+        </div>
       </div>
     </div>
   );

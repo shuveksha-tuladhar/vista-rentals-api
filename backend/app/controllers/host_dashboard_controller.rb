@@ -84,7 +84,7 @@ class HostDashboardController < ApplicationController
     end
 
     upcoming_checkins = Booking.where(property_id: property_ids, payment_status: 'complete')
-                               .where('DATE(start_date) > ? AND DATE(start_date) <= ?', Date.current, Date.current + 7)
+                               .where('DATE(start_date) >= ? AND DATE(start_date) <= ?', Date.current, Date.current + 14)
                                .includes(:user, :property)
                                .order(start_date: :asc)
                                .limit(10)

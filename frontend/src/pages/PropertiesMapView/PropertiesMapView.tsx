@@ -149,7 +149,6 @@ const PropertiesMapView: React.FC = () => {
 
   return (
     <>
-      {/* ── Mobile ── */}
       <div className="md:hidden relative">
         {showMap ? (
           <div className="h-[calc(100vh-60px)]">
@@ -179,7 +178,6 @@ const PropertiesMapView: React.FC = () => {
           </div>
         )}
 
-        {/* Toggle button */}
         <div className="fixed bottom-6 inset-x-0 flex justify-center z-[60] pointer-events-none">
           <button
             onClick={() => setShowMap(!showMap)}
@@ -191,7 +189,6 @@ const PropertiesMapView: React.FC = () => {
         </div>
       </div>
 
-      {/* ── Desktop ── */}
       <div className="hidden md:flex h-[calc(100vh-80px)]">
         <div className="w-1/2 overflow-y-auto p-6 border-r border-gray-200">
           <div className="mb-6">

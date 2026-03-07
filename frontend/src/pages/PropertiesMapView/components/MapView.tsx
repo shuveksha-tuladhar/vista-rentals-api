@@ -65,7 +65,6 @@ const MapView: React.FC<MapViewProps> = ({
         />
         <MapBounds properties={properties} />
         
-        {/* Render markers with real coordinates */}
         {properties.map((property) => {
           // Skip properties without valid coordinates
           if (!property.coordinates_latitude || !property.coordinates_longitude) {
