@@ -15,6 +15,8 @@ import { Bar, Line, Doughnut } from "react-chartjs-2";
 import { FiHome } from "react-icons/fi";
 import HostPortalNavbar from "../../components/HostPortalNavbar";
 import { getApi } from "../../utils/api";
+import TypeaheadSelect from "../../components/TypeaheadSelect";
+import type { TypeaheadOption } from "../../components/TypeaheadSelect";
 import StatCard from "./StatCard";
 import type { DashboardData, FilterOptions, ActiveFilter } from "./types";
 
@@ -304,50 +306,29 @@ export default function HostDashboardPage() {
         </div>
 
         <div className="flex items-center gap-3 mb-6">
-          <select
+          <TypeaheadSelect
+            options={(filterOptions?.cities ?? []).map((c): TypeaheadOption => ({ label: c, value: c }))}
             value={filter.type === "city" ? String(filter.value) : ""}
+            onChange={(v) => setFilter(v ? { type: "city", value: v } : { type: null, value: null })}
+            placeholder="All Cities"
             disabled={filter.type === "property"}
-            onChange={(e) => {
-              const v = e.target.value;
-              setFilter(v ? { type: "city", value: v } : { type: null, value: null });
-            }}
-            className="border border-gray-300 bg-white text-sm text-gray-700 px-3 py-2 rounded-none outline-none disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <option value="">All Cities</option>
-            {filterOptions?.cities.map((city) => (
-              <option key={city} value={city}>{city}</option>
-            ))}
-          </select>
+          />
 
-          <select
+          <TypeaheadSelect
+            options={(filterOptions?.states ?? []).map((s): TypeaheadOption => ({ label: s, value: s }))}
             value={filter.type === "state" ? String(filter.value) : ""}
+            onChange={(v) => setFilter(v ? { type: "state", value: v } : { type: null, value: null })}
+            placeholder="All States"
             disabled={filter.type === "property"}
-            onChange={(e) => {
-              const v = e.target.value;
-              setFilter(v ? { type: "state", value: v } : { type: null, value: null });
-            }}
-            className="border border-gray-300 bg-white text-sm text-gray-700 px-3 py-2 rounded-none outline-none disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <option value="">All States</option>
-            {filterOptions?.states.map((state) => (
-              <option key={state} value={state}>{state}</option>
-            ))}
-          </select>
+          />
 
-          <select
+          <TypeaheadSelect
+            options={(filterOptions?.properties ?? []).map((p): TypeaheadOption => ({ label: p.name, value: String(p.id) }))}
             value={filter.type === "property" ? String(filter.value) : ""}
+            onChange={(v) => setFilter(v ? { type: "property", value: Number(v) } : { type: null, value: null })}
+            placeholder="All Properties"
             disabled={filter.type === "city" || filter.type === "state"}
-            onChange={(e) => {
-              const v = e.target.value;
-              setFilter(v ? { type: "property", value: Number(v) } : { type: null, value: null });
-            }}
-            className="border border-gray-300 bg-white text-sm text-gray-700 px-3 py-2 rounded-none outline-none disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <option value="">All Properties</option>
-            {filterOptions?.properties.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
+          />
 
           {filter.type !== null && (
             <button
@@ -376,6 +357,7 @@ export default function HostDashboardPage() {
           <StatCard
             label="Lead Time"
             value={stats.booking_lead_time !== null ? `${stats.booking_lead_time} days` : "—"}
+            tooltip="Average number of days between when a booking is made and the check-in date."
           />
           <StatCard label="Nights Booked" value={stats.total_nights_booked} />
         </div>

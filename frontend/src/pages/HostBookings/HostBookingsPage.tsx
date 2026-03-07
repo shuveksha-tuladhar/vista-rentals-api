@@ -4,6 +4,8 @@ import { parseISO, format, isSameMonth, isSameYear } from "date-fns";
 import HostPortalNavbar from "../../components/HostPortalNavbar";
 import { getApi } from "../../utils/api";
 import { useLoader } from "../../context/LoaderContext";
+import TypeaheadSelect from "../../components/TypeaheadSelect";
+import type { TypeaheadOption } from "../../components/TypeaheadSelect";
 import type { HostBooking, HostBookingsResponse } from "./types";
 import type { PaginationMeta } from "../HostListings/types";
 
@@ -68,14 +70,14 @@ const HostBookingsPage = () => {
   const [propertyId, setPropertyId] = useState("");
   const [startDateFrom, setStartDateFrom] = useState("");
   const [startDateTo, setStartDateTo] = useState("");
-  const [propertyOptions, setPropertyOptions] = useState<{ id: number; name: string }[]>([]);
+  const [propertyOptions, setPropertyOptions] = useState<TypeaheadOption[]>([]);
   const { setIsLoading } = useLoader();
 
   useEffect(() => {
     const fetchProperties = async () => {
       const response = await getApi<HostListingsApiResponse>("/host/listings?per_page=100");
       if (response.data?.data) {
-        setPropertyOptions(response.data.data.map((p) => ({ id: p.id, name: p.name })));
+        setPropertyOptions(response.data.data.map((p) => ({ label: p.name, value: String(p.id) })));
       }
     };
     fetchProperties();
@@ -126,16 +128,12 @@ const HostBookingsPage = () => {
         )}
 
         <div className="flex flex-wrap items-center gap-3 mb-6">
-          <select
+          <TypeaheadSelect
+            options={propertyOptions}
             value={propertyId}
-            onChange={(e) => handlePropertyChange(e.target.value)}
-            className="border border-gray-300 px-3 py-1.5 text-sm outline-none"
-          >
-            <option value="">All Properties</option>
-            {propertyOptions.map((p) => (
-              <option key={p.id} value={String(p.id)}>{p.name}</option>
-            ))}
-          </select>
+            onChange={handlePropertyChange}
+            placeholder="All Properties"
+          />
           <input
             type="date"
             value={startDateFrom}
