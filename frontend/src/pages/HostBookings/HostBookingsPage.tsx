@@ -29,23 +29,23 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
 
 function BookingCard({ booking }: { booking: HostBooking }) {
   return (
-    <div className="border border-gray-200 border-l-4 border-l-green-500 flex items-center gap-4 px-4 py-4 hover:bg-gray-50 cursor-pointer">
+    <div className="border border-gray-200 flex items-center gap-4 hover:bg-gray-50 cursor-pointer overflow-hidden">
       {booking.property.image_url ? (
         <img
           src={booking.property.image_url}
           alt={booking.property.name}
-          className="w-12 h-12 object-cover flex-shrink-0"
+          className="w-20 h-20 object-cover flex-shrink-0"
         />
       ) : (
-        <div className="w-12 h-12 bg-gray-100 flex-shrink-0" />
+        <div className="w-20 h-20 bg-gray-100 flex-shrink-0" />
       )}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 py-3">
         <p className="text-sm font-medium text-black truncate">{booking.property.name}</p>
         <p className="text-xs text-gray-400 mt-0.5 truncate">
           {booking.guest.first_name} {booking.guest.last_name} · {booking.guest.email}
         </p>
       </div>
-      <div className="text-right flex-shrink-0 ml-4">
+      <div className="text-right flex-shrink-0 px-4 py-3">
         <p className="text-xs text-gray-500">{formatDateRange(booking.start_date, booking.end_date)} · {booking.total_nights} night{booking.total_nights !== 1 ? "s" : ""}</p>
         <p className="text-sm font-semibold text-black mt-1">${booking.total_price}</p>
       </div>
