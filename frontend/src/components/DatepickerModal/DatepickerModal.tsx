@@ -2,7 +2,10 @@
 import { useEffect, useRef, useState } from "react";
 import { DateRange } from "react-date-range";
 import { format, differenceInCalendarDays, addDays } from "date-fns";
-import { findNextAvailableDate } from "../../utils/dates";
+import {
+  findNextAvailableDateRange,
+  isDateRangeAvailable,
+} from "../../utils/dates";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import { useBookingStore } from "../../store/bookingStore";
@@ -45,26 +48,18 @@ const DatePickerModal = ({
     const disabled = disabledDatesRef.current;
     const ci = checkInRef.current;
     const co = checkOutRef.current;
-    const disabledSet = new Set(disabled.map((d) => d.toDateString()));
+    const currentRangeIsValid =
+      ci != null &&
+      co != null &&
+      isDateRangeAvailable(ci, co, disabled);
 
-    const startIsDisabled = ci != null && disabledSet.has(ci.toDateString());
-    const defaultStart =
-      !ci || startIsDisabled
-        ? findNextAvailableDate(addDays(new Date(), 7), disabled)
-        : ci;
-    const endIsDisabled =
-      !co ||
-      disabledSet.has(co.toDateString()) ||
-      co <= defaultStart;
-    const defaultEnd = endIsDisabled
-      ? findNextAvailableDate(addDays(defaultStart, 1), disabled)
-      : co;
+    const { startDate: defaultStart, endDate: defaultEnd } = currentRangeIsValid
+      ? { startDate: ci, endDate: co }
+      : findNextAvailableDateRange(addDays(new Date(), 7), disabled, 1);
 
     setSelection({ startDate: defaultStart, endDate: defaultEnd, key: "selection" });
 
-    // Write to store so the search bar input shows the default dates.
-    // Only do this when dates were absent or fell on a disabled day.
-    if (!ci || startIsDisabled) {
+    if (!currentRangeIsValid) {
       setCheckIn(defaultStart);
       setCheckOut(defaultEnd);
     }
@@ -72,8 +67,8 @@ const DatePickerModal = ({
 
   const handleClear = () => {
     const disabled = disabledDatesRef.current;
-    const defaultStart = findNextAvailableDate(addDays(new Date(), 7), disabled);
-    const defaultEnd = findNextAvailableDate(addDays(defaultStart, 1), disabled);
+    const { startDate: defaultStart, endDate: defaultEnd } =
+      findNextAvailableDateRange(addDays(new Date(), 7), disabled, 1);
     setSelection({ startDate: defaultStart, endDate: defaultEnd, key: "selection" });
   };
 
@@ -149,13 +144,13 @@ const DatePickerModal = ({
 
         <div className="flex justify-between mt-6">
           <button onClick={handleClear} className="text-sm underline">
-            Clear dates
+            Reset
           </button>
           <button
             onClick={handleClose}
-            className="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800"
+            className="bg-red-500 text-white px-4 py-2 rounded-md font-semibold hover:bg-red-600 transition-colors"
           >
-            Close
+            Confirm Dates
           </button>
         </div>
       </div>
