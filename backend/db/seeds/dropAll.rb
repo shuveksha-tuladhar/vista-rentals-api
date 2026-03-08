@@ -1,3 +1,4 @@
+Booking.delete_all
 Review.delete_all
 PropertyAmenityMapping.delete_all
 PropertyImage.delete_all

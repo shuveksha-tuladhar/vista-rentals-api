@@ -6,6 +6,8 @@ class HostDashboardController < ApplicationController
   def show
     all_properties = current_user.properties.includes(:bookings)
 
+    property_performance_timeframe = params[:property_performance_timeframe] || '12_months' # Default to last 12 months
+
     filter_cities  = all_properties.pluck(:city).uniq.compact.sort
     filter_states  = all_properties.pluck(:state).uniq.compact.sort
     filter_props   = all_properties.map { |p| { id: p.id, name: p.name } }
@@ -30,7 +32,7 @@ class HostDashboardController < ApplicationController
     end
 
     month_start_current = Date.current.beginning_of_month
-    revenue_this_month = complete_bookings.select { |b| b.start_date.to_date >= month_start_current }.sum do |b|
+    revenue_this_month = complete_bookings.select { |b| b.start_date.to_date.between?(month_start_current, month_start_current.end_of_month) }.sum do |b|
       (b.end_date.to_date - b.start_date.to_date).to_i * b.property.price.to_f
     end
 
@@ -62,12 +64,7 @@ class HostDashboardController < ApplicationController
     rating_counts = Review.where(property_id: property_ids).group(:rating).count
     rating_breakdown = (1..5).each_with_object({}) { |r, h| h[r.to_s] = rating_counts[r] || 0 }
 
-    perf_unsorted = filtered_properties.map do |p|
-      p_bookings = complete_bookings.select { |b| b.property_id == p.id }
-      rev = p_bookings.sum { |b| (b.end_date.to_date - b.start_date.to_date).to_i * p.price.to_f }
-      { property_id: p.id, property_name: p.name, revenue: format('%.2f', rev), bookings_count: p_bookings.size }
-    end
-    property_performance = perf_unsorted.sort_by { |perf| -perf[:revenue].to_f }
+    property_performance = calculate_property_performance(filtered_properties, complete_bookings, property_performance_timeframe)
 
     recent_reviews = Review.where(property_id: property_ids)
                            .includes(:user, :property)
@@ -119,6 +116,7 @@ class HostDashboardController < ApplicationController
       occupancy_this_month: occupancy_this_month,
       rating_breakdown: rating_breakdown,
       property_performance: property_performance,
+      property_performance_timeframe: property_performance_timeframe,
       recent_reviews: recent_reviews,
       upcoming_checkins: upcoming_checkins,
       filter_options: {
@@ -135,7 +133,14 @@ class HostDashboardController < ApplicationController
 
   # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
   def revenue_by_months(count, bookings)
-    months = (0...count).map { |i| Date.current.beginning_of_month - i.months }.reverse
+    # For 12-month view, show the full current calendar year. For other counts, show a historical lookback.
+    start_date_for_window = if count == 12
+                              Date.current.beginning_of_year
+                            else
+                              (Date.current.beginning_of_month - (count - 1).months)
+                            end
+    months = (0...count).map { |i| start_date_for_window + i.months }
+
     months.map do |month_start|
       month_end = month_start.end_of_month
       rev = bookings.select { |b| b.start_date.to_date >= month_start && b.start_date.to_date <= month_end }
@@ -156,6 +161,34 @@ class HostDashboardController < ApplicationController
     end
     rate = total_nights.positive? ? (booked_nights.to_f / total_nights * 100).round(1) : 0.0
     { booked_nights: booked_nights, total_nights: total_nights, rate: rate }
+  end
+
+  def calculate_property_performance(properties, all_complete_bookings, timeframe)
+    start_date_filter = case timeframe
+                        when '1m' then Date.current.beginning_of_month
+                        when '3m' then (Date.current - 2.months).beginning_of_month
+                        when '6m' then (Date.current - 5.months).beginning_of_month # New 6-month filter
+                        when '12m' then (Date.current - 11.months).beginning_of_month
+                        when 'ytd' then Date.current.beginning_of_year # New Year-To-Date filter
+                        when 'all_time' then nil
+                        else (Date.current - 11.months).beginning_of_month # Default to 12 months if invalid
+                        end
+
+    filtered_properties_performance = properties.map do |p|
+      p_bookings_filtered = if start_date_filter
+                              all_complete_bookings.select do |b|
+                                b.property_id == p.id &&
+                                  b.start_date.to_date >= start_date_filter &&
+                                  b.start_date.to_date <= Date.current.end_of_month
+                              end
+                            else
+                              all_complete_bookings.select { |b| b.property_id == p.id } # Lifetime, no date filter
+                            end
+
+      rev = p_bookings_filtered.sum { |b| (b.end_date.to_date - b.start_date.to_date).to_i * p.price.to_f }
+      { property_id: p.id, property_name: p.name, revenue: format('%.2f', rev), bookings_count: p_bookings_filtered.size }
+    end
+    filtered_properties_performance.sort_by { |perf| -perf[:revenue].to_f }
   end
   # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 end
