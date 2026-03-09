@@ -149,7 +149,7 @@ export default function HostDashboardPage() {
       setFetching(false);
     }
     fetchDashboard();
-  }, [filter, propertyPerformanceTimeframe]);
+  }, [filter, propertyPerformanceTimeframe, data]);
 
   if (loading) {
     return (
