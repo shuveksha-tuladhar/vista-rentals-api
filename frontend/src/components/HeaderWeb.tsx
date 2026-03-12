@@ -18,7 +18,8 @@ const Header: React.FC = () => {
   const location = useLocation();
 
   const { setCheckIn, setCheckOut } = useBookingStore();
-  const { isLoggedIn, user, logout, isModalOpen, setIsModalOpen } = useAuthStore();
+  const { isLoggedIn, user, logout, isModalOpen, setIsModalOpen } =
+    useAuthStore();
   const { addToast } = useToastStore();
 
   const debounceTimeout = useRef<number | null>(null);
@@ -113,10 +114,18 @@ const Header: React.FC = () => {
 
             <div className="flex items-center space-x-4">
               <button
-                onClick={() => navigate(isLoggedIn && user?.is_host ? "/host/listings" : "/become-a-host")}
+                onClick={() =>
+                  navigate(
+                    isLoggedIn && user?.is_host
+                      ? "/host/listings"
+                      : "/become-a-host",
+                  )
+                }
                 className="hidden lg:block text-sm font-semibold text-gray-700 hover:bg-gray-100 px-3 py-2 rounded-full transition-colors duration-200 cursor-pointer"
               >
-                {isLoggedIn && user?.is_host ? "Switch to Listing" : "Become a Host"}
+                {isLoggedIn && user?.is_host
+                  ? "Switch to Listing"
+                  : "Become a Host"}
               </button>
               <button className="hidden sm:block p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 cursor-pointer">
                 <FaGlobe className="h-5 w-5 text-gray-700" />
@@ -146,15 +155,32 @@ const Header: React.FC = () => {
                     <button
                       className="w-full px-4 py-2 hover:bg-gray-100 text-left cursor-pointer"
                       onClick={() => {
-                        navigate(isLoggedIn && user?.is_host ? "/host/listings" : "/become-a-host");
+                        navigate(
+                          isLoggedIn && user?.is_host
+                            ? "/host/listings"
+                            : "/become-a-host",
+                        );
                         setIsMenuOpen(false);
                       }}
                     >
-                      {isLoggedIn && user?.is_host ? "Switch to Listing" : "Become a Host"}
+                      {isLoggedIn && user?.is_host
+                        ? "Switch to Listing"
+                        : "Become a Host"}
                     </button>
                     {isLoggedIn && (
                       <button
                         className="w-full px-4 py-2 hover:bg-gray-100 text-left cursor-pointer border-t border-gray-200"
+                        onClick={() => {
+                          navigate("/trips");
+                          setIsMenuOpen(false);
+                        }}
+                      >
+                        My Trips
+                      </button>
+                    )}
+                    {isLoggedIn && (
+                      <button
+                        className="w-full px-4 py-2 hover:bg-gray-100 text-left cursor-pointer"
                         onClick={() => {
                           navigate("/favorites");
                           setIsMenuOpen(false);

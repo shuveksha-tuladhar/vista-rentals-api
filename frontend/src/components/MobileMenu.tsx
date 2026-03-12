@@ -11,7 +11,11 @@ interface MobileMenuProps {
   onLoginClick: () => void;
 }
 
-const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, onLoginClick }) => {
+const MobileMenu: React.FC<MobileMenuProps> = ({
+  isOpen,
+  onClose,
+  onLoginClick,
+}) => {
   const navigate = useNavigate();
   const { isLoggedIn, user, logout } = useAuthStore();
   const { addToast } = useToastStore();
@@ -54,7 +58,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, onLoginClick }
           className="w-full px-4 py-3 text-left text-sm text-gray-900 hover:bg-gray-100"
           onClick={() =>
             handleNav(
-              isLoggedIn && user?.is_host ? "/host/listings" : "/become-a-host"
+              isLoggedIn && user?.is_host ? "/host/listings" : "/become-a-host",
             )
           }
         >
@@ -76,6 +80,15 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, onLoginClick }
         {isLoggedIn && (
           <button
             className="w-full px-4 py-3 text-left text-sm text-gray-900 hover:bg-gray-100 border-t border-gray-200 mt-2"
+            onClick={() => handleNav("/trips")}
+          >
+            My Trips
+          </button>
+        )}
+
+        {isLoggedIn && (
+          <button
+            className="w-full px-4 py-3 text-left text-sm text-gray-900 hover:bg-gray-100 border-t border-gray-200"
             onClick={() => handleNav("/favorites")}
           >
             My Favorites
