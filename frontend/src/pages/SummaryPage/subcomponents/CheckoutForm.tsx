@@ -50,6 +50,17 @@ const CheckoutForm = ({
     if (!user?.id || !propertyId || !checkInDate || !checkOutDate) return;
 
     setLoading(true);
+    setError(null);
+
+    const { error: validationError } = await elements.submit();
+    if (validationError) {
+      setError(
+        validationError.message ?? "Please complete the payment details.",
+      );
+      setLoading(false);
+      return;
+    }
+
     const responseBooking = await postApi<BookingResponse>("/bookings", {
       user_id: user.id,
       property_id: propertyId,
@@ -61,7 +72,9 @@ const CheckoutForm = ({
     if (responseBooking.error) {
       setLoading(false);
       if (responseBooking.error.status === 422) {
-        setError("These dates are no longer available. Please select different dates.");
+        setError(
+          "These dates are no longer available. Please select different dates.",
+        );
       } else {
         addToast({ message: "There was an error with booking", type: "error" });
       }
@@ -83,7 +96,7 @@ const CheckoutForm = ({
         `/bookings/${responseBooking.data.id}`,
         {
           payment_token: "",
-        }
+        },
       );
 
       if (responseUpdatedBooking.error) {

@@ -22,6 +22,7 @@ import { Loader } from "./components/Loader";
 import AboutUs from "./pages/AboutUs/AboutUs";
 import BecomeAHost from "./pages/BecomeAHost/BecomeAHost";
 import HostListingsPage from "./pages/HostListings";
+import HostBookingsPage from "./pages/HostBookings";
 import EditListingPage from "./pages/HostListings/EditListingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MyTripsPage from "./pages/MyTrips/MyTripsPage";
@@ -110,6 +111,14 @@ const AppContent = () => {
             element={
               <ProtectedRoute>
                 <HostListingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/host/bookings"
+            element={
+              <ProtectedRoute>
+                <HostBookingsPage />
               </ProtectedRoute>
             }
           />
