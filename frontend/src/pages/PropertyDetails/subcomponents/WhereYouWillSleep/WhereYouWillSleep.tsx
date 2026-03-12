@@ -25,9 +25,9 @@ const WhereYouWillSleep: React.FC<WhereYouWillSleepProps> = ({ bedInfo }) => {
         {bedInfo.map((bed, idx) => (
           <div
             key={idx}
-            className="w-[160px] h-[130px] border border-[#DDDDDD] rounded-lg p-5 flex flex-col justify-start gap-4"
+            className="w-[160px] min-h-[130px] border border-[#DDDDDD] rounded-lg p-5 flex flex-col justify-start gap-4"
           >
-            <FaBed className="text-[#222222] text-2xl" />
+            <FaBed className="text-[#222222] text-2xl shrink-0" />
             <div className="flex flex-col gap-1">
               <p className="text-[16px] font-semibold leading-[23px] text-[#222222]">
                 {bed.room}
