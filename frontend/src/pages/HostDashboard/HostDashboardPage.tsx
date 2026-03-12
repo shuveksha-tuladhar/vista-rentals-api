@@ -15,6 +15,8 @@ import { Bar, Line, Doughnut } from "react-chartjs-2";
 import { FiHome } from "react-icons/fi";
 import HostPortalNavbar from "../../components/HostPortalNavbar";
 import { getApi } from "../../utils/api";
+import TypeaheadSelect from "../../components/TypeaheadSelect";
+import type { TypeaheadOption } from "../../components/TypeaheadSelect";
 import StatCard from "./StatCard";
 import type { DashboardData, FilterOptions, ActiveFilter } from "./types";
 
@@ -43,12 +45,46 @@ const baseChartOptions = {
   },
 };
 
+const revenueChartOptions = {
+  ...baseChartOptions,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      callbacks: {
+        label: (ctx: { parsed: { y: number } }) => ` $${ctx.parsed.y.toLocaleString()}`,
+      },
+    },
+  },
+};
+
 const hBarOptions = {
   indexAxis: "y" as const,
   responsive: true,
   plugins: { legend: { display: false } },
   scales: {
     x: { grid: { color: CHART_GRAY_200 }, ticks: { font: { size: 11 } } },
+    y: { grid: { display: false }, ticks: { font: { size: 11 } } },
+  },
+};
+
+const propBarOptions = {
+  ...hBarOptions,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      callbacks: {
+        label: (ctx: { parsed: { x: number } }) => ` $${ctx.parsed.x.toLocaleString()}`,
+      },
+    },
+  },
+  scales: {
+    x: {
+      grid: { color: CHART_GRAY_200 },
+      ticks: {
+        font: { size: 11 },
+        callback: (value: number | string) => `$${Number(value).toLocaleString()}`,
+      },
+    },
     y: { grid: { display: false }, ticks: { font: { size: 11 } } },
   },
 };
@@ -269,52 +305,30 @@ export default function HostDashboardPage() {
           </p>
         </div>
 
-        {/* Filter bar */}
         <div className="flex items-center gap-3 mb-6">
-          <select
+          <TypeaheadSelect
+            options={(filterOptions?.cities ?? []).map((c): TypeaheadOption => ({ label: c, value: c }))}
             value={filter.type === "city" ? String(filter.value) : ""}
+            onChange={(v) => setFilter(v ? { type: "city", value: v } : { type: null, value: null })}
+            placeholder="All Cities"
             disabled={filter.type === "property"}
-            onChange={(e) => {
-              const v = e.target.value;
-              setFilter(v ? { type: "city", value: v } : { type: null, value: null });
-            }}
-            className="border border-gray-300 bg-white text-sm text-gray-700 px-3 py-2 rounded-none outline-none disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <option value="">All Cities</option>
-            {filterOptions?.cities.map((city) => (
-              <option key={city} value={city}>{city}</option>
-            ))}
-          </select>
+          />
 
-          <select
+          <TypeaheadSelect
+            options={(filterOptions?.states ?? []).map((s): TypeaheadOption => ({ label: s, value: s }))}
             value={filter.type === "state" ? String(filter.value) : ""}
+            onChange={(v) => setFilter(v ? { type: "state", value: v } : { type: null, value: null })}
+            placeholder="All States"
             disabled={filter.type === "property"}
-            onChange={(e) => {
-              const v = e.target.value;
-              setFilter(v ? { type: "state", value: v } : { type: null, value: null });
-            }}
-            className="border border-gray-300 bg-white text-sm text-gray-700 px-3 py-2 rounded-none outline-none disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <option value="">All States</option>
-            {filterOptions?.states.map((state) => (
-              <option key={state} value={state}>{state}</option>
-            ))}
-          </select>
+          />
 
-          <select
+          <TypeaheadSelect
+            options={(filterOptions?.properties ?? []).map((p): TypeaheadOption => ({ label: p.name, value: String(p.id) }))}
             value={filter.type === "property" ? String(filter.value) : ""}
+            onChange={(v) => setFilter(v ? { type: "property", value: Number(v) } : { type: null, value: null })}
+            placeholder="All Properties"
             disabled={filter.type === "city" || filter.type === "state"}
-            onChange={(e) => {
-              const v = e.target.value;
-              setFilter(v ? { type: "property", value: Number(v) } : { type: null, value: null });
-            }}
-            className="border border-gray-300 bg-white text-sm text-gray-700 px-3 py-2 rounded-none outline-none disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <option value="">All Properties</option>
-            {filterOptions?.properties.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
+          />
 
           {filter.type !== null && (
             <button
@@ -326,7 +340,6 @@ export default function HostDashboardPage() {
           )}
         </div>
 
-        {/* Stat cards — single 8-column row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 mb-6">
           <StatCard label="Total Revenue" value={`$${parseFloat(stats.revenue_total).toLocaleString()}`} />
           <StatCard label="This Month" value={`$${parseFloat(stats.revenue_this_month).toLocaleString()}`} />
@@ -344,18 +357,18 @@ export default function HostDashboardPage() {
           <StatCard
             label="Lead Time"
             value={stats.booking_lead_time !== null ? `${stats.booking_lead_time} days` : "—"}
+            tooltip="Average number of days between when a booking is made and the check-in date."
           />
           <StatCard label="Nights Booked" value={stats.total_nights_booked} />
         </div>
 
-        {/* 4 charts in one row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <div>
             <SectionHeading>Revenue 6mo</SectionHeading>
             <ChartBox>
               {allZero6 ? <EmptyText>No data yet.</EmptyText> : (
                 <div className="h-40">
-                  <Bar data={bar6Data} options={{ ...baseChartOptions, maintainAspectRatio: false }} />
+                  <Bar data={bar6Data} options={{ ...revenueChartOptions, maintainAspectRatio: false }} />
                 </div>
               )}
             </ChartBox>
@@ -365,7 +378,7 @@ export default function HostDashboardPage() {
             <ChartBox>
               {allZero12 ? <EmptyText>No data yet.</EmptyText> : (
                 <div className="h-40">
-                  <Line data={line12Data} options={{ ...baseChartOptions, maintainAspectRatio: false }} />
+                  <Line data={line12Data} options={{ ...revenueChartOptions, maintainAspectRatio: false }} />
                 </div>
               )}
             </ChartBox>
@@ -406,7 +419,6 @@ export default function HostDashboardPage() {
           </div>
         </div>
 
-        {/* Property performance */}
         <div className="mb-6">
           <SectionHeading>Property Performance</SectionHeading>
           {noPropertyRevenue ? (
@@ -416,25 +428,24 @@ export default function HostDashboardPage() {
               {property_performance.length > 10 ? (
                 <div className="overflow-y-auto" style={{ maxHeight: "260px" }}>
                   <div style={{ height: `${property_performance.length * 36}px` }}>
-                    <Bar data={propBarData} options={{ ...hBarOptions, maintainAspectRatio: false }} />
+                    <Bar data={propBarData} options={{ ...propBarOptions, maintainAspectRatio: false }} />
                   </div>
                 </div>
               ) : (
                 <div className="h-48">
-                  <Bar data={propBarData} options={{ ...hBarOptions, maintainAspectRatio: false }} />
+                  <Bar data={propBarData} options={{ ...propBarOptions, maintainAspectRatio: false }} />
                 </div>
               )}
             </ChartBox>
           )}
         </div>
 
-        {/* Upcoming check-ins + Recent reviews */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <SectionHeading>Upcoming Check-ins</SectionHeading>
             <div className="border border-gray-200 bg-white">
               {upcoming_checkins.length === 0 ? (
-                <EmptyText>No check-ins in the next 7 days.</EmptyText>
+                <EmptyText>No check-ins in the next 14 days.</EmptyText>
               ) : (
                 <table className="w-full text-sm">
                   <thead>
@@ -466,10 +477,7 @@ export default function HostDashboardPage() {
                           {c.property_name}
                         </td>
                         <td className="px-4 py-3 text-gray-500">
-                          {new Date(c.check_in).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                          })}
+                          {(() => { const [y, m, d] = c.check_in.split("-"); return new Date(+y, +m - 1, +d).toLocaleDateString("en-US", { month: "short", day: "numeric" }); })()}
                         </td>
                         <td className="px-4 py-3 text-right text-gray-500">
                           {c.nights}

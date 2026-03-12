@@ -15,9 +15,34 @@ class BookingsController < ApplicationController
   end
 
   # GET /bookings/:id
+  # rubocop:disable Metrics/MethodLength
   def show
-    render json: @booking
+    average_rating = @booking.property.reviews.average(:rating)&.round(2) || 0.0
+    existing = Review.find_by(user_id: @booking.user_id, property_id: @booking.property_id)
+
+    booking_json = @booking.as_json(
+      include: {
+        property: {
+          except: %i[created_at updated_at],
+          include: {
+            property_images: { only: [:url] },
+            reviews: { only: %i[id review rating created_at] },
+            user: {
+              only: %i[first_name last_name avatar_url],
+              include: { host: { only: %i[bio created_at] } }
+            }
+          }
+        }
+      }
+    )
+
+    booking_json['property']['rating'] = average_rating
+    booking_json['has_review'] = existing.present?
+    booking_json['existing_review'] = existing ? existing.as_json(only: %i[id rating review created_at]) : nil
+
+    render json: booking_json
   end
+  # rubocop:enable Metrics/MethodLength
 
   # PATCH/PUT /bookings/:id
   def update

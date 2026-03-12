@@ -197,7 +197,6 @@ const EditListingPage = () => {
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Edit Listing</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
-          {/* Section 1: Listing details */}
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Listing details</h2>
             <div className="space-y-6">
@@ -232,7 +231,6 @@ const EditListingPage = () => {
 
           <hr className="border-gray-200" />
 
-          {/* Section 2: Pricing */}
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Pricing</h2>
             <div>
@@ -272,7 +270,6 @@ const EditListingPage = () => {
 
           <hr className="border-gray-200" />
 
-          {/* Section 3: Photos */}
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Photos</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
@@ -368,7 +365,6 @@ const EditListingPage = () => {
 
           <hr className="border-gray-200" />
 
-          {/* Section 4: Amenities */}
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Amenities</h2>
             {amenitiesLoading ? (
@@ -415,7 +411,6 @@ const EditListingPage = () => {
         </form>
       </div>
 
-      {/* Sticky footer */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-4">
         <div className="max-w-3xl mx-auto flex items-center justify-end">
           <div className="flex gap-4">

@@ -48,7 +48,7 @@ const TripCard: React.FC<TripCardProps> = ({ booking }) => {
   return (
     <div
       className="flex items-center border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-50"
-      onClick={() => navigate(`/property/${property.id}`)}
+      onClick={() => navigate(`/trips/${booking.id}`)}
     >
       <div className="flex-shrink-0 w-40 h-[120px] rounded-lg overflow-hidden bg-gray-100">
         {thumbnail ? (

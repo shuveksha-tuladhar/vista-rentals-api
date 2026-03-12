@@ -32,6 +32,7 @@ import HostDashboardPage from "./pages/HostDashboard";
 import EditListingPage from "./pages/HostListings/EditListingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MyTripsPage from "./pages/MyTrips/MyTripsPage";
+import TripDetailPage from "./pages/TripDetail";
 
 interface MeResponse {
   user: UserResponse;
@@ -161,6 +162,14 @@ const AppContent = () => {
                     element={
                       <ProtectedRoute>
                         <MyTripsPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/trips/:bookingId"
+                    element={
+                      <ProtectedRoute>
+                        <TripDetailPage />
                       </ProtectedRoute>
                     }
                   />
