@@ -11,6 +11,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import type { TooltipItem } from "chart.js";
 import { Bar, Line, Doughnut } from "react-chartjs-2";
 import { FiHome } from "react-icons/fi";
 import HostPortalNavbar from "../../components/HostPortalNavbar";
@@ -35,6 +36,12 @@ const CHART_GRAY_900 = "#111827";
 const CHART_GRAY_700 = "#374151";
 const CHART_GRAY_200 = "#e5e7eb";
 
+const formatYAxisTooltipLabel = (ctx: TooltipItem<"bar"> | TooltipItem<"line">) =>
+  ` $${Number(ctx.parsed.y ?? 0).toLocaleString()}`;
+
+const formatXAxisTooltipLabel = (ctx: TooltipItem<"bar">) =>
+  ` $${Number(ctx.parsed.x ?? 0).toLocaleString()}`;
+
 const baseChartOptions = {
   responsive: true,
   maintainAspectRatio: true,
@@ -51,7 +58,7 @@ const revenueChartOptions = {
     legend: { display: false },
     tooltip: {
       callbacks: {
-        label: (ctx: { parsed: { y: number } }) => ` $${ctx.parsed.y.toLocaleString()}`,
+        label: formatYAxisTooltipLabel,
       },
     },
   },
@@ -73,7 +80,7 @@ const propBarOptions = {
     legend: { display: false },
     tooltip: {
       callbacks: {
-        label: (ctx: { parsed: { x: number } }) => ` $${ctx.parsed.x.toLocaleString()}`,
+        label: formatXAxisTooltipLabel,
       },
     },
   },

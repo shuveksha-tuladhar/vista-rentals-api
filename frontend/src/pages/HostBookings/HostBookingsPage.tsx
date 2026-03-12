@@ -6,7 +6,7 @@ import { getApi } from "../../utils/api";
 import { useLoader } from "../../context/LoaderContext";
 import TypeaheadSelect from "../../components/TypeaheadSelect";
 import type { TypeaheadOption } from "../../components/TypeaheadSelect";
-import type { HostBooking, HostBookingsResponse } from "./types";
+import type { HostBooking, HostBookingsMeta, HostBookingsResponse } from "./types";
 
 function formatDateRange(startDate: string, endDate: string): string {
   const start = parseISO(startDate);
@@ -63,7 +63,7 @@ interface HostListingsApiResponse {
 
 const HostBookingsPage = () => {
   const [bookings, setBookings] = useState<HostBooking[]>([]);
-  const [meta, setMeta] = useState<HostBookingsResponse["meta"] | null>(null);
+  const [meta, setMeta] = useState<HostBookingsMeta | null>(null);
   const [fetching, setFetching] = useState(true);
   const [page, setPage] = useState(1);
   const [propertyId, setPropertyId] = useState("");

@@ -1,6 +1,7 @@
 import type { PaginationMeta } from "../HostListings/types";
 
-interface HostBookingsMeta extends PaginationMeta {
+export interface HostBookingsMeta extends PaginationMeta {
+  per_page: number;
   total_revenue: string;
 }
 
