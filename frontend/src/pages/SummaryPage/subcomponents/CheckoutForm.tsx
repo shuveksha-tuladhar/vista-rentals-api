@@ -59,8 +59,12 @@ const CheckoutForm = ({
     });
 
     if (responseBooking.error) {
-      console.error("Error saving bookings");
-      addToast({ message: "There was an error with booking", type: "error" });
+      setLoading(false);
+      if (responseBooking.error.status === 422) {
+        setError("These dates are no longer available. Please select different dates.");
+      } else {
+        addToast({ message: "There was an error with booking", type: "error" });
+      }
       return;
     }
 
@@ -91,10 +95,14 @@ const CheckoutForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 animate-fade-in">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <PaymentElement id="payment-element" />
 
-      {error && <div className="text-red-500 text-sm">{error}</div>}
+      {error && (
+        <div className="border-l-4 border-red-500 bg-white text-red-700 text-sm rounded-lg px-4 py-3">
+          {error}
+        </div>
+      )}
 
       <div className="text-sm text-gray-600">
         By clicking "Confirm and Pay", I agree to the charges and terms of

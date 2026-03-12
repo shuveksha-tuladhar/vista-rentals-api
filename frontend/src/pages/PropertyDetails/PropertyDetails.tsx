@@ -12,6 +12,7 @@ import WhereYouWillSleep from "./subcomponents/WhereYouWillSleep/WhereYouWillSle
 import FavoriteButton from "../../components/FavoriteButton";
 import type { Property } from "./types/PropertyType";
 import { getApi } from "../../utils/api";
+import { expandBookedRangesToDates } from "../../utils/dates";
 import { useLoader } from "../../context/LoaderContext";
 
 const PropertyDetails: React.FC = () => {
@@ -20,6 +21,7 @@ const PropertyDetails: React.FC = () => {
   const { setIsLoading } = useLoader();
 
   const [property, setProperty] = useState<Property | null>(null);
+  const [disabledDates, setDisabledDates] = useState<Date[]>([]);
 
   useEffect(() => {
     const fetchPropertyDetails = async () => {
@@ -36,6 +38,12 @@ const PropertyDetails: React.FC = () => {
         }
       } else {
         setProperty(data);
+        const bookedResponse = await getApi<{ booked_dates: { start_date: string; end_date: string }[] }>(
+          `/properties/${id}/booked-dates`
+        );
+        if (bookedResponse.data) {
+          setDisabledDates(expandBookedRangesToDates(bookedResponse.data.booked_dates));
+        }
       }
     };
 
@@ -76,6 +84,7 @@ const PropertyDetails: React.FC = () => {
                 price={property.price}
                 maxGuests={property.max_guests}
                 propertyId={property.id}
+                disabledDates={disabledDates}
               />
             </div>
           </div>

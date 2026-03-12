@@ -14,6 +14,7 @@ interface BookingSidebarProps {
   price: string;
   maxGuests: number;
   propertyId: number;
+  disabledDates?: Date[];
 }
 
 const FREE_CANCEL_DAYS = 7;
@@ -23,6 +24,7 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
   price,
   maxGuests,
   propertyId,
+  disabledDates = [],
 }) => {
 
   const { checkIn, checkOut } = useBookingStore();
@@ -241,6 +243,7 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
       <DatePickerModal
         isOpen={datepickerOpen}
         onClose={() => setDatepickerOpen(false)}
+        disabledDates={disabledDates}
       />
     </aside>
   );

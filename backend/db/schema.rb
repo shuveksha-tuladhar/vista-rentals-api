@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_25_013615) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_05_071537) do
   create_table "amenities", force: :cascade do |t|
     t.string "name"
     t.boolean "isActive"
@@ -28,6 +28,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_25_013615) do
     t.boolean "is_refundable", default: false
     t.string "payment_status"
     t.string "payment_token"
+    t.index ["property_id", "start_date", "end_date"], name: "index_bookings_on_property_id_start_date_end_date"
     t.index ["property_id"], name: "index_bookings_on_property_id"
     t.index ["user_id"], name: "index_bookings_on_user_id"
   end

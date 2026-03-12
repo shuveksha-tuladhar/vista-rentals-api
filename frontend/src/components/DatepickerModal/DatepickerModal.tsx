@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DateRange } from "react-date-range";
-import { format, differenceInCalendarDays, addDays, isSameDay } from "date-fns";
+import { format, differenceInCalendarDays, addDays } from "date-fns";
+import { findNextAvailableDate } from "../../utils/dates";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import { useBookingStore } from "../../store/bookingStore";
@@ -19,45 +20,61 @@ const DatePickerModal = ({
   onClose,
   disabledDates = [],
   wrapperClassName = "fixed inset-0 z-[1000] flex items-center justify-center bg-black/25",
-  popupPositionClassName = "w-full max-w-3xl bg-white rounded-2xl shadow-xl p-6",
+  popupPositionClassName = "w-full max-w-3xl bg-white rounded-2xl p-6",
 }: DatePickerModalProps) => {
   const { checkIn, checkOut, setCheckIn, setCheckOut } = useBookingStore();
 
-  const [selection, setSelection] = useState({
+  // Keep refs so effects always read the latest values without making them
+  // reactive dependencies (which cause infinite loops).
+  const disabledDatesRef = useRef(disabledDates);
+  disabledDatesRef.current = disabledDates;
+  const checkInRef = useRef(checkIn);
+  checkInRef.current = checkIn;
+  const checkOutRef = useRef(checkOut);
+  checkOutRef.current = checkOut;
+
+  const [selection, setSelection] = useState(() => ({
     startDate: checkIn || addDays(new Date(), 7),
     endDate: checkOut || addDays(new Date(), 9),
     key: "selection",
-  });
+  }));
 
   useEffect(() => {
-    if (isOpen) {
-      setSelection({
-        startDate: checkIn || addDays(new Date(), 7),
-        endDate: checkOut || addDays(new Date(), 9),
-        key: "selection",
-      });
-    }
-  }, [isOpen, checkIn, checkOut]);
+    if (!isOpen) return;
 
-  useEffect(() => {
-    if (
-      selection.startDate &&
-      selection.endDate &&
-      (!isSameDay(checkIn ?? new Date(0), selection.startDate) ||
-        !isSameDay(checkOut ?? new Date(0), selection.endDate))
-    ) {
-      setCheckIn(selection.startDate);
-      setCheckOut(selection.endDate);
+    const disabled = disabledDatesRef.current;
+    const ci = checkInRef.current;
+    const co = checkOutRef.current;
+    const disabledSet = new Set(disabled.map((d) => d.toDateString()));
+
+    const startIsDisabled = ci != null && disabledSet.has(ci.toDateString());
+    const defaultStart =
+      !ci || startIsDisabled
+        ? findNextAvailableDate(addDays(new Date(), 7), disabled)
+        : ci;
+    const endIsDisabled =
+      !co ||
+      disabledSet.has(co.toDateString()) ||
+      co <= defaultStart;
+    const defaultEnd = endIsDisabled
+      ? findNextAvailableDate(addDays(defaultStart, 1), disabled)
+      : co;
+
+    setSelection({ startDate: defaultStart, endDate: defaultEnd, key: "selection" });
+
+    // Write to store so the search bar input shows the default dates.
+    // Only do this when dates were absent or fell on a disabled day.
+    if (!ci || startIsDisabled) {
+      setCheckIn(defaultStart);
+      setCheckOut(defaultEnd);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selection, setCheckIn, setCheckOut]);
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleClear = () => {
-    setSelection({
-      startDate: addDays(new Date(), 7),
-      endDate: addDays(new Date(), 9),
-      key: "selection",
-    });
+    const disabled = disabledDatesRef.current;
+    const defaultStart = findNextAvailableDate(addDays(new Date(), 7), disabled);
+    const defaultEnd = findNextAvailableDate(addDays(defaultStart, 1), disabled);
+    setSelection({ startDate: defaultStart, endDate: defaultEnd, key: "selection" });
   };
 
   const handleClose = () => {
@@ -102,7 +119,7 @@ const DatePickerModal = ({
               <label className="text-xs text-gray-500">CHECK-IN</label>
               <input
                 readOnly
-                className="block border border-black rounded-md px-3 py-2 w-32"
+                className="block border border-gray-300 rounded-md px-3 py-2 w-32"
                 value={format(selection.startDate, "MM/dd/yyyy")}
               />
             </div>
@@ -110,7 +127,7 @@ const DatePickerModal = ({
               <label className="text-xs text-gray-500">CHECK-OUT</label>
               <input
                 readOnly
-                className="block border border-black rounded-md px-3 py-2 w-32"
+                className="block border border-gray-300 rounded-md px-3 py-2 w-32"
                 value={format(selection.endDate, "MM/dd/yyyy")}
               />
             </div>
