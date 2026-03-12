@@ -1,6 +1,8 @@
 import React from "react";
 import { FaAirbnb } from "react-icons/fa6";
 import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useAuthStore } from "../../store/authStore";
+import HostAvatar from "../HostAvatar";
 
 const NAV_LINKS = [
   { label: "Dashboard", path: "/host/dashboard" },
@@ -11,6 +13,7 @@ const NAV_LINKS = [
 const HostPortalNavbar: React.FC = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const user = useAuthStore((state) => state.user);
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
@@ -35,6 +38,13 @@ const HostPortalNavbar: React.FC = () => {
               {label}
             </Link>
           ))}
+          {user && (
+            <HostAvatar
+              firstName={user.first_name}
+              lastName={user.last_name}
+              size="sm"
+            />
+          )}
           <button
             onClick={() => navigate("/")}
             className="text-sm font-semibold text-gray-700 px-4 py-2 rounded-lg border border-gray-300"

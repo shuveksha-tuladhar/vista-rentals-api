@@ -4,7 +4,23 @@
 class HostDashboardController < ApplicationController
   # rubocop:disable Metrics/MethodLength, Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
   def show
-    property_ids = current_user.properties.pluck(:id)
+    all_properties = current_user.properties.includes(:bookings)
+
+    filter_cities  = all_properties.pluck(:city).uniq.compact.sort
+    filter_states  = all_properties.pluck(:state).uniq.compact.sort
+    filter_props   = all_properties.map { |p| { id: p.id, name: p.name } }
+
+    filtered_properties = if params[:property_id].present?
+      all_properties.where(id: params[:property_id])
+    elsif params[:city].present?
+      all_properties.where(city: params[:city])
+    elsif params[:state].present?
+      all_properties.where(state: params[:state])
+    else
+      all_properties
+    end
+
+    property_ids = filtered_properties.pluck(:id)
 
     complete_bookings = Booking.where(property_id: property_ids, payment_status: 'complete').includes(:property)
     bookings_pending = Booking.where(property_id: property_ids, payment_status: 'pending').count
@@ -46,7 +62,7 @@ class HostDashboardController < ApplicationController
     rating_counts = Review.where(property_id: property_ids).group(:rating).count
     rating_breakdown = (1..5).each_with_object({}) { |r, h| h[r.to_s] = rating_counts[r] || 0 }
 
-    perf_unsorted = current_user.properties.map do |p|
+    perf_unsorted = filtered_properties.map do |p|
       p_bookings = complete_bookings.select { |b| b.property_id == p.id }
       rev = p_bookings.sum { |b| (b.end_date.to_date - b.start_date.to_date).to_i * p.price.to_f }
       { property_id: p.id, property_name: p.name, revenue: format('%.2f', rev), bookings_count: p_bookings.size }
@@ -104,7 +120,12 @@ class HostDashboardController < ApplicationController
       rating_breakdown: rating_breakdown,
       property_performance: property_performance,
       recent_reviews: recent_reviews,
-      upcoming_checkins: upcoming_checkins
+      upcoming_checkins: upcoming_checkins,
+      filter_options: {
+        cities: filter_cities,
+        states: filter_states,
+        properties: filter_props
+      }
     }
   end
 
