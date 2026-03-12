@@ -23,7 +23,7 @@ const SearchLocation: React.FC<SearchLocationProps> = ({ onSelect }) => {
       .then((resp) => setLocations(resp.data as LocationItem[]))
       .catch(() => setLocations([]))
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [setIsLoading]);
 
   useEffect(() => {
     if (query === "") {

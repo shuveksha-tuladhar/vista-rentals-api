@@ -119,6 +119,7 @@ export default function HostDashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [filterOptions, setFilterOptions] = useState<FilterOptions | null>(null);
   const [filter, setFilter] = useState<ActiveFilter>({ type: null, value: null });
+  const [propertyPerformanceTimeframe, setPropertyPerformanceTimeframe] = useState<string>('12m');
   const [loading, setLoading] = useState(true);
   const [fetching, setFetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -133,6 +134,7 @@ export default function HostDashboardPage() {
       if (filter.type === "property" && filter.value) params.set("property_id", String(filter.value));
       if (filter.type === "city" && filter.value) params.set("city", String(filter.value));
       if (filter.type === "state" && filter.value) params.set("state", String(filter.value));
+      params.set("property_performance_timeframe", propertyPerformanceTimeframe);
       const url = `/host/dashboard${params.toString() ? `?${params}` : ""}`;
 
       const { data: responseData, error: err } = await getApi<DashboardData>(url);
@@ -147,7 +149,7 @@ export default function HostDashboardPage() {
       setFetching(false);
     }
     fetchDashboard();
-  }, [filter]);
+  }, [filter, propertyPerformanceTimeframe, data]);
 
   if (loading) {
     return (
@@ -420,7 +422,24 @@ export default function HostDashboardPage() {
         </div>
 
         <div className="mb-6">
-          <SectionHeading>Property Performance</SectionHeading>
+          <div className="flex items-center justify-between">
+            <SectionHeading>Property Performance</SectionHeading>
+            <div className="flex space-x-1 mb-2">
+              {['1m', '3m', '6m', '12m', 'ytd', 'all_time'].map((timeframe) => (
+                <button
+                  key={timeframe}
+                  onClick={() => setPropertyPerformanceTimeframe(timeframe)}
+                  className={`px-3 py-1 text-xs rounded-md ${
+                    propertyPerformanceTimeframe === timeframe
+                      ? 'bg-gray-700 text-white'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  {timeframe === 'all_time' ? 'All' : timeframe.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          </div>
           {noPropertyRevenue ? (
             <ChartBox><EmptyText>No revenue data yet.</EmptyText></ChartBox>
           ) : (

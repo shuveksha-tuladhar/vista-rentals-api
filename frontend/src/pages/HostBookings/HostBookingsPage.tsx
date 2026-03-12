@@ -7,7 +7,6 @@ import { useLoader } from "../../context/LoaderContext";
 import TypeaheadSelect from "../../components/TypeaheadSelect";
 import type { TypeaheadOption } from "../../components/TypeaheadSelect";
 import type { HostBooking, HostBookingsResponse } from "./types";
-import type { PaginationMeta } from "../HostListings/types";
 
 function formatDateRange(startDate: string, endDate: string): string {
   const start = parseISO(startDate);

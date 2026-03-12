@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { createSearchParams, useNavigate } from "react-router-dom";
 import { FaCircleCheck, FaCircle } from "react-icons/fa6";
 import {
@@ -8,7 +8,11 @@ import {
 import type { BookingCosts } from "./types/BookingCostType";
 import DatePickerModal from "../../../../components/DatepickerModal/DatepickerModal";
 import { useBookingStore } from "../../../../store/bookingStore";
-import { format } from "date-fns";
+import { addDays, format } from "date-fns";
+import {
+  findNextAvailableDateRange,
+  isDateRangeAvailable,
+} from "../../../../utils/dates";
 
 interface BookingSidebarProps {
   price: string;
@@ -19,6 +23,8 @@ interface BookingSidebarProps {
 
 const FREE_CANCEL_DAYS = 7;
 const PARTIAL_REFUND_DAYS = 2;
+const DEFAULT_START_OFFSET_DAYS = 7;
+const DEFAULT_MINIMUM_NIGHTS = 1;
 
 const BookingSidebar: React.FC<BookingSidebarProps> = ({
   price,
@@ -27,7 +33,7 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
   disabledDates = [],
 }) => {
 
-  const { checkIn, checkOut } = useBookingStore();
+  const { checkIn, checkOut, setCheckIn, setCheckOut } = useBookingStore();
 
   const [guests, setGuests] = useState(1);
   const [showPriceDetails, setShowPriceDetails] = useState(false);
@@ -48,6 +54,26 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({
     subtotalBeforeTaxesWithDiscount,
     totalBeforeTaxes,
   }: BookingCosts = calculateBookingCosts(price, checkIn, checkOut, refundable);
+
+  useEffect(() => {
+    const hasValidRange =
+      checkIn != null &&
+      checkOut != null &&
+      isDateRangeAvailable(checkIn, checkOut, disabledDates);
+
+    if (hasValidRange) {
+      return;
+    }
+
+    const { startDate, endDate } = findNextAvailableDateRange(
+      addDays(new Date(), DEFAULT_START_OFFSET_DAYS),
+      disabledDates,
+      DEFAULT_MINIMUM_NIGHTS
+    );
+
+    setCheckIn(startDate);
+    setCheckOut(endDate);
+  }, [checkIn, checkOut, disabledDates, setCheckIn, setCheckOut]);
 
   const handleReserve = () => {
     navigate({
