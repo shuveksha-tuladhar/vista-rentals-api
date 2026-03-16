@@ -24,6 +24,7 @@ Rails.application.routes.draw do
   get  '/host/listings',      to: 'host_listings#index'
   patch '/host/listings/:id', to: 'host_listings#update'
   delete '/host/listings/:id', to: 'host_listings#destroy'
+  post '/host/ai/suggest-price', to: 'host_ai#suggest_price
 
   resources :users do
     resources :bookings, only: [:index], controller: 'bookings', action: :index_by_user # GET /users/:user_id/bookings
