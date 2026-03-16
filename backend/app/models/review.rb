@@ -1,6 +1,6 @@
 class Review < ApplicationRecord
   belongs_to :user
-  belongs_to :property
+  belongs_to :property, touch: :reviews_changed_at
 
   validates :review, presence: true
   validates :rating, presence: true,
