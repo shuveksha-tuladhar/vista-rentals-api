@@ -17,4 +17,29 @@ class Property < ApplicationRecord
   accepts_nested_attributes_for :property_rules, allow_destroy: true
   accepts_nested_attributes_for :property_safety_notes, allow_destroy: true
   accepts_nested_attributes_for :property_bed_infos, allow_destroy: true
+
+  MIN_REVIEWS_FOR_AI_SUMMARY = 3
+
+  def has_minimum_reviews_for_ai_summary?
+    reviews.count >= MIN_REVIEWS_FOR_AI_SUMMARY
+  end
+
+  def first_ai_summary_attempt?
+    ai_summary_attempted_at.nil?
+  end
+
+  def ai_summary_stale?
+    return true if ai_summary_generated_at.nil?
+    return false if reviews_changed_at.nil?
+
+    reviews_changed_at > ai_summary_generated_at
+  end
+
+  def ai_summary_attempt_allowed?
+    ai_summary_attempted_at.nil? || ai_summary_attempted_at <= 24.hours.ago
+  end
+
+  def eligible_for_ai_summary_generation?
+    has_minimum_reviews_for_ai_summary? && ai_summary_attempt_allowed? && ai_summary_stale?
+  end
 end

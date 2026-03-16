@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class PropertiesController < ApplicationController
-  before_action :set_property, only: %i[show update destroy]
-  skip_before_action :authorize_request, only: %i[index show location booked_dates]
+  before_action :set_property, only: %i[show update destroy ai_summary]
+  skip_before_action :authorize_request, only: %i[index show location booked_dates ai_summary]
 
   # GET /properties
   def index
@@ -45,6 +45,8 @@ class PropertiesController < ApplicationController
 
   # GET /properties/:id
   def show
+    enqueue_first_ai_summary_attempt
+
     average_rating = @property.reviews.average(:rating)&.round(2) || 0.00
 
     render json: @property.as_json(
@@ -59,7 +61,20 @@ class PropertiesController < ApplicationController
           user: { only: %i[first_name last_name] }
         } }
       }
-    ).merge(rating: average_rating)
+    ).merge(
+      rating: average_rating,
+      ai_summary: @property.ai_summary,
+      ai_summary_generated_at: @property.ai_summary_generated_at
+    )
+  end
+
+  # GET /properties/:id/ai-summary
+  def ai_summary
+    render json: {
+      ai_summary: @property.ai_summary,
+      pending: @property.ai_summary.nil? && @property.ai_summary_attempted_at.present? && @property.ai_summary_error.nil?,
+      failed: @property.ai_summary_error.present?
+    }
   end
 
   # GET /properties/location
@@ -134,5 +149,12 @@ class PropertiesController < ApplicationController
       property_images_attributes: %i[id url _destroy],
       property_bed_infos_attributes: %i[room bed_type is_active]
     )
+  end
+
+  def enqueue_first_ai_summary_attempt
+    return unless @property.first_ai_summary_attempt?
+    return unless @property.has_minimum_reviews_for_ai_summary?
+
+    GeneratePropertyAiSummaryJob.perform_later(@property.id)
   end
 end

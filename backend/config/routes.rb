@@ -11,6 +11,7 @@ Rails.application.routes.draw do
     end
     member do
       get 'booked-dates', to: 'properties#booked_dates', as: :booked_dates
+      get 'ai-summary', to: 'properties#ai_summary', as: :ai_summary
     end
   end
 

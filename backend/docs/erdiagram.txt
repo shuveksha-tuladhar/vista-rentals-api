@@ -30,6 +30,11 @@ Table properties {
   cancellation_policy text
   coordinates_latitude varchar
   coordinates_longitude varchar
+  ai_summary text [null]
+  ai_summary_generated_at timestamp [null]
+  ai_summary_attempted_at timestamp [null]
+  reviews_changed_at timestamp [null]
+  ai_summary_error text [null]
   created_at timestamp	
   updated_at timestamp
 }

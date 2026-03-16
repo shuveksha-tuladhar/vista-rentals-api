@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { format } from "date-fns";
+import { BsStars } from "react-icons/bs";
 import { FaAirbnb, FaBars, FaCircleUser } from "react-icons/fa6";
 import { useLocation, useNavigate } from "react-router";
 import { useAuthStore } from "../store/authStore";
@@ -34,8 +35,9 @@ const HeaderMobile: React.FC = () => {
     <>
       <header className="sticky top-0 z-50 bg-white border-b border-gray-200 px-4 pb-3 pt-2 md:hidden">
         <div className="flex items-center justify-between">
-          <button onClick={() => navigate("/")} aria-label="Go to home" className="cursor-pointer">
+          <button onClick={() => navigate("/")} aria-label="Go to home" className="cursor-pointer relative">
             <FaAirbnb className="h-7 w-7 text-red-500 rotate-180 flex-shrink-0" />
+            <BsStars className="absolute -bottom-0.5 -right-0.5 text-amber-400 text-[9px]" />
           </button>
 
           {!hideSearchPill && (
