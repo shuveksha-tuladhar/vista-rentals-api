@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_05_071537) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_12_100000) do
   create_table "amenities", force: :cascade do |t|
     t.string "name"
     t.boolean "isActive"
@@ -62,6 +62,13 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_05_071537) do
     t.string "coordinates_longitude"
     t.string "title"
     t.string "property_type"
+    t.text "ai_summary"
+    t.datetime "ai_summary_generated_at"
+    t.datetime "ai_summary_attempted_at"
+    t.datetime "reviews_changed_at"
+    t.text "ai_summary_error"
+    t.index ["ai_summary_attempted_at"], name: "index_properties_on_ai_summary_attempted_at"
+    t.index ["reviews_changed_at"], name: "index_properties_on_reviews_changed_at"
     t.index ["user_id"], name: "index_properties_on_user_id"
   end
 
