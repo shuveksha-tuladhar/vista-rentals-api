@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import SearchBar from "./SearchBar";
 import ExpandedSearchBar from "./SearchBar/ExpandedSearch";
+import { BsStars } from "react-icons/bs";
 import { FaAirbnb, FaBars, FaCircleUser, FaGlobe } from "react-icons/fa6";
 import { useLocation, useNavigate } from "react-router";
 import { AuthModal } from "./Auth/AuthModal";
@@ -80,12 +81,15 @@ const Header: React.FC = () => {
         <div className="flex-shrink-0">
           <a href="#" className="flex items-center space-x-2">
             <FaAirbnb className="h-8 w-8 text-red-500 rotate-180" />
-            <span
-              className="hidden md:block text-red-500 text-xl font-bold"
-              onClick={() => navigate("/")}
-            >
-              Vista Rentals
-            </span>
+            <div className="hidden md:flex flex-col" onClick={() => navigate("/")}>
+              <span className="text-red-500 text-xl font-bold leading-tight">
+                Vista Rentals
+              </span>
+              <span className="flex items-center gap-1 text-xs text-gray-400 font-normal leading-tight">
+                <BsStars className="text-amber-400 text-[10px]" />
+                AI-enhanced experience
+              </span>
+            </div>
           </a>
         </div>
 
