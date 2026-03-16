@@ -35,6 +35,11 @@ export interface EditListingFormValues {
   title: string;
   description: string;
   price: string;
+  property_type: string;
+  city: string;
+  state: string;
+  bedrooms: number;
+  max_guests: number;
   photos: string[];
   amenity_names: string[];
 }

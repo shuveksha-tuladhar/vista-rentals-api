@@ -1,12 +1,23 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm, useFieldArray } from "react-hook-form";
-import { FaPlus, FaTrash } from "react-icons/fa6";
+import { FaPlus, FaTrash, FaSpinner } from "react-icons/fa6";
 import HostNavbar from "../../components/HostNavbar";
-import { getApi, patchApi } from "../../utils/api";
+import { getApi, patchApi, postApi } from "../../utils/api";
 import { useToastStore } from "../../store/toastStore";
 import { AMENITIES_LIST } from "../../utils/amenities";
 import type { EditListingFormValues, HostListing } from "./types";
+
+interface PriceSuggestion {
+  min: number;
+  max: number;
+  reasoning: string;
+}
+
+interface SuggestPriceResponse {
+  data: PriceSuggestion | null;
+  error: string | null;
+}
 
 interface HostListingsResponse {
   data: HostListing[];
@@ -39,6 +50,9 @@ const EditListingPage = () => {
   const [sliderValue, setSliderValue] = useState(100);
   const [newPhotoUrl, setNewPhotoUrl] = useState("");
   const [showAddPhoto, setShowAddPhoto] = useState(false);
+  const [isSuggestingPrice, setIsSuggestingPrice] = useState(false);
+  const [priceSuggestion, setPriceSuggestion] = useState<PriceSuggestion | null>(null);
+  const [hasRequestedSuggestion, setHasRequestedSuggestion] = useState(false);
 
   const {
     register,
@@ -53,6 +67,11 @@ const EditListingPage = () => {
       title: "",
       description: "",
       price: "",
+      property_type: "",
+      city: "",
+      state: "",
+      bedrooms: 1,
+      max_guests: 1,
       photos: [""],
       amenity_names: [],
     },
@@ -65,6 +84,11 @@ const EditListingPage = () => {
 
   const selectedAmenities = watch("amenity_names");
   const watchedPhotos = watch("photos");
+  const watchedPropertyType = watch("property_type");
+  const watchedCity = watch("city");
+  const watchedState = watch("state");
+  const watchedBedrooms = watch("bedrooms");
+  const watchedMaxGuests = watch("max_guests");
 
   const fetchAmenities = async () => {
     setAmenitiesLoading(true);
@@ -105,6 +129,11 @@ const EditListingPage = () => {
         title: listing.title,
         description: listing.description,
         price: listing.price,
+        property_type: listing.property_type,
+        city: listing.city,
+        state: listing.state,
+        bedrooms: listing.bedrooms,
+        max_guests: listing.max_guests,
         photos:
           listing.property_images.length > 0
             ? listing.property_images.map((img) => img.url)
@@ -141,6 +170,33 @@ const EditListingPage = () => {
       setSliderValue(num);
     }
     setValue("price", value, { shouldValidate: true });
+  };
+
+  const suggestPrice = async () => {
+    if (!id || !watchedPropertyType || !watchedCity || !watchedState || !watchedBedrooms || !watchedMaxGuests) {
+      addToast({ message: "Please fill in all listing details first.", type: "error" });
+      return;
+    }
+
+    setIsSuggestingPrice(true);
+    const response = await postApi<SuggestPriceResponse>("/host/ai/suggest-price", {
+      property_id: Number(id),
+      property_type: watchedPropertyType,
+      city: watchedCity,
+      state: watchedState,
+      bedrooms: Number(watchedBedrooms),
+      max_guests: Number(watchedMaxGuests),
+      amenities: selectedAmenities || [],
+    });
+    setIsSuggestingPrice(false);
+
+    if (response.error || !response.data) {
+      addToast({ message: response.error || "Failed to get price suggestion.", type: "error" });
+      return;
+    }
+
+    setPriceSuggestion(response.data);
+    setHasRequestedSuggestion(true);
   };
 
   const onSubmit = async (values: EditListingFormValues) => {
@@ -261,9 +317,33 @@ const EditListingPage = () => {
                   onChange={(e) => handlePriceInputChange(e.target.value)}
                   className="w-28 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
                 />
+                <button
+                  type="button"
+                  onClick={suggestPrice}
+                  disabled={isSuggestingPrice}
+                  className="ml-2 px-4 py-2 text-sm bg-gray-100 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {isSuggestingPrice ? (
+                    <>
+                      <FaSpinner className="w-4 h-4 animate-spin" />
+                      Suggesting...
+                    </>
+                  ) : (
+                    "Suggest a Price"
+                  )}
+                </button>
               </div>
               {errors.price && (
                 <p className="text-red-500 text-xs mt-1">{errors.price.message}</p>
+              )}
+              {hasRequestedSuggestion && priceSuggestion && (
+                <div className="mt-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                  <p className="text-sm font-semibold text-gray-900 mb-2">AI Price Suggestion</p>
+                  <p className="text-lg font-bold text-gray-900 mb-2">
+                    ${priceSuggestion.min} – ${priceSuggestion.max} / night
+                  </p>
+                  <p className="text-sm text-gray-600">{priceSuggestion.reasoning}</p>
+                </div>
               )}
             </div>
           </section>
