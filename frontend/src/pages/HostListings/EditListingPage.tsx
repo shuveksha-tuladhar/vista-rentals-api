@@ -14,11 +14,6 @@ interface PriceSuggestion {
   reasoning: string;
 }
 
-interface SuggestPriceResponse {
-  data: PriceSuggestion | null;
-  error: string | null;
-}
-
 interface HostListingsResponse {
   data: HostListing[];
   error: string | null;
@@ -179,7 +174,7 @@ const EditListingPage = () => {
     }
 
     setIsSuggestingPrice(true);
-    const response = await postApi<SuggestPriceResponse>("/host/ai/suggest-price", {
+    const response = await postApi<PriceSuggestion>("/host/ai/suggest-price", {
       property_id: Number(id),
       property_type: watchedPropertyType,
       city: watchedCity,
@@ -190,8 +185,12 @@ const EditListingPage = () => {
     });
     setIsSuggestingPrice(false);
 
-    if (response.error || !response.data) {
-      addToast({ message: response.error || "Failed to get price suggestion.", type: "error" });
+    if (!response.data) {
+      const error = (response as any).error;
+      const errorMsg = typeof error === 'string' 
+        ? error 
+        : error?.message || "Failed to get price suggestion.";
+      addToast({ message: errorMsg, type: "error" });
       return;
     }
 
