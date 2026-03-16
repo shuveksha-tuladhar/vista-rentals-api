@@ -34,5 +34,7 @@ export interface Property {
   amenities: Array<Amenity>;
   user: Host;
   reviews: Array<Review>;
+  ai_summary: string | null;
+  ai_summary_generated_at: string | null;
   rating: string;
 }

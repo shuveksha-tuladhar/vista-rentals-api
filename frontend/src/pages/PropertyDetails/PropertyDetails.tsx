@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Gallery from "./subcomponents/Gallery/Gallery";
 import PropertyHeader from "./subcomponents/PropertyHeader/PropertyHeader";
@@ -22,6 +22,67 @@ const PropertyDetails: React.FC = () => {
 
   const [property, setProperty] = useState<Property | null>(null);
   const [disabledDates, setDisabledDates] = useState<Date[]>([]);
+
+  type AiSummaryStatus = "idle" | "loading" | "available" | "failed";
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [aiSummaryStatus, setAiSummaryStatus] = useState<AiSummaryStatus>("idle");
+  const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pollCountRef = useRef(0);
+  const MAX_POLL_ATTEMPTS = 20;
+
+  const stopPolling = useCallback(() => {
+    if (pollTimerRef.current) {
+      clearTimeout(pollTimerRef.current);
+      pollTimerRef.current = null;
+    }
+  }, []);
+
+  const pollAiSummary = useCallback(
+    async (propertyId: string) => {
+      if (pollCountRef.current >= MAX_POLL_ATTEMPTS) {
+        setAiSummaryStatus("failed");
+        return;
+      }
+      pollCountRef.current += 1;
+
+      const { data } = await getApi<{
+        ai_summary: string | null;
+        pending: boolean;
+        failed: boolean;
+      }>(`/properties/${propertyId}/ai-summary`);
+
+      if (data?.ai_summary) {
+        setAiSummary(data.ai_summary);
+        setAiSummaryStatus("available");
+        return;
+      }
+
+      if (data?.failed) {
+        setAiSummaryStatus("failed");
+        return;
+      }
+
+      pollTimerRef.current = setTimeout(() => pollAiSummary(propertyId), 3000);
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (!property) return;
+
+    stopPolling();
+    pollCountRef.current = 0;
+
+    if (property.ai_summary) {
+      setAiSummary(property.ai_summary);
+      setAiSummaryStatus("available");
+    } else if (property.reviews.length >= 3) {
+      setAiSummaryStatus("loading");
+      pollAiSummary(property.id.toString());
+    }
+
+    return stopPolling;
+  }, [property?.id]);  // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const fetchPropertyDetails = async () => {
@@ -91,7 +152,11 @@ const PropertyDetails: React.FC = () => {
         </div>
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="flex-1 flex flex-col gap-6">
-            <Reviews reviews={property.reviews} />
+            <Reviews
+              reviews={property.reviews}
+              aiSummary={aiSummary}
+              aiSummaryStatus={aiSummaryStatus}
+            />
             <HostDetails hostInfo={property.user} />
             <ThingsToKnow
               rules={property.property_rules}
