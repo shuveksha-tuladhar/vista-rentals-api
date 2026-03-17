@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Chart as ChartJS,
@@ -123,6 +123,7 @@ function StarRating({ rating }: { rating: number }) {
 
 export default function HostDashboardPage() {
   const navigate = useNavigate();
+  const hasLoadedDashboard = useRef(false);
   const [data, setData] = useState<DashboardData | null>(null);
   const [filterOptions, setFilterOptions] = useState<FilterOptions | null>(null);
   const [filter, setFilter] = useState<ActiveFilter>({ type: null, value: null });
@@ -133,7 +134,7 @@ export default function HostDashboardPage() {
 
   useEffect(() => {
     async function fetchDashboard() {
-      if (data !== null) {
+      if (hasLoadedDashboard.current) {
         setFetching(true);
       }
 
@@ -146,6 +147,7 @@ export default function HostDashboardPage() {
 
       const { data: responseData, error: err } = await getApi<DashboardData>(url);
       if (responseData) {
+        hasLoadedDashboard.current = true;
         setData(responseData);
         setFilterOptions(responseData.filter_options);
       } else {
@@ -156,7 +158,7 @@ export default function HostDashboardPage() {
       setFetching(false);
     }
     fetchDashboard();
-  }, [filter, propertyPerformanceTimeframe, data]);
+  }, [filter, propertyPerformanceTimeframe]);
 
   if (loading) {
     return (
