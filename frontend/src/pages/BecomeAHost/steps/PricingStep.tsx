@@ -1,17 +1,34 @@
 import React from "react";
+import { BsStars } from "react-icons/bs";
+import { FaSpinner } from "react-icons/fa6";
+
+interface PriceSuggestion {
+  min: number;
+  max: number;
+  reasoning: string;
+}
 
 interface PricingStepProps {
   price: number;
   onPriceChange: (price: number) => void;
+  onSuggestPrice: () => void;
+  isSuggestingPrice: boolean;
+  hasRequestedSuggestion: boolean;
+  priceSuggestion: PriceSuggestion | null;
 }
 
-const PricingStep: React.FC<PricingStepProps> = ({ price, onPriceChange }) => {
+const PricingStep: React.FC<PricingStepProps> = ({
+  price,
+  onPriceChange,
+  onSuggestPrice,
+  isSuggestingPrice,
+  hasRequestedSuggestion,
+  priceSuggestion,
+}) => {
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value) || 0;
     onPriceChange(value);
   };
-
-  const suggestedPrices = [100, 200, 300, 400, 500];
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
@@ -38,24 +55,61 @@ const PricingStep: React.FC<PricingStepProps> = ({ price, onPriceChange }) => {
       </div>
 
       <div>
-        <p className="text-sm font-medium text-gray-700 mb-3">
-          Suggested prices
-        </p>
-        <div className="flex flex-wrap gap-3">
-          {suggestedPrices.map((suggestedPrice) => (
+        <div className="border border-gray-200 rounded-xl p-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <BsStars className="text-amber-500 text-sm" />
+                <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+                  AI pricing help
+                </p>
+              </div>
+              <p className="text-sm font-semibold text-gray-900">
+                Get a suggested nightly price range
+              </p>
+              <p className="text-sm text-gray-600 mt-1">
+                Use AI to estimate pricing from similar listings based on your property details.
+              </p>
+            </div>
+
             <button
-              key={suggestedPrice}
-              onClick={() => onPriceChange(suggestedPrice)}
-              className={`px-6 py-3 rounded-full border-2 transition-all cursor-pointer ${
-                price === suggestedPrice
-                  ? "border-gray-900 bg-gray-50"
-                  : "border-gray-300 bg-white hover:border-gray-900"
-              }`}
+              type="button"
+              onClick={onSuggestPrice}
+              disabled={isSuggestingPrice}
+              className="shrink-0 px-4 py-2 text-sm font-medium bg-white text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              ${suggestedPrice}
+              {isSuggestingPrice ? (
+                <>
+                  <FaSpinner className="w-4 h-4 animate-spin" />
+                  Suggesting...
+                </>
+              ) : (
+                <>
+                  <BsStars className="w-4 h-4 text-amber-500" />
+                  Suggest price using AI
+                </>
+              )}
             </button>
-          ))}
+          </div>
         </div>
+
+        {hasRequestedSuggestion && priceSuggestion && (
+          <div className="mt-4 p-4 border border-gray-200 rounded-lg bg-transparent">
+            <div className="flex items-center gap-1.5 mb-4">
+              <BsStars className="text-amber-500 text-sm" />
+              <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+                AI price suggestion
+              </p>
+            </div>
+            <p className="text-lg font-bold text-gray-900 mb-2">
+              ${priceSuggestion.min} – ${priceSuggestion.max} / night
+            </p>
+            <div className="flex gap-3">
+              <span className="text-5xl leading-none text-amber-500 select-none mt-1">&ldquo;</span>
+              <p className="text-sm text-gray-600 leading-relaxed">{priceSuggestion.reasoning}</p>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="mt-8 p-6 bg-gray-50 rounded-xl">

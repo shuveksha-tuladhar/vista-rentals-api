@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import HostNavbar from "../../components/HostNavbar";
 import Stepper from "./components/Stepper";
@@ -14,6 +14,17 @@ import { useToastStore } from "../../store/toastStore";
 import { useAuthStore } from "../../store/authStore";
 import { postApi } from "../../utils/api";
 import type { BedSetupData, BedroomConfig, BedEntry } from "./types";
+
+interface PriceSuggestion {
+  min: number;
+  max: number;
+  reasoning: string;
+}
+
+interface PriceSuggestionResponse {
+  data: PriceSuggestion | null;
+  error: string | null;
+}
 
 interface ListingData {
   propertyType: string;
@@ -56,6 +67,11 @@ const BecomeAHost: React.FC = () => {
   const { user, setUser } = useAuthStore();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuggestingPrice, setIsSuggestingPrice] = useState(false);
+  const [priceSuggestion, setPriceSuggestion] = useState<PriceSuggestion | null>(null);
+  const [hasRequestedSuggestion, setHasRequestedSuggestion] = useState(false);
+  const [suggestionCache, setSuggestionCache] = useState<Record<string, PriceSuggestion>>({});
+  const [attemptedAutoSuggestionByKey, setAttemptedAutoSuggestionByKey] = useState<Record<string, boolean>>({});
   const [listingData, setListingData] = useState<ListingData>({
     propertyType: "",
     location: {
@@ -81,6 +97,21 @@ const BecomeAHost: React.FC = () => {
       bedrooms: [{ room: "Bedroom 1", beds: [{ bedType: "" }] }],
     },
   });
+
+  const suggestionKey = (() => {
+    const propertyType = listingData.propertyType.trim();
+    const city = listingData.location.city.trim();
+    const state = listingData.location.state.trim();
+    const bedrooms = listingData.basics.bedrooms;
+    const maxGuests = listingData.basics.guests;
+
+    if (!propertyType || !city || !state || !bedrooms || !maxGuests) {
+      return null;
+    }
+
+    const amenities = [...listingData.amenities].sort().join("|");
+    return `${propertyType}|${city}|${state}|${bedrooms}|${maxGuests}|${amenities}`;
+  })();
 
   const handlePropertyTypeSelect = (type: string) => {
     setListingData({ ...listingData, propertyType: type });
@@ -276,6 +307,101 @@ const BecomeAHost: React.FC = () => {
     navigate("/host/dashboard");
   };
 
+  const suggestPrice = useCallback(async ({ isAuto = false }: { isAuto?: boolean } = {}) => {
+    if (!suggestionKey) {
+      if (!isAuto) {
+        addToast({ message: "Please complete listing details first.", type: "error" });
+      }
+      return;
+    }
+
+    if (suggestionCache[suggestionKey]) {
+      setPriceSuggestion(suggestionCache[suggestionKey]);
+      setHasRequestedSuggestion(true);
+      return;
+    }
+
+    if (isAuto && attemptedAutoSuggestionByKey[suggestionKey]) {
+      return;
+    }
+
+    if (isAuto) {
+      setAttemptedAutoSuggestionByKey((prev) => ({ ...prev, [suggestionKey]: true }));
+    }
+
+    setIsSuggestingPrice(true);
+    const response = await postApi<PriceSuggestionResponse>("/host/ai/suggest-price", {
+      property_type: listingData.propertyType,
+      city: listingData.location.city,
+      state: listingData.location.state,
+      bedrooms: listingData.basics.bedrooms,
+      max_guests: listingData.basics.guests,
+      amenities: listingData.amenities,
+    });
+    setIsSuggestingPrice(false);
+
+    if (response.error || !response.data?.data) {
+      const error = response.data?.error || response.error;
+      const errorMsg = typeof error === "string"
+        ? error
+        : error?.message || "Failed to get price suggestion.";
+      if (!isAuto) {
+        addToast({ message: errorMsg, type: "error" });
+      }
+      return;
+    }
+
+    const suggestion = response.data.data;
+    setSuggestionCache((prev) => ({ ...prev, [suggestionKey]: suggestion }));
+    setPriceSuggestion(suggestion);
+    setHasRequestedSuggestion(true);
+  }, [
+    addToast,
+    attemptedAutoSuggestionByKey,
+    listingData.amenities,
+    listingData.basics.bedrooms,
+    listingData.basics.guests,
+    listingData.location.city,
+    listingData.location.state,
+    listingData.propertyType,
+    suggestionCache,
+    suggestionKey,
+  ]);
+
+  useEffect(() => {
+    if (suggestionKey && suggestionCache[suggestionKey]) {
+      setPriceSuggestion(suggestionCache[suggestionKey]);
+      setHasRequestedSuggestion(true);
+      return;
+    }
+
+    setPriceSuggestion(null);
+    setHasRequestedSuggestion(false);
+  }, [
+    listingData.propertyType,
+    listingData.location.city,
+    listingData.location.state,
+    listingData.basics.bedrooms,
+    listingData.basics.guests,
+    listingData.amenities,
+    suggestionKey,
+    suggestionCache,
+  ]);
+
+  useEffect(() => {
+    if (currentStep !== 7 || !suggestionKey || isSuggestingPrice || suggestionCache[suggestionKey]) {
+      return;
+    }
+
+    suggestPrice({ isAuto: true });
+  }, [
+    currentStep,
+    isSuggestingPrice,
+    suggestionKey,
+    suggestionCache,
+    suggestPrice,
+  ]);
+
   const renderStep = () => {
     switch (currentStep) {
       case 0:
@@ -333,6 +459,10 @@ const BecomeAHost: React.FC = () => {
           <PricingStep
             price={listingData.price}
             onPriceChange={handlePriceChange}
+            onSuggestPrice={suggestPrice}
+            isSuggestingPrice={isSuggestingPrice}
+            hasRequestedSuggestion={hasRequestedSuggestion}
+            priceSuggestion={priceSuggestion}
           />
         );
       default:
