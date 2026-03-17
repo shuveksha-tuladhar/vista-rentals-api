@@ -2,6 +2,13 @@
 
 module Properties
   class SuggestSmartPrice
+    TYPE_FAMILIES = {
+      'luxury' => %w[resort villa mansion estate chalet lodge penthouse],
+      'home' => %w[house townhouse bungalow farmhouse farm ranch adobe casita cottage],
+      'urban' => %w[apartment condo loft studio suite],
+      'nature' => %w[cabin chalet lodge cottage]
+    }.freeze
+
     def initialize(property, params, client: Ai::GeminiClient.new)
       @property = property
       @params = params
@@ -41,16 +48,15 @@ module Properties
     end
 
     def fetch_comparables
-      # Find properties in same city/state with similar bedroom count
-      properties = Property.where(
-        city: @params[:city].strip,
-        state: @params[:state].strip,
-        property_type: @params[:property_type].strip
-      ).where('bedrooms BETWEEN ? AND ?', (@params[:bedrooms].to_i - 1), (@params[:bedrooms].to_i + 1))
-       .where.not(id: @property.id)
-       .limit(20)
+      candidate_scopes.each do |scope|
+        comparable_prices = sanitize_prices(scope)
+        return comparable_prices if comparable_prices.any?
+      end
 
-      # Filter out invalid prices and return price objects
+      []
+    end
+
+    def sanitize_prices(properties)
       properties.map(&:price)
                 .compact
                 .reject { |p| p.blank? || p.to_f <= 0 }
@@ -58,6 +64,43 @@ module Properties
                 .uniq
                 .sort
                 .take(10)
+    end
+
+    def candidate_scopes
+      [
+        exclude_self(
+          Property.where(state: @params[:state].to_s.strip)
+                  .where('LOWER(property_type) = ?', normalized_property_type)
+                  .where('bedrooms BETWEEN ? AND ?', bedroom_range.begin, bedroom_range.end)
+        ).limit(20),
+        exclude_self(
+          Property.where('LOWER(property_type) IN (?)', comparable_property_types)
+                  .where('bedrooms BETWEEN ? AND ?', bedroom_range.begin, bedroom_range.end)
+        ).limit(20),
+        exclude_self(
+          Property.where(bedrooms: @params[:bedrooms].to_i)
+        ).limit(20)
+      ]
+    end
+
+    def exclude_self(scope)
+      @property ? scope.where.not(id: @property.id) : scope
+    end
+
+    def comparable_property_types
+      families = TYPE_FAMILIES.values.select { |types| types.include?(normalized_property_type) }
+      return [normalized_property_type] if families.empty?
+
+      families.flatten.uniq
+    end
+
+    def normalized_property_type
+      @params[:property_type].to_s.strip.downcase
+    end
+
+    def bedroom_range
+      bedrooms = @params[:bedrooms].to_i
+      (bedrooms - 2)..(bedrooms + 2)
     end
 
     def prompt_for(prices)
