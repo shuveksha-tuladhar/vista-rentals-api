@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm, useFieldArray } from "react-hook-form";
+import { BsStars } from "react-icons/bs";
 import { FaPlus, FaTrash, FaSpinner } from "react-icons/fa6";
 import HostNavbar from "../../components/HostNavbar";
 import { getApi, patchApi, postApi } from "../../utils/api";
@@ -12,6 +13,11 @@ interface PriceSuggestion {
   min: number;
   max: number;
   reasoning: string;
+}
+
+interface PriceSuggestionResponse {
+  data: PriceSuggestion | null;
+  error: string | null;
 }
 
 interface HostListingsResponse {
@@ -174,7 +180,7 @@ const EditListingPage = () => {
     }
 
     setIsSuggestingPrice(true);
-    const response = await postApi<PriceSuggestion>("/host/ai/suggest-price", {
+    const response = await postApi<PriceSuggestionResponse>("/host/ai/suggest-price", {
       property_id: Number(id),
       property_type: watchedPropertyType,
       city: watchedCity,
@@ -185,16 +191,16 @@ const EditListingPage = () => {
     });
     setIsSuggestingPrice(false);
 
-    if (!response.data) {
-      const error = (response as any).error;
-      const errorMsg = typeof error === 'string' 
-        ? error 
+    if (response.error || !response.data?.data) {
+      const error = response.data?.error || response.error;
+      const errorMsg = typeof error === "string"
+        ? error
         : error?.message || "Failed to get price suggestion.";
       addToast({ message: errorMsg, type: "error" });
       return;
     }
 
-    setPriceSuggestion(response.data);
+    setPriceSuggestion(response.data.data);
     setHasRequestedSuggestion(true);
   };
 
@@ -316,32 +322,55 @@ const EditListingPage = () => {
                   onChange={(e) => handlePriceInputChange(e.target.value)}
                   className="w-28 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
                 />
-                <button
-                  type="button"
-                  onClick={suggestPrice}
-                  disabled={isSuggestingPrice}
-                  className="ml-2 px-4 py-2 text-sm bg-gray-100 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                >
-                  {isSuggestingPrice ? (
-                    <>
-                      <FaSpinner className="w-4 h-4 animate-spin" />
-                      Suggesting...
-                    </>
-                  ) : (
-                    "Suggest a Price"
-                  )}
-                </button>
+              </div>
+              <div className="mt-4 border border-gray-200 rounded-xl p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <BsStars className="text-amber-500 text-sm" />
+                      <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">AI pricing help</p>
+                    </div>
+                    <p className="text-sm font-semibold text-gray-900">Get a suggested nightly price range</p>
+                    <p className="text-sm text-gray-600 mt-1">Use AI to estimate pricing from similar listings based on your property details.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={suggestPrice}
+                    disabled={isSuggestingPrice}
+                    className="shrink-0 px-4 py-2 text-sm font-medium bg-white text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    {isSuggestingPrice ? (
+                      <>
+                        <FaSpinner className="w-4 h-4 animate-spin" />
+                        Suggesting...
+                      </>
+                    ) : (
+                      <>
+                        <BsStars className="w-4 h-4 text-amber-500" />
+                        Suggest price using AI
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
               {errors.price && (
                 <p className="text-red-500 text-xs mt-1">{errors.price.message}</p>
               )}
               {hasRequestedSuggestion && priceSuggestion && (
-                <div className="mt-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
-                  <p className="text-sm font-semibold text-gray-900 mb-2">AI Price Suggestion</p>
+                <div className="mt-4 p-4 border border-gray-200 rounded-lg bg-transparent">
+                  <div className="flex items-center gap-1.5 mb-4">
+                    <BsStars className="text-amber-500 text-sm" />
+                    <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+                      AI price suggestion
+                    </p>
+                  </div>
                   <p className="text-lg font-bold text-gray-900 mb-2">
                     ${priceSuggestion.min} – ${priceSuggestion.max} / night
                   </p>
-                  <p className="text-sm text-gray-600">{priceSuggestion.reasoning}</p>
+                  <div className="flex gap-3">
+                    <span className="text-5xl leading-none text-amber-500 select-none mt-1">&ldquo;</span>
+                    <p className="text-sm text-gray-600 leading-relaxed">{priceSuggestion.reasoning}</p>
+                  </div>
                 </div>
               )}
             </div>
