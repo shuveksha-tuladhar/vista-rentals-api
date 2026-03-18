@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_12_100000) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_17_235500) do
   create_table "amenities", force: :cascade do |t|
     t.string "name"
     t.boolean "isActive"
@@ -124,6 +124,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_12_100000) do
     t.integer "rating"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "booking_id"
+    t.index ["booking_id"], name: "index_reviews_on_booking_id", unique: true
     t.index ["property_id"], name: "index_reviews_on_property_id"
     t.index ["user_id"], name: "index_reviews_on_user_id"
   end
@@ -152,6 +154,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_12_100000) do
   add_foreign_key "property_images", "properties"
   add_foreign_key "property_rules", "properties"
   add_foreign_key "property_safety_notes", "properties"
+  add_foreign_key "reviews", "bookings"
   add_foreign_key "reviews", "properties"
   add_foreign_key "reviews", "users"
 end

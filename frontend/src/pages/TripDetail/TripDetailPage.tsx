@@ -10,19 +10,36 @@ import type { TripDetail, ExistingReview } from "./types";
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; classes: string }> = {
-    complete: { label: "Booking Confirmed", classes: "bg-green-100 text-green-800" },
-    pending: { label: "Pending Payment", classes: "bg-yellow-100 text-yellow-800" },
+    complete: {
+      label: "Booking Confirmed",
+      classes: "bg-green-100 text-green-800",
+    },
+    pending: {
+      label: "Pending Payment",
+      classes: "bg-yellow-100 text-yellow-800",
+    },
     failed: { label: "Payment Failed", classes: "bg-red-100 text-red-800" },
   };
-  const { label, classes } = map[status] ?? { label: status, classes: "bg-gray-100 text-gray-700" };
+  const { label, classes } = map[status] ?? {
+    label: status,
+    classes: "bg-gray-100 text-gray-700",
+  };
   return (
-    <span className={`inline-block px-3 py-1 text-xs font-semibold uppercase tracking-wide ${classes}`}>
+    <span
+      className={`inline-block px-3 py-1 text-xs font-semibold uppercase tracking-wide ${classes}`}
+    >
       {label}
     </span>
   );
 }
 
-function StarRating({ rating, onRate }: { rating: number; onRate?: (r: number) => void }) {
+function StarRating({
+  rating,
+  onRate,
+}: {
+  rating: number;
+  onRate?: (r: number) => void;
+}) {
   const [hovered, setHovered] = useState(0);
   return (
     <div className="flex gap-1">
@@ -46,9 +63,11 @@ function StarRating({ rating, onRate }: { rating: number; onRate?: (r: number) =
 }
 
 function ReviewForm({
+  bookingId,
   propertyId,
   onSubmitted,
 }: {
+  bookingId: number;
   propertyId: number;
   onSubmitted: (review: ExistingReview) => void;
 }) {
@@ -59,12 +78,23 @@ function ReviewForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (rating === 0) { setError("Please select a star rating."); return; }
-    if (!text.trim()) { setError("Please write something about your stay."); return; }
+    if (rating === 0) {
+      setError("Please select a star rating.");
+      return;
+    }
+    if (!text.trim()) {
+      setError("Please write something about your stay.");
+      return;
+    }
     setError(null);
     setSubmitting(true);
     const { data, error: err } = await postApi<ExistingReview>("/reviews", {
-      review: { property_id: propertyId, rating, review: text.trim() },
+      review: {
+        booking_id: bookingId,
+        property_id: propertyId,
+        rating,
+        review: text.trim(),
+      },
     });
     setSubmitting(false);
     if (data) {
@@ -114,28 +144,47 @@ export default function TripDetailPage() {
   const { bookingId } = useParams<{ bookingId: string }>();
   const navigate = useNavigate();
   const [trip, setTrip] = useState<TripDetail | null>(null);
-  const [submittedReview, setSubmittedReview] = useState<ExistingReview | null>(null);
+  const [submittedReview, setSubmittedReview] = useState<ExistingReview | null>(
+    null,
+  );
   const { setIsLoading } = useLoader();
 
   useEffect(() => {
     async function fetchTrip() {
       setIsLoading(true);
-      const { data, error } = await getApi<TripDetail>(`/bookings/${bookingId}`);
+      const { data, error } = await getApi<TripDetail>(
+        `/bookings/${bookingId}`,
+      );
       setIsLoading(false);
       if (data) setTrip(data);
-      else { console.error(error); navigate("/trips"); }
+      else {
+        console.error(error);
+        navigate("/trips");
+      }
     }
     fetchTrip();
   }, [bookingId, navigate, setIsLoading]);
 
   if (!trip) return null;
 
-  const { property, start_date, end_date, is_refundable, payment_status, created_at } = trip;
+  const {
+    property,
+    start_date,
+    end_date,
+    is_refundable,
+    payment_status,
+    created_at,
+  } = trip;
   const heroImage = property.property_images?.[0]?.url;
   const checkIn = parseISO(start_date);
   const checkOut = parseISO(end_date);
   const isPastTrip = isPast(checkOut) && payment_status === "complete";
-  const costs = calculateBookingCosts(property.price, checkIn, checkOut, is_refundable);
+  const costs = calculateBookingCosts(
+    property.price,
+    checkIn,
+    checkOut,
+    is_refundable,
+  );
   const existingReview = submittedReview ?? trip.existing_review;
   const hasReview = trip.has_review || !!submittedReview;
 
@@ -153,43 +202,76 @@ export default function TripDetailPage() {
 
       {heroImage && (
         <div className="w-full h-48 overflow-hidden bg-gray-100">
-          <img src={heroImage} alt={property.name} className="w-full h-full object-cover" />
+          <img
+            src={heroImage}
+            alt={property.name}
+            className="w-full h-full object-cover"
+          />
         </div>
       )}
 
       <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="mb-6">
           <StatusBadge status={payment_status} />
-          <h1 className="text-2xl font-semibold text-black mt-3">{property.name}</h1>
-          <p className="text-gray-500 text-sm mt-1">{property.city}, {property.state}</p>
+          <h1 className="text-2xl font-semibold text-black mt-3">
+            {property.name}
+          </h1>
+          <p className="text-gray-500 text-sm mt-1">
+            {property.city}, {property.state}
+          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <div className="border border-gray-200 p-6">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Trip Details</p>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">
+              Trip Details
+            </p>
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wide">Check-in</p>
-                <p className="text-sm font-medium text-black mt-1">{format(checkIn, "MMM d, yyyy")}</p>
+                <p className="text-xs text-gray-400 uppercase tracking-wide">
+                  Check-in
+                </p>
+                <p className="text-sm font-medium text-black mt-1">
+                  {format(checkIn, "MMM d, yyyy")}
+                </p>
               </div>
               <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wide">Check-out</p>
-                <p className="text-sm font-medium text-black mt-1">{format(checkOut, "MMM d, yyyy")}</p>
+                <p className="text-xs text-gray-400 uppercase tracking-wide">
+                  Check-out
+                </p>
+                <p className="text-sm font-medium text-black mt-1">
+                  {format(checkOut, "MMM d, yyyy")}
+                </p>
               </div>
             </div>
             <div className="border-t border-gray-100 pt-4 space-y-2 text-sm text-gray-600">
-              <p><span className="text-gray-400">Nights:</span> {costs.nights}</p>
-              <p><span className="text-gray-400">Booking #:</span> {trip.id}</p>
-              <p><span className="text-gray-400">Booked on:</span> {format(parseISO(created_at), "MMM d, yyyy")}</p>
-              <p><span className="text-gray-400">Cancellation:</span> {is_refundable ? "Free cancellation" : "Non-refundable"}</p>
+              <p>
+                <span className="text-gray-400">Nights:</span> {costs.nights}
+              </p>
+              <p>
+                <span className="text-gray-400">Booking #:</span> {trip.id}
+              </p>
+              <p>
+                <span className="text-gray-400">Booked on:</span>{" "}
+                {format(parseISO(created_at), "MMM d, yyyy")}
+              </p>
+              <p>
+                <span className="text-gray-400">Cancellation:</span>{" "}
+                {is_refundable ? "Free cancellation" : "Non-refundable"}
+              </p>
             </div>
           </div>
 
           <div className="border border-gray-200 p-6">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Price Details</p>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">
+              Price Details
+            </p>
             <div className="space-y-2 text-sm text-gray-700">
               <div className="flex justify-between">
-                <span>${costs.nightlyPrice.toFixed(2)} × {costs.nights} night{costs.nights !== 1 ? "s" : ""}</span>
+                <span>
+                  ${costs.nightlyPrice.toFixed(2)} × {costs.nights} night
+                  {costs.nights !== 1 ? "s" : ""}
+                </span>
                 <span>${costs.baseTotal.toFixed(2)}</span>
               </div>
               {costs.cleaningFee > 0 && (
@@ -220,7 +302,9 @@ export default function TripDetailPage() {
 
         {property.user && (
           <div className="border border-gray-200 p-6 mb-8">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Hosted by</p>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">
+              Hosted by
+            </p>
             <div className="flex items-center gap-4">
               <HostAvatar
                 firstName={property.user.first_name}
@@ -233,7 +317,9 @@ export default function TripDetailPage() {
                   {property.user.first_name} {property.user.last_name}
                 </p>
                 {property.user.host?.bio && (
-                  <p className="text-sm text-gray-500 mt-0.5">{property.user.host.bio}</p>
+                  <p className="text-sm text-gray-500 mt-0.5">
+                    {property.user.host.bio}
+                  </p>
                 )}
               </div>
             </div>
@@ -249,6 +335,7 @@ export default function TripDetailPage() {
               <ReadOnlyReview review={existingReview} />
             ) : (
               <ReviewForm
+                bookingId={trip.id}
                 propertyId={property.id}
                 onSubmitted={(r) => setSubmittedReview(r)}
               />
