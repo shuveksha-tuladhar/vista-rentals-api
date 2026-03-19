@@ -82,3 +82,7 @@ export const AMENITIES_LIST: AmenityEntry[] = [
   { id: "Pets allowed", name: "Pets allowed", icon: FaPaw },
   { id: "Self check-in", name: "Self check-in", icon: FaKey },
 ];
+
+export const amenityIconMap: Record<string, IconType> = Object.fromEntries(
+  AMENITIES_LIST.map((amenity) => [amenity.name, amenity.icon])
+);

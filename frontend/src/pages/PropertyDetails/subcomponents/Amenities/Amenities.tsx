@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FaCheck } from "react-icons/fa6";
+import { amenityIconMap } from "../../../../utils/amenities";
 import type { Amenity } from "./type/AmenityType";
 
 interface AmenitiesProps {
@@ -18,12 +19,16 @@ const Amenities: React.FC<AmenitiesProps> = ({ amenities }) => {
     <section>
       <h2 className="text-xl font-semibold mb-4">What this place offers</h2>
       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-gray-700">
-        {displayedAmenities.map((item, index) => (
-          <li key={index} className="flex items-center">
-            <FaCheck className="mr-2" />
-            {item.name}
-          </li>
-        ))}
+        {displayedAmenities.map((item, index) => {
+          const Icon = amenityIconMap[item.name] ?? FaCheck;
+
+          return (
+            <li key={index} className="flex items-center">
+              <Icon className="mr-2" />
+              {item.name}
+            </li>
+          );
+        })}
       </ul>
 
       {total > 10 && (
