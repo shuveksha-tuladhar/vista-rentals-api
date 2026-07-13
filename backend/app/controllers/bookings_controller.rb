@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Style/Documentation
 class BookingsController < ApplicationController
   before_action :set_booking, only: %i[show update]
 
@@ -18,7 +19,7 @@ class BookingsController < ApplicationController
   # rubocop:disable Metrics/MethodLength
   def show
     average_rating = @booking.property.reviews.average(:rating)&.round(2) || 0.0
-    existing = Review.find_by(user_id: @booking.user_id, property_id: @booking.property_id)
+    existing = @booking.review
 
     booking_json = @booking.as_json(
       include: {
@@ -38,13 +39,14 @@ class BookingsController < ApplicationController
 
     booking_json['property']['rating'] = average_rating
     booking_json['has_review'] = existing.present?
-    booking_json['existing_review'] = existing ? existing.as_json(only: %i[id rating review created_at]) : nil
+    booking_json['existing_review'] = existing&.as_json(only: %i[id rating review created_at])
 
     render json: booking_json
   end
   # rubocop:enable Metrics/MethodLength
 
   # PATCH/PUT /bookings/:id
+  # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
   def update
     status = params[:booking][:payment_token].present? ? 'complete' : 'failed'
     updated_params = booking_params.merge(payment_status: status)
@@ -73,6 +75,7 @@ class BookingsController < ApplicationController
       render json: { errors: @booking.errors.full_messages }, status: :unprocessable_entity
     end
   end
+  # rubocop:enable Metrics/AbcSize,Metrics/MethodLength
 
   # GET /users/:user_id/bookings
   def index_by_user
@@ -115,3 +118,4 @@ class BookingsController < ApplicationController
     }
   end
 end
+# rubocop:enable Style/Documentation

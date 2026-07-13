@@ -6,7 +6,7 @@ import { FaPlus, FaTrash, FaSpinner } from "react-icons/fa6";
 import HostNavbar from "../../components/HostNavbar";
 import { getApi, patchApi, postApi } from "../../utils/api";
 import { useToastStore } from "../../store/toastStore";
-import { AMENITIES_LIST } from "../../utils/amenities";
+import { amenityIconMap } from "../../utils/amenities";
 import type { EditListingFormValues, HostListing } from "./types";
 
 interface PriceSuggestion {
@@ -247,8 +247,6 @@ const EditListingPage = () => {
       </div>
     );
   }
-
-  const iconMap = Object.fromEntries(AMENITIES_LIST.map((a) => [a.name, a.icon]));
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -496,7 +494,7 @@ const EditListingPage = () => {
               <div className="flex flex-wrap gap-2">
                 {amenityOptions.map((amenity) => {
                   const selected = selectedAmenities.includes(amenity.name);
-                  const Icon = iconMap[amenity.name];
+                  const Icon = amenityIconMap[amenity.name];
                   return (
                     <button
                       key={amenity.id}
