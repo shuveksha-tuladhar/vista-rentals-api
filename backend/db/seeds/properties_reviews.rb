@@ -71,6 +71,29 @@ BAD_REVIEWS_1_STAR = [
   'The bed was broken, the entire apartment was filthy, and we found evidence of pests. It was a nightmare. This listing is a health hazard and should be removed from the platform immediately. We have reported it.'
 ].freeze
 
+seed_review = lambda do |property, reviewer, rating, review_text, sequence|
+  duration = rand(2..7)
+  end_date = Time.now - ((sequence + 1) * 30).days
+  start_date = end_date - duration.days
+
+  booking = Booking.create!(
+    user: reviewer,
+    property: property,
+    start_date: start_date,
+    end_date: end_date,
+    payment_status: 'complete'
+  )
+
+  Review.create!(
+    property: property,
+    user: reviewer,
+    booking: booking,
+    rating: rating,
+    review: review_text,
+    created_at: end_date + rand(1..7).days
+  )
+end
+
 if users.any? && properties.any?
   properties.each do |property|
     reputation_seed = rand
@@ -91,16 +114,14 @@ if users.any? && properties.any?
         reviewer = reviewers.pop
         next if !reviewer || property.user_id == reviewer.id
 
-        Review.create!(property: property, user: reviewer, rating: 5, review: EXCELLENT_REVIEWS.sample,
-                       created_at: Time.now - rand(1..365).days)
+        seed_review.call(property, reviewer, 5, EXCELLENT_REVIEWS.sample, created_reviews_count)
         created_reviews_count += 1
       end
       rand(0..2).times do
         reviewer = reviewers.pop
         next if !reviewer || property.user_id == reviewer.id
 
-        Review.create!(property: property, user: reviewer, rating: rand(3..4),
-                       review: (GOOD_REVIEWS + AVERAGE_REVIEWS).sample, created_at: Time.now - rand(1..365).days)
+        seed_review.call(property, reviewer, rand(3..4), (GOOD_REVIEWS + AVERAGE_REVIEWS).sample, created_reviews_count)
         created_reviews_count += 1
       end
 
@@ -109,8 +130,7 @@ if users.any? && properties.any?
         reviewer = reviewers.pop
         next if !reviewer || property.user_id == reviewer.id
 
-        Review.create!(property: property, user: reviewer, rating: 4, review: GOOD_REVIEWS.sample,
-                       created_at: Time.now - rand(1..365).days)
+        seed_review.call(property, reviewer, 4, GOOD_REVIEWS.sample, created_reviews_count)
         created_reviews_count += 1
       end
       rand(1..3).times do
@@ -119,8 +139,7 @@ if users.any? && properties.any?
 
         rating = [3, 5].sample
         review_text = rating == 5 ? EXCELLENT_REVIEWS.sample : AVERAGE_REVIEWS.sample
-        Review.create!(property: property, user: reviewer, rating: rating, review: review_text,
-                       created_at: Time.now - rand(1..365).days)
+        seed_review.call(property, reviewer, rating, review_text, created_reviews_count)
         created_reviews_count += 1
       end
 
@@ -129,8 +148,7 @@ if users.any? && properties.any?
         reviewer = reviewers.pop
         next if !reviewer || property.user_id == reviewer.id
 
-        Review.create!(property: property, user: reviewer, rating: 3, review: AVERAGE_REVIEWS.sample,
-                       created_at: Time.now - rand(1..365).days)
+        seed_review.call(property, reviewer, 3, AVERAGE_REVIEWS.sample, created_reviews_count)
         created_reviews_count += 1
       end
       rand(1..4).times do
@@ -144,8 +162,7 @@ if users.any? && properties.any?
                       when 2 then BAD_REVIEWS_2_STARS.sample
                       when 1 then BAD_REVIEWS_1_STAR.sample
                       end
-        Review.create!(property: property, user: reviewer, rating: rating, review: review_text,
-                       created_at: Time.now - rand(1..365).days)
+        seed_review.call(property, reviewer, rating, review_text, created_reviews_count)
         created_reviews_count += 1
       end
     end

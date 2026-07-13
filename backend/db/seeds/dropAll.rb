@@ -1,5 +1,5 @@
-Booking.delete_all
 Review.delete_all
+Booking.delete_all
 PropertyAmenityMapping.delete_all
 PropertyImage.delete_all
 PropertyRule.delete_all
